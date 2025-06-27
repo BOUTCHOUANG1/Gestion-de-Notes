@@ -7,20 +7,22 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Semesters extends AbstractEntity{
-    private String name;
+public class GradeReport extends AbstractEntity {
 
-    private Boolean active;
 
-    @OneToMany(mappedBy = "semesters")
-    private List<Grades> grades;
+    private Long idStudents;
+
+    private Long  idSemesters;
+
+    private Double gpa;
+
+    private String status;
+
+    private String  pdfPath;
 
 }
