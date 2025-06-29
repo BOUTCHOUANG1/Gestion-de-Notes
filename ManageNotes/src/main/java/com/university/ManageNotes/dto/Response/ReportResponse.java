@@ -1,28 +1,28 @@
 package com.university.ManageNotes.dto.Response;
 
-
 import com.university.ManageNotes.model.AbstractEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClassResponse extends AbstractEntity {
-    private String name;
-    private String level;
+public class ReportResponse extends AbstractEntity {
+
+    private Long studentId;
+    private String studentName;
     private Long semesterId;
     private String semesterName;
-    private List<UserResponse> students;
-    private List<SubjectResponse> subjects;
+    private Double gpa;
+    private String status; // "PASS", "FAIL", "INCOMPLETE"
+    private String pdfPath;
 
-    private Long totalStudents;
-    private Long totalSubjects;
+    private Long generatedBy;
+    private String generatedByName;
+    private String downloadUrl;
 
 
 }

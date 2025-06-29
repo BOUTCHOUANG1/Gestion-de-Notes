@@ -35,6 +35,10 @@ public class Grades extends AbstractEntity{
  private Subject subject;
 
  @ManyToOne
+ @JoinColumn(name = "idUsers")
+ private Users enteredBy;
+
+ @ManyToOne
  @JoinColumn(name = "idSemester")
  private   Semesters semesters;
 
