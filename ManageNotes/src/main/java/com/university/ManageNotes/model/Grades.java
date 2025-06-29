@@ -24,7 +24,7 @@ public class Grades extends AbstractEntity{
  @Column(name = "coefficient")
  private Double coefficient;
 
- @Column(name = "comments")
+ @Column(name = "Comments")
  private String comments;
 
  @ManyToOne
