@@ -48,7 +48,7 @@ public class AuthService {
                 .toList();
 
         return new JwtResponse(jwt, userDetails.getId(), userDetails.getEmail(),
-                              userDetails.getFirstName(), userDetails.getLastName(), roles);
+                userDetails.getFirstName(), userDetails.getLastName(), roles);
     }
 
     public MessageResponse registerUser(SignupRequest signUpRequest) {
@@ -56,11 +56,17 @@ public class AuthService {
             return new MessageResponse("Error: Email is already in use!");
         }
 
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return new MessageResponse("Error: Username is already taken!");
+        }
+
         // Create new user account
         Users user = new Users();
+        user.setUsername(signUpRequest.getUsername());
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
         user.setEmail(signUpRequest.getEmail());
+        user.setPhone(signUpRequest.getPhone());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setActive(true);
 
