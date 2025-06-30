@@ -1,16 +1,9 @@
 package com.university.ManageNotes.dto.Response;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Setter
-@Getter
-@NoArgsConstructor
 public class ValidationErrorResponse extends ErrorResponse {
     private Map<String, List<String>> validationErrors;
 
@@ -18,5 +11,13 @@ public class ValidationErrorResponse extends ErrorResponse {
         super("Validation Failed", "One or more fields have validation errors", 400);
         this.validationErrors = validationErrors;
         this.setTimestamp(LocalDateTime.now());
+    }
+
+    public Map<String, List<String>> getValidationErrors() {
+        return validationErrors;
+    }
+
+    public void setValidationErrors(Map<String, List<String>> validationErrors) {
+        this.validationErrors = validationErrors;
     }
 }

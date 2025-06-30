@@ -20,6 +20,7 @@ public class LoginRequest {
     @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
     private String password;
 
-    // Constructors
-
+    public String getUsername() {
+        return username;
+    }
 }

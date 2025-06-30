@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 public class UserRequest {
 
-
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50)
     private String username;
@@ -34,4 +33,37 @@ public class UserRequest {
 
     private Boolean active = true;
 
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
 }
