@@ -1,14 +1,10 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
 @Setter
+@Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,9 +34,9 @@ public class Grades extends AbstractEntity{
 
  @ManyToOne
  @JoinColumn(name = "idSemester")
- private   Semesters semesters;
+ private Semesters semester;
 
  @Enumerated(EnumType.STRING)
  @Column(name = "gradeType")
- private GradeType gradeType;
+ private GradeType type;
 }
