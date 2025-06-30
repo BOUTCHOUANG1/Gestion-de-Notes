@@ -13,17 +13,19 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
-    private String error;
     private String message;
-    private int status;
+    private String errorCode;
     private LocalDateTime timestamp;
-    private String path;
     private List<FieldError> fieldErrors;
 
-    public ErrorResponse(String error, String message, int status) {
-        this.error = error;
+    public ErrorResponse(String message) {
         this.message = message;
-        this.status = status;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public ErrorResponse(String message, String errorCode) {
+        this.message = message;
+        this.errorCode = errorCode;
         this.timestamp = LocalDateTime.now();
     }
 
