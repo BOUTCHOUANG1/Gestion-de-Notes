@@ -8,12 +8,31 @@ import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.model.GradeType;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Students;
+import com.university.ManageNotes.repository.GradeRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GradeService {
+
+    private final GradeRepository gradeRepository;
+    private final StudentRepository studentRepository;
+    private final SubjectRepository subjectRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public GradeService(GradeRepository gradeRepository, StudentRepository studentRepository, SubjectRepository subjectRepository, UserRepository userRepository) {
+        this.gradeRepository = gradeRepository;
+        this.studentRepository = studentRepository;
+        this.subjectRepository = subjectRepository;
+        this.userRepository = userRepository;
+    }
 
     public MessageResponse addGrade(GradeRequest gradeRequest) {
         try {
@@ -73,12 +92,35 @@ public class GradeService {
     }
 
     public StudentGradesResponse getStudentGrades(Long studentId, Long semesterId) {
-        // Implementation to get student grades
-        return new StudentGradesResponse(); // Placeholder
+        List<Grades> grades;
+        if (semesterId != null) {
+            grades = gradeRepository.findByStudentIdAndSemesterId(studentId, semesterId);
+        } else {
+            grades = gradeRepository.findByStudentId(studentId);
+        }
+
+        List<GradeResponse> gradeResponses = grades.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // You might want to populate other fields of StudentGradesResponse as well
+        StudentGradesResponse response = new StudentGradesResponse();
+        response.setStudentId(studentId);
+        response.setGrades(gradeResponses);
+
+        return response;
     }
 
     public List<GradeResponse> getTeacherGrades() {
         // Implementation to get teacher grades
         return List.of(); // Placeholder
+    }
+
+    public List<Students> getStudentsBySemester(Long semesterId) {
+        List<Grades> grades = gradeRepository.findBySemesterId(semesterId);
+        return grades.stream()
+                .map(Grades::getStudent)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

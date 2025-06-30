@@ -6,22 +6,41 @@ import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.mapper.UserMapper;
+import com.university.ManageNotes.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    public MessageResponse registerUser(SignupRequest signupRequest) {
-        try {
-            // User registration logic here
-            // Check if username exists
-            // Create new user
-            // Save to database
+    @Autowired
+    private UserRepository userRepository;
 
-            return MessageResponse.success("User registered successfully!");
-        } catch (Exception e) {
-            return MessageResponse.error("Registration failed: " + e.getMessage());
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    public MessageResponse registerUser(SignupRequest signupRequest) {
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            return MessageResponse.error("Error: Username is already taken!");
         }
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            return MessageResponse.error("Error: Email is already in use!");
+        }
+
+        // Create new user's account
+        Users user = userMapper.toUser(signupRequest);
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setActive(true);
+
+        userRepository.save(user);
+
+        return MessageResponse.success("User registered successfully!");
     }
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
