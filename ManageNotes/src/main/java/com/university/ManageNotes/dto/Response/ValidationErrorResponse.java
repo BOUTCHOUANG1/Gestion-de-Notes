@@ -3,8 +3,8 @@ package com.university.ManageNotes.dto.Response;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.ErrorResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -14,15 +14,9 @@ import java.util.Map;
 public class ValidationErrorResponse extends ErrorResponse {
     private Map<String, List<String>> validationErrors;
 
-    public ValidationErrorResponse() {
-        super();
-        this.setError("Validation Failed");
-        this.setStatus(400);
-    }
-
     public ValidationErrorResponse(Map<String, List<String>> validationErrors) {
-        this();
+        super("Validation Failed", "One or more fields have validation errors", 400);
         this.validationErrors = validationErrors;
-        this.setMessage("One or more fields have validation errors");
+        this.setTimestamp(LocalDateTime.now());
     }
 }
