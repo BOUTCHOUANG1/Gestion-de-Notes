@@ -38,7 +38,7 @@ public class Users extends AbstractEntity {
     private Role role;
 
     @Column(name = "active")
-    private boolean active;
+    private Boolean active;
 
     @OneToMany(mappedBy = "enteredBy")
     private List<Grades> gradesEntered;
