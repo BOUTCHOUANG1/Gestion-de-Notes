@@ -19,10 +19,6 @@ public class HealthCheckResponse {
     private Long uptime;
     private Map<String, ComponentHealth> components;
 
-    public HealthCheckResponse() {
-        this.timestamp = LocalDateTime.now();
-    }
-
     @Setter
     @Getter
     @AllArgsConstructor

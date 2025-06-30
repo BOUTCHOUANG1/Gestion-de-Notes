@@ -21,17 +21,9 @@ public class JwtResponse {
     private String email;
     private String firstName;
     private String lastName;
+
     private Role role;
     private List<String> authorities;
 
-    // Additional constructor used by AuthService
-    public JwtResponse(String token, Long id, String email, String firstName, String lastName, List<String> authorities) {
-        this.token = token;
-        this.type = "Bearer";
-        this.id = id;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.authorities = authorities;
-    }
+
 }
