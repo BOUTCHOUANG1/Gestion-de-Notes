@@ -22,4 +22,13 @@ public class PasswordChangeRequest {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
 
+    // Convenience methods for backward compatibility
+    public String getOldPassword() {
+        return this.currentPassword;
+    }
+
+    public void setOldPassword(String oldPassword) {
+        this.currentPassword = oldPassword;
+    }
+
 }
