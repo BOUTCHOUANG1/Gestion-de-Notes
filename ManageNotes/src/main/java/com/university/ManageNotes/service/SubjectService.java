@@ -4,6 +4,8 @@ import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.model.Subject;
+import com.university.ManageNotes.repository.SubjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,18 +13,19 @@ import java.util.List;
 @Service
 public class SubjectService {
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
     public List<SubjectResponse> getAllSubjects() {
-        // Implementation to get all subjects
-        return List.of(); // Placeholder
+        return subjectRepository.findAllOrderByName().stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
     public SubjectResponse getSubjectById(Long subjectId) {
-        // Implementation to get subject by ID
-        SubjectResponse response = new SubjectResponse();
-        response.setId(subjectId);
-        response.setName("Mathematics");
-        response.setCode("MATH101");
-        return response;
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        return convertToResponse(subject);
     }
 
     public MessageResponse createSubject(SubjectRequest subjectRequest) {
