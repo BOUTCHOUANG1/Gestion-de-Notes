@@ -40,7 +40,7 @@ public class SubjectService {
             subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
             subject.setIdTeacher(subjectRequest.getTeacherId());
             subjectRepository.save(subject);
-            return MessageResponse.success("Subject created successfully");
+            return new com.university.ManageNotes.dto.Response.MessageResponse("Subject created successfully","SUCCESS",convertToResponse(subject));
         } catch (Exception e) {
             return MessageResponse.error("Failed to create subject: " + e.getMessage());
         }
@@ -59,7 +59,7 @@ public class SubjectService {
             subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
             subject.setIdTeacher(subjectRequest.getTeacherId());
             subjectRepository.save(subject);
-            return MessageResponse.success("Subject updated successfully");
+            return new com.university.ManageNotes.dto.Response.MessageResponse("Subject updated successfully","SUCCESS",convertToResponse(subject));
         } catch (Exception e) {
             return MessageResponse.error("Failed to update subject: " + e.getMessage());
         }
