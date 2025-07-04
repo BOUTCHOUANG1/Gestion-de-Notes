@@ -71,11 +71,18 @@ public class AuthService {
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
             Users userDetails = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-            return new JwtResponse(jwt,
-                    "Bearer",
-                    userDetails.getUsername(),
-                    userDetails.getEmail(),
-                    userDetails.getRole());
+            JwtResponse jwtResponse = new JwtResponse();
+            jwtResponse.setToken(jwt);
+            jwtResponse.setType("Bearer");
+            jwtResponse.setId(userDetails.getId());
+            jwtResponse.setUsername(userDetails.getUsername());
+            jwtResponse.setEmail(userDetails.getEmail());
+            jwtResponse.setFirstName(userDetails.getFirstName());
+            jwtResponse.setLastName(userDetails.getLastName());
+            jwtResponse.setRole(userDetails.getRole());
+            jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(a -> a.getAuthority()).toList());
+            // refreshToken generation can be added later
+            return jwtResponse;
         } else {
             throw new RuntimeException("Error: User not authenticated.");
         }
