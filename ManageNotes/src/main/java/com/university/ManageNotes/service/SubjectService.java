@@ -30,7 +30,16 @@ public class SubjectService {
 
     public MessageResponse createSubject(SubjectRequest subjectRequest) {
         try {
-            // Implementation to create subject
+            if (subjectRepository.existsByCode(subjectRequest.getCode())) {
+                return MessageResponse.error("Subject code already exists");
+            }
+            Subject subject = new Subject();
+            subject.setName(subjectRequest.getName());
+            subject.setCode(subjectRequest.getCode());
+            subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
+            subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
+            subject.setIdTeacher(subjectRequest.getTeacherId());
+            subjectRepository.save(subject);
             return MessageResponse.success("Subject created successfully");
         } catch (Exception e) {
             return MessageResponse.error("Failed to create subject: " + e.getMessage());
@@ -39,7 +48,17 @@ public class SubjectService {
 
     public MessageResponse updateSubject(Long subjectId, SubjectRequest subjectRequest) {
         try {
-            // Implementation to update subject
+            Subject subject = subjectRepository.findById(subjectId)
+                    .orElseThrow(() -> new RuntimeException("Subject not found"));
+            if (!subject.getCode().equals(subjectRequest.getCode()) && subjectRepository.existsByCode(subjectRequest.getCode())) {
+                return MessageResponse.error("Subject code already exists");
+            }
+            subject.setName(subjectRequest.getName());
+            subject.setCode(subjectRequest.getCode());
+            subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
+            subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
+            subject.setIdTeacher(subjectRequest.getTeacherId());
+            subjectRepository.save(subject);
             return MessageResponse.success("Subject updated successfully");
         } catch (Exception e) {
             return MessageResponse.error("Failed to update subject: " + e.getMessage());
@@ -48,7 +67,10 @@ public class SubjectService {
 
     public MessageResponse deleteSubject(Long subjectId) {
         try {
-            // Implementation to delete subject
+            if (!subjectRepository.existsById(subjectId)) {
+                return MessageResponse.error("Subject not found");
+            }
+            subjectRepository.deleteById(subjectId);
             return MessageResponse.success("Subject deleted successfully");
         } catch (Exception e) {
             return MessageResponse.error("Failed to delete subject: " + e.getMessage());
