@@ -3,21 +3,21 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.ReportRequest;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.ReportRecord;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.model.ReportRecord;
 import com.university.ManageNotes.repository.*;
+import com.university.ManageNotes.repository.GradeRepository;
+import com.university.ManageNotes.repository.ReportRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.List;
+import java.time.Instant;
+import java.nio.file.*;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Transactional
