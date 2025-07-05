@@ -2,6 +2,7 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.dto.Response.UserProfileResponse;
 import com.university.ManageNotes.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,22 +27,48 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
-    public Users me(Authentication authentication) {
+    public com.university.ManageNotes.dto.Response.UserProfileResponse me(Authentication authentication) {
         String username = authentication.getName();
-        return userRepository.findByUsername(username).orElseThrow();
+        var user = userRepository.findByUsername(username).orElseThrow();
+        return com.university.ManageNotes.dto.Response.UserProfileResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
 
     @GetMapping("/students")
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @Operation(summary = "List all students")
-    public List<Users> students() {
-        return userRepository.findByRole(Role.STUDENT);
+    public java.util.List<UserProfileResponse> students() {
+        return userRepository.findByRole(Role.STUDENT).stream()
+                .map(u -> UserProfileResponse.builder()
+                        .id(u.getId())
+                        .username(u.getUsername())
+                        .firstName(u.getFirstName())
+                        .lastName(u.getLastName())
+                        .email(u.getEmail())
+                        .role(u.getRole())
+                        .build())
+                .toList();
     }
 
     @GetMapping("/teachers")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List all teachers")
-    public List<Users> teachers() {
-        return userRepository.findByRole(Role.TEACHER);
+    public java.util.List<UserProfileResponse> teachers() {
+        return userRepository.findByRole(Role.TEACHER).stream()
+                .map(u -> UserProfileResponse.builder()
+                        .id(u.getId())
+                        .username(u.getUsername())
+                        .firstName(u.getFirstName())
+                        .lastName(u.getLastName())
+                        .email(u.getEmail())
+                        .role(u.getRole())
+                        .build())
+                .toList();
     }
 }

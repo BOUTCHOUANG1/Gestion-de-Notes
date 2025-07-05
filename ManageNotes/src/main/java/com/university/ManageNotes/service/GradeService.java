@@ -5,14 +5,9 @@ import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
-import com.university.ManageNotes.model.GradeType;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Students;
-import com.university.ManageNotes.repository.GradeRepository;
-import com.university.ManageNotes.repository.StudentRepository;
-import com.university.ManageNotes.repository.SubjectRepository;
-import com.university.ManageNotes.repository.UserRepository;
-import com.university.ManageNotes.repository.SemesterRepository;
+import com.university.ManageNotes.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -154,10 +149,26 @@ public class GradeService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
 
-        // You might want to populate other fields of StudentGradesResponse as well
         StudentGradesResponse response = new StudentGradesResponse();
         response.setStudentId(studentId);
+        var studentOpt = studentRepository.findById(studentId);
+        studentOpt.ifPresent(s -> response.setStudentName(s.getFirstName() + " " + s.getLastName()));
+        if (semesterId != null) {
+            var semOpt = semesterRepository.findById(semesterId);
+            semOpt.ifPresent(se -> {
+                response.setSemesterId(se.getId());
+                response.setSemesterName(se.getName());
+            });
+        }
         response.setGrades(gradeResponses);
+
+        // simple GPA calculation
+        if (!grades.isEmpty()) {
+            double total = grades.stream().mapToDouble(g -> g.getValue() * g.getCoefficient()).sum();
+            double coeffSum = grades.stream().mapToDouble(Grades::getCoefficient).sum();
+            if (coeffSum > 0)
+                response.setGpa(Math.round((total / coeffSum) * 100.0) / 100.0);
+        }
 
         return response;
     }
