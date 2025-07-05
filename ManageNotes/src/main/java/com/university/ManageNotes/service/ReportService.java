@@ -116,8 +116,6 @@ public class ReportService {
             Users currentUser = authService.getCurrentUser();
             response.setGeneratedBy(currentUser.getId());
             response.setGeneratedByName(currentUser.getFirstName() + " " + currentUser.getLastName());
-            response.setSuccess(true);
-            response.setMessage("Report generated successfully");
 
             // generate pdf
             byte[] pdf = generatePDFReport(student, grades, "Student Report");
@@ -129,19 +127,19 @@ public class ReportService {
             response.setPdfPath(filePath.toString());
             response.setDownloadUrl("/files/" + fileName);
 
-            // persist
-            ReportRecord rec = new ReportRecord();
-            rec.setStudentId(response.getStudentId());
-            rec.setSemesterId(response.getSemesterId());
-            rec.setSubjectId(response.getSubjectId());
-            rec.setClassId(response.getClassId());
-            rec.setReportType(response.getReportType());
-            rec.setGpa(response.getGpa());
-            rec.setStatus(response.getStatus());
-            rec.setPdfPath(response.getPdfPath());
-            rec.setDownloadUrl(response.getDownloadUrl());
-            rec.setGeneratedBy(response.getGeneratedBy());
-            ReportRecord saved = reportRecordRepository.save(rec);
+            // Persist report record in database
+            ReportRecord record = new ReportRecord();
+            record.setStudentId(response.getStudentId());
+            record.setSemesterId(response.getSemesterId());
+            record.setSubjectId(response.getSubjectId());
+            record.setClassId(response.getClassId());
+            record.setReportType(response.getReportType());
+            record.setGpa(response.getGpa());
+            record.setStatus(response.getStatus());
+            record.setPdfPath(response.getPdfPath());
+            record.setDownloadUrl(response.getDownloadUrl());
+            record.setGeneratedBy(response.getGeneratedBy());
+            ReportRecord saved = reportRecordRepository.save(record);
             reportRecordRepository.flush();
             response.setId(saved.getId());
 
