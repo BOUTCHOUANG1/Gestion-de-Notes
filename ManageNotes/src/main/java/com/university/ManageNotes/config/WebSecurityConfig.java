@@ -84,6 +84,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api-docs/**", "/api-docs", "/api-docs/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs/swagger-config", "/swagger-ui/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs").permitAll()
+                        .requestMatchers("/files/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/teacher/**").hasRole("TEACHER")
                         .requestMatchers("/api/student/**").hasRole("STUDENT")
