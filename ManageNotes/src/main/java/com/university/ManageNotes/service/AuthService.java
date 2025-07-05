@@ -8,6 +8,8 @@ import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -36,6 +39,9 @@ public class AuthService {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private StudentRepository studentRepository;
+
     public MessageResponse registerUser(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return MessageResponse.error("Error: Username is already taken!");
@@ -51,6 +57,15 @@ public class AuthService {
         user.setActive(true);
 
         Users saved = userRepository.save(user);
+
+        if (saved.getRole() == Role.STUDENT) {
+            Students student = new Students();
+            student.setFirstName(saved.getFirstName());
+            student.setLastName(saved.getLastName());
+            student.setEmail(saved.getEmail());
+            student.setStudentNumber(UUID.randomUUID().toString());
+            studentRepository.save(student);
+        }
 
         return new MessageResponse(
                 "User registered successfully!",
