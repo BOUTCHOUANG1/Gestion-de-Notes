@@ -29,7 +29,7 @@ public class SubjectRequest {
     private Integer credits = 1;
 
     @DecimalMin(value = "0.1", message = "Coefficient must be at least 0.1")
-    @DecimalMax(value = "5.0", message = "Coefficient must not exceed 5.0")
+    @DecimalMax(value = "100.0", message = "Coefficient must not exceed 100.0")
     private Double coefficient = 1.0;
 
     @NotNull(message = "Teacher ID is required")
@@ -37,8 +37,4 @@ public class SubjectRequest {
 
     private Boolean active = true;
 
-
-
 }
-
-

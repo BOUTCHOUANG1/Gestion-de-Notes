@@ -25,6 +25,12 @@ public class Subject extends AbstractEntity{
      @Column(name = "idTeacher")
      private Long idTeacher;
 
+     @Column(name = "description", length = 500)
+     private String description;
+
+     @Column(name = "active")
+     private Boolean active = true;
+
      @OneToMany(mappedBy = "subject")
      private List<Grades> grades;
 
@@ -58,6 +64,22 @@ public class Subject extends AbstractEntity{
 
      public void setCoefficient(BigDecimal coefficient) {
           this.coefficient = coefficient;
+     }
+
+     public String getDescription() {
+          return description;
+     }
+
+     public void setDescription(String description) {
+          this.description = description;
+     }
+
+     public Boolean getActive() {
+          return active;
+     }
+
+     public void setActive(Boolean active) {
+          this.active = active;
      }
 
      public Long getIdTeacher() {

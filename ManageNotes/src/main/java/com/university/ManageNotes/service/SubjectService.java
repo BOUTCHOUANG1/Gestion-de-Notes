@@ -38,6 +38,8 @@ public class SubjectService {
             subject.setCode(subjectRequest.getCode());
             subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
             subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
+            subject.setDescription(subjectRequest.getDescription());
+            subject.setActive(subjectRequest.getActive());
             subject.setIdTeacher(subjectRequest.getTeacherId());
             subjectRepository.save(subject);
             return new com.university.ManageNotes.dto.Response.MessageResponse("Subject created successfully","SUCCESS",convertToResponse(subject));
@@ -57,6 +59,8 @@ public class SubjectService {
             subject.setCode(subjectRequest.getCode());
             subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
             subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
+            subject.setDescription(subjectRequest.getDescription());
+            subject.setActive(subjectRequest.getActive());
             subject.setIdTeacher(subjectRequest.getTeacherId());
             subjectRepository.save(subject);
             return new com.university.ManageNotes.dto.Response.MessageResponse("Subject updated successfully","SUCCESS",convertToResponse(subject));
@@ -94,6 +98,8 @@ public class SubjectService {
         response.setCode(subject.getCode());
         response.setCredits(subject.getCredits());
         response.setCoefficient(subject.getCoefficient());
+        response.setDescription(subject.getDescription());
+        response.setActive(subject.getActive());
         return response;
     }
 }
