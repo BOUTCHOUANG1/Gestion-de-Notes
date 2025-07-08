@@ -45,20 +45,40 @@ public class ReportService {
     private ReportRecordRepository reportRecordRepository;
 
     public byte[] generatePDFReport(Students student, List<Grades> grades, String reportTitle) throws IOException {
-        try {
-            // Get current user for audit purposes
-            Users currentUser = authService.getCurrentUser();
+        // Use PDFBox to create a basic PDF so that viewers recognise the file
+        try (var document = new org.apache.pdfbox.pdmodel.PDDocument();
+             var out = new java.io.ByteArrayOutputStream()) {
+            var page = new org.apache.pdfbox.pdmodel.PDPage();
+            document.addPage(page);
 
-            // Create PDF document
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            // Simulate PDF generation (replace with actual PDF library like iText or Apache PDFBox)
-            String pdfContent = generatePDFContent(student, grades, reportTitle, currentUser);
-            outputStream.write(pdfContent.getBytes());
-
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new IOException("Error generating PDF report: " + e.getMessage());
+            var font = org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA;
+            try (var content = new org.apache.pdfbox.pdmodel.PDPageContentStream(document, page)) {
+                content.beginText();
+                content.setFont(font, 14);
+                content.newLineAtOffset(50, 750);
+                content.showText(reportTitle);
+                content.newLineAtOffset(0, -30);
+                if (student != null) {
+                    content.showText("Student: " + student.getFirstName() + " " + student.getLastName());
+                    content.newLineAtOffset(0, -20);
+                    String semesterName = !grades.isEmpty() ? grades.get(0).getSemesters().getName() : "N/A";
+                    String subjectName = !grades.isEmpty() ? grades.get(0).getSubject().getName() : "N/A";
+                    content.showText("Semester: " + semesterName);
+                    content.newLineAtOffset(0, -20);
+                    content.showText("Subject: " + subjectName);
+                    content.newLineAtOffset(0, -30);
+                }
+                if (grades != null && !grades.isEmpty()) {
+                    content.showText("Type  |  Score  |  Coeff");
+                    for (Grades g : grades) {
+                        content.newLineAtOffset(0, -16);
+                        content.showText(g.getGradeType().name() + "    " + g.getValue() + "    " + g.getCoefficient());
+                    }
+                }
+                content.endText();
+            }
+            document.save(out);
+            return out.toByteArray();
         }
     }
 
@@ -126,6 +146,11 @@ public class ReportService {
             Files.write(filePath, pdf);
             response.setPdfPath(filePath.toString());
             response.setDownloadUrl("/files/" + fileName);
+            response.setLastModifiedDate(Instant.now());
+            // dummy class info until proper mapping
+            if (student.getLevel() != null) {
+                response.setClassName(student.getLevel());
+            }
 
             // Persist report record in database
             ReportRecord record = new ReportRecord();
@@ -139,6 +164,7 @@ public class ReportService {
             record.setPdfPath(response.getPdfPath());
             record.setDownloadUrl(response.getDownloadUrl());
             record.setGeneratedBy(response.getGeneratedBy());
+            record.setLastModifiedDate(response.getLastModifiedDate());
             ReportRecord saved = reportRecordRepository.save(record);
             reportRecordRepository.flush();
             response.setId(saved.getId());
@@ -216,6 +242,24 @@ public class ReportService {
             Files.write(filePath, pdf);
             response.setPdfPath(filePath.toString());
             response.setDownloadUrl("/files/" + fileName);
+            response.setLastModifiedDate(response.getCreatedDate());
+
+            // Persist record similar to student report
+            ReportRecord record = new ReportRecord();
+            record.setStudentId(response.getStudentId());
+            record.setSemesterId(response.getSemesterId());
+            record.setSubjectId(response.getSubjectId());
+            record.setClassId(response.getClassId());
+            record.setReportType(response.getReportType());
+            record.setGpa(response.getGpa());
+            record.setStatus(response.getStatus());
+            record.setPdfPath(response.getPdfPath());
+            record.setDownloadUrl(response.getDownloadUrl());
+            record.setGeneratedBy(response.getGeneratedBy());
+            record.setLastModifiedDate(response.getLastModifiedDate());
+            ReportRecord saved = reportRecordRepository.save(record);
+            reportRecordRepository.flush();
+            response.setId(saved.getId());
 
             response.setSuccess(true);
             response.setMessage("Subject report generated successfully");

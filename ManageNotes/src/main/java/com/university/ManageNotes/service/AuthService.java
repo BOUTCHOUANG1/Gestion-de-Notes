@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
@@ -42,16 +43,32 @@ public class AuthService {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private InviteService inviteService;
+
     public MessageResponse registerUser(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return MessageResponse.error("Error: Username is already taken!");
         }
-
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             return MessageResponse.error("Error: Email is already in use!");
         }
 
-        // Create new user's account
+        Role requestedRole = signupRequest.getRole();
+        if (requestedRole == null) {
+            requestedRole = Role.STUDENT;
+            signupRequest.setRole(requestedRole);
+        }
+
+        // privileged roles must present a valid invite token
+        if (requestedRole != Role.STUDENT) {
+            try {
+                inviteService.consumeToken(signupRequest.getRegistrationKey(), requestedRole);
+            } catch (RuntimeException ex) {
+                return MessageResponse.error(ex.getMessage());
+            }
+        }
+
         Users user = userMapper.toUser(signupRequest);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setActive(true);
@@ -96,8 +113,18 @@ public class AuthService {
             jwtResponse.setLastName(userDetails.getLastName());
             jwtResponse.setRole(userDetails.getRole());
             jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(a -> a.getAuthority()).toList());
-            // refreshToken generation can be added later
             return jwtResponse;
+        } else {
+            throw new RuntimeException("Error: User not authenticated.");
+        }
+    }
+
+    public Users getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Error: User is not found."));
         } else {
             throw new RuntimeException("Error: User not authenticated.");
         }
@@ -115,27 +142,5 @@ public class AuthService {
         userRepository.save(user);
 
         return MessageResponse.success("Password changed successfully!");
-    }
-
-    public Users getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            return userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Error: User is not found."));
-        } else {
-            throw new RuntimeException("Error: User not authenticated.");
-        }
-    }
-
-    public String getCurrentUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
     }
 }
