@@ -140,17 +140,22 @@ public class ReportService {
             java.util.List<com.university.ManageNotes.dto.Response.GradeResponse> gradeDtos = grades.stream().map(this::mapGrade).toList();
             response.setGrades(gradeDtos);
 
-            // compute gpa
-            double gpa = 0;
-            if (!grades.isEmpty()) {
-                double total = grades.stream().mapToDouble(Grades::getValue).sum();
-                gpa = Math.round((total / grades.size()) * 100.0) / 100.0;
+            // compute semester average based on distinct subjects (one score per subject)
+            java.util.Map<Long, java.util.DoubleSummaryStatistics> subjectStats = grades.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(),
+                            java.util.stream.Collectors.summarizingDouble(com.university.ManageNotes.model.Grades::getValue)));
+            double semesterAvg = 0;
+            if (!subjectStats.isEmpty()) {
+                double totalSubjectScores = subjectStats.values().stream().mapToDouble(java.util.DoubleSummaryStatistics::getAverage).sum();
+                semesterAvg = Math.round((totalSubjectScores / subjectStats.size()) * 100.0) / 100.0;
             }
+            double gpa = semesterAvg;
+            response.setGpa(gpa);
 
-            // compute creditsEarned
-            int creditsEarned = grades.stream()
-                    .filter(g -> g.getValue() >= 10)
-                    .map(g -> g.getSubject().getCredits().intValue())
+            // compute credits earned (validated) for the semester based on distinct subjects >=10
+            int creditsEarned = subjectStats.entrySet().stream()
+                    .filter(e -> e.getValue().getAverage() >= 10)
+                    .map(e -> grades.stream().filter(g -> g.getSubject().getId().equals(e.getKey())).findFirst().get().getSubject().getCredits().intValue())
                     .reduce(0, Integer::sum);
             response.setCreditsEarned(creditsEarned);
 
@@ -164,32 +169,36 @@ public class ReportService {
             // compute annual average across two semesters
             var semesters = semesterRepository.findAll();
             if (semesters.size() >= 2) {
-                double avgS1 = 0, avgS2 = 0;
-                int subjCountS1 = 0, subjCountS2 = 0;
                 var sem1 = semesters.get(0);
                 var sem2 = semesters.get(1);
                 var gradesS1 = gradeRepository.findByStudentIdAndSemesterId(studentId, sem1.getId());
                 var gradesS2 = gradeRepository.findByStudentIdAndSemesterId(studentId, sem2.getId());
-                if (!gradesS1.isEmpty()) {
-                    avgS1 = gradesS1.stream().mapToDouble(Grades::getValue).average().orElse(0);
-                    subjCountS1 = gradesS1.size();
-                }
-                if (!gradesS2.isEmpty()) {
-                    avgS2 = gradesS2.stream().mapToDouble(Grades::getValue).average().orElse(0);
-                    subjCountS2 = gradesS2.size();
-                }
+
+                // compute averages per semester using distinct subjects
+                java.util.function.Function<java.util.List<com.university.ManageNotes.model.Grades>, java.lang.Double> calcAvg = list -> {
+                    if (list.isEmpty()) return 0.0;
+                    java.util.Map<Long, java.util.DoubleSummaryStatistics> stats = list.stream().collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(), java.util.stream.Collectors.summarizingDouble(com.university.ManageNotes.model.Grades::getValue)));
+                    double tot = stats.values().stream().mapToDouble(java.util.DoubleSummaryStatistics::getAverage).sum();
+                    return tot / stats.size();
+                };
+                double avgS1 = calcAvg.apply(gradesS1);
+                double avgS2 = calcAvg.apply(gradesS2);
+
                 double annualAvg = ((avgS1 + avgS2) / 2.0);
                 response.setAnnualAverage(Math.round(annualAvg * 100.0)/100.0);
 
-                // compute academic-year credits validated (>=10 in each semester)
-                int creditsYear = java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
-                        .filter(g -> g.getValue() >= 10)
-                        .map(g -> g.getSubject().getCredits().intValue())
-                        .reduce(0, Integer::sum);
+                // compute academic-year credits validated (>=10 per subject)
+                java.util.Map<Long,Integer> subjectCreditsMap = new java.util.HashMap<>();
+                java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
+                        .forEach(g -> subjectCreditsMap.putIfAbsent(g.getSubject().getId(), g.getSubject().getCredits().intValue()));
+                java.util.Set<Long> validatedSubjects = java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
+                        .collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(), java.util.stream.Collectors.averagingDouble(com.university.ManageNotes.model.Grades::getValue)))
+                        .entrySet().stream().filter(e -> e.getValue() >= 10).map(java.util.Map.Entry::getKey).collect(java.util.stream.Collectors.toSet());
+                int creditsYear = validatedSubjects.stream().map(subjectCreditsMap::get).reduce(0, Integer::sum);
                 response.setCreditsEarned(creditsYear);
 
-                // promotion rule: at least 55 credits out of 60
-                response.setStatus(creditsYear >= 55 ? "PROMOTED" : "RETAKE");
+                // promotion rule: at least 55 credits out of 60 and annual average >=10
+                response.setStatus((creditsYear >= 55 && response.getAnnualAverage() >= 10) ? "PROMOTED" : "RETAKE");
 
                 response.setReportType("STUDENT_GRADES");
                 response.setCreatedDate(Instant.now());
