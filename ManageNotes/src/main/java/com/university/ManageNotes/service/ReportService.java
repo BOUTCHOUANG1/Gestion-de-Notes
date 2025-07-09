@@ -206,40 +206,42 @@ public class ReportService {
                 response.setGeneratedBy(currentUser.getId());
                 response.setGeneratedByName(currentUser.getFirstName() + " " + currentUser.getLastName());
 
-                // generate pdf
-                byte[] pdf = generatePDFReport(student, grades, "Student Report");
-                Path dir = Paths.get("generated-reports");
-                Files.createDirectories(dir);
-                String fileName = "student_" + studentId + "_sem_" + semester.getId() + "_" + Instant.now().toEpochMilli() + ".pdf";
-                Path filePath = dir.resolve(fileName);
-                Files.write(filePath, pdf);
-                response.setPdfPath(filePath.toString());
-                response.setDownloadUrl("/files/" + fileName);
-                response.setLastModifiedDate(Instant.now());
+                if (Boolean.TRUE.equals(reportRequest.getIncludePdf())) {
+                    // generate pdf
+                    byte[] pdf = generatePDFReport(student, grades, "Student Report");
+                    Path dir = Paths.get("generated-reports");
+                    Files.createDirectories(dir);
+                    String fileName = "student_" + studentId + "_sem_" + semester.getId() + "_" + Instant.now().toEpochMilli() + ".pdf";
+                    Path filePath = dir.resolve(fileName);
+                    Files.write(filePath, pdf);
+                    response.setPdfPath(filePath.toString());
+                    response.setDownloadUrl("/files/" + fileName);
+                    response.setLastModifiedDate(Instant.now());
 
-                // email to parent/student
-                try {
-                    emailService.sendMessageWithAttachment(
-                            student.getEmail(),
-                            "Grade Report",
-                            "Dear Parent,\n\nPlease find attached the latest grade report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
-                } catch (Exception ignored) {}
+                    // email to parent/student
+                    try {
+                        emailService.sendMessageWithAttachment(
+                                student.getEmail(),
+                                "Grade Report",
+                                "Dear Parent,\n\nPlease find attached the latest grade report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
+                    } catch (Exception ignored) {}
 
-                // Persist report record in database
-                ReportRecord record = new ReportRecord();
-                record.setStudentId(response.getStudentId());
-                record.setSemesterId(response.getSemesterId());
-                record.setSubjectId(response.getSubjectId());
-                record.setReportType(response.getReportType());
-                record.setGpa(response.getGpa());
-                record.setStatus(response.getStatus());
-                record.setPdfPath(response.getPdfPath());
-                record.setDownloadUrl(response.getDownloadUrl());
-                record.setGeneratedBy(response.getGeneratedBy());
-                record.setLastModifiedDate(response.getLastModifiedDate());
-                ReportRecord saved = reportRecordRepository.save(record);
-                reportRecordRepository.flush();
-                response.setId(saved.getId());
+                    // Persist report record in database
+                    ReportRecord record = new ReportRecord();
+                    record.setStudentId(response.getStudentId());
+                    record.setSemesterId(response.getSemesterId());
+                    record.setSubjectId(response.getSubjectId());
+                    record.setReportType(response.getReportType());
+                    record.setGpa(response.getGpa());
+                    record.setStatus(response.getStatus());
+                    record.setPdfPath(response.getPdfPath());
+                    record.setDownloadUrl(response.getDownloadUrl());
+                    record.setGeneratedBy(response.getGeneratedBy());
+                    record.setLastModifiedDate(response.getLastModifiedDate());
+                    ReportRecord saved = reportRecordRepository.save(record);
+                    reportRecordRepository.flush();
+                    response.setId(saved.getId());
+                }
 
                 return response;
             }
@@ -380,5 +382,17 @@ public class ReportService {
         }
 
         return csvContent.toString().getBytes();
+    }
+
+    public ReportResponse getStudentYearSummary(Long studentId) {
+        ReportRequest dummy = new ReportRequest();
+        dummy.setStudentId(studentId);
+        // we assume semesters table has at least two entries ordered
+        var semesters = semesterRepository.findAll();
+        if (semesters.size() >= 2) {
+            dummy.setSemesterId(semesters.get(0).getId()); // any non-null to satisfy validation
+        }
+        dummy.setIncludePdf(false);
+        return generateStudentReport(studentId, dummy);
     }
 }

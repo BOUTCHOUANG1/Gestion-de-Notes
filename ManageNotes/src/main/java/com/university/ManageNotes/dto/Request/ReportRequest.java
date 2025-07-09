@@ -23,6 +23,7 @@ public class ReportRequest {
     private String format; // "PDF", "EXCEL"
     private List<Long> subjectIds; // Optional: specific subjects only
     private Boolean includeComments = true;
+    private Boolean includePdf = false;
     private String recipientEmail; // For email delivery
 
 

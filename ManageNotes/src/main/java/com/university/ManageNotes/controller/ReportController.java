@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.ReportRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.service.ReportService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -99,6 +100,17 @@ public class ReportController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Failed to retrieve analytics: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/student/{studentId}/year-summary")
+    @Operation(summary = "Get student year summary", description = "Return calculated averages and credits without generating/storing PDF")
+    public ResponseEntity<?> getStudentYearSummary(@PathVariable Long studentId) {
+        try {
+            var resp = reportService.getStudentYearSummary(studentId);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new com.university.ManageNotes.dto.Response.MessageResponse("Error generating summary: " + e.getMessage(), "ERROR"));
         }
     }
 }
