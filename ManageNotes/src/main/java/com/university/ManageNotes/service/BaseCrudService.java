@@ -9,16 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public abstract class BaseCrudService<E, ID, Req, Res> {
 
     protected final JpaRepository<E, ID> repository;
     protected final BaseMapper<E, Req, Res> mapper;
 
+    @Transactional(readOnly = true)
     public List<Res> getAll() {
         return repository.findAll().stream().map(mapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public Res getById(ID id) {
         E entity = repository.findById(id).orElseThrow(() -> new RuntimeException("Resource not found"));
         return mapper.toResponse(entity);

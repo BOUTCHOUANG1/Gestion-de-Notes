@@ -40,4 +40,7 @@ public class SignupRequest {
     private String registrationKey;
 
     private Role role;
+
+    // Optional academic level/class for students
+    private String level;
 }

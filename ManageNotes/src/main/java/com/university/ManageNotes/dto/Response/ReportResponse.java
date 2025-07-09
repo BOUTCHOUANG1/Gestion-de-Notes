@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -14,6 +16,7 @@ public class ReportResponse extends AbstractEntity {
 
     private Long studentId;
     private String studentName;
+    private String level;
     private Long semesterId;
     private String semesterName;
     private Double gpa;
@@ -21,6 +24,9 @@ public class ReportResponse extends AbstractEntity {
     private String status; // "PASS", "FAIL", "INCOMPLETE"
     private String pdfPath;
     private Integer creditsEarned;
+
+    // Detailed grade information for the report
+    private List<GradeResponse> grades;
 
     private Long generatedBy;
     private String generatedByName;

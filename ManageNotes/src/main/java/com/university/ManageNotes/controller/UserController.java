@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +26,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private com.university.ManageNotes.repository.StudentRepository studentRepository;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
@@ -70,5 +75,24 @@ public class UserController {
                         .role(u.getRole())
                         .build())
                 .toList();
+    }
+
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a user by ID (Admin only)")
+    public com.university.ManageNotes.dto.Response.MessageResponse deleteUser(@PathVariable Long id) {
+        var userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return com.university.ManageNotes.dto.Response.MessageResponse.error("User not found");
+        }
+        var user = userOpt.get();
+
+        // If the user is a student, also remove the corresponding student record
+        if (user.getRole() == Role.STUDENT) {
+            studentRepository.findByEmail(user.getEmail()).ifPresent(studentRepository::delete);
+        }
+
+        userRepository.deleteById(id);
+        return com.university.ManageNotes.dto.Response.MessageResponse.success("User deleted successfully");
     }
 }

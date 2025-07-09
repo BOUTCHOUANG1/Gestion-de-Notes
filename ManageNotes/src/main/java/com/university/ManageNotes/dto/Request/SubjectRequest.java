@@ -1,6 +1,5 @@
 package com.university.ManageNotes.dto.Request;
 
-import com.university.ManageNotes.model.Role;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

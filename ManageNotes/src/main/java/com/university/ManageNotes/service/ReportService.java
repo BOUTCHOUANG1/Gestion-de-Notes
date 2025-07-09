@@ -3,21 +3,20 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.ReportRequest;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.ReportRecord;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
-import com.university.ManageNotes.model.ReportRecord;
 import com.university.ManageNotes.repository.*;
-import com.university.ManageNotes.repository.GradeRepository;
-import com.university.ManageNotes.repository.ReportRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
-import java.nio.file.*;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @Transactional
@@ -25,9 +24,6 @@ public class ReportService {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private GradeService gradeService;
 
     @Autowired
     private StudentRepository studentRepository;
@@ -46,6 +42,28 @@ public class ReportService {
 
     @Autowired
     private EmailService emailService;
+
+    private com.university.ManageNotes.dto.Response.GradeResponse mapGrade(Grades grade) {
+        com.university.ManageNotes.dto.Response.GradeResponse resp = new com.university.ManageNotes.dto.Response.GradeResponse();
+        resp.setId(grade.getId());
+        resp.setStudentId(grade.getStudent().getId());
+        resp.setStudentName(grade.getStudent().getFirstName() + " " + grade.getStudent().getLastName());
+        resp.setSubjectId(grade.getSubject().getId());
+        resp.setSubjectName(grade.getSubject().getName());
+        resp.setSubjectCode(grade.getSubject().getCode());
+        if (grade.getSemesters() != null) {
+            resp.setSemesterId(grade.getSemesters().getId());
+            resp.setSemesterName(grade.getSemesters().getName());
+        }
+        resp.setValue(grade.getValue());
+        resp.setType(grade.getType());
+        resp.setComments(grade.getComments());
+        resp.setEnteredBy(grade.getEnteredBy().getId());
+        resp.setEnteredByName(grade.getEnteredBy().getFirstName() + " " + grade.getEnteredBy().getLastName());
+        resp.setCreatedDate(grade.getCreatedDate());
+        resp.setLastModifiedDate(grade.getLastModifiedDate());
+        return resp;
+    }
 
     public byte[] generatePDFReport(Students student, List<Grades> grades, String reportTitle) throws IOException {
         // Use PDFBox to create a basic PDF so that viewers recognise the file
@@ -118,6 +136,10 @@ public class ReportService {
             // fetch grades
             List<Grades> grades = gradeRepository.findByStudentIdAndSemesterId(studentId, reportRequest.getSemesterId());
 
+            // map detailed grades
+            java.util.List<com.university.ManageNotes.dto.Response.GradeResponse> gradeDtos = grades.stream().map(this::mapGrade).toList();
+            response.setGrades(gradeDtos);
+
             // compute gpa
             double gpa = 0;
             if (!grades.isEmpty()) {
@@ -135,6 +157,7 @@ public class ReportService {
             // fill response
             response.setStudentId(studentId);
             response.setStudentName(student.getFirstName() + " " + student.getLastName());
+            response.setLevel(student.getLevel());
             response.setSemesterId(semester.getId());
             response.setSemesterName(semester.getName());
             response.setGpa(gpa);
@@ -157,49 +180,67 @@ public class ReportService {
                 }
                 double annualAvg = ((avgS1 + avgS2) / 2.0);
                 response.setAnnualAverage(Math.round(annualAvg * 100.0)/100.0);
-                // promotion based on annual average
-                response.setStatus(annualAvg >= 10 ? "PROMOTED" : "RETAKE");
+
+                // compute academic-year credits validated (>=10 in each semester)
+                int creditsYear = java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
+                        .filter(g -> g.getValue() >= 10)
+                        .map(g -> g.getSubject().getCredits().intValue())
+                        .reduce(0, Integer::sum);
+                response.setCreditsEarned(creditsYear);
+
+                // promotion rule: at least 55 credits out of 60
+                response.setStatus(creditsYear >= 55 ? "PROMOTED" : "RETAKE");
+
+                response.setReportType("STUDENT_GRADES");
+                response.setCreatedDate(Instant.now());
+                Users currentUser = authService.getCurrentUser();
+                response.setGeneratedBy(currentUser.getId());
+                response.setGeneratedByName(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+                // generate pdf
+                byte[] pdf = generatePDFReport(student, grades, "Student Report");
+                Path dir = Paths.get("generated-reports");
+                Files.createDirectories(dir);
+                String fileName = "student_" + studentId + "_sem_" + semester.getId() + "_" + Instant.now().toEpochMilli() + ".pdf";
+                Path filePath = dir.resolve(fileName);
+                Files.write(filePath, pdf);
+                response.setPdfPath(filePath.toString());
+                response.setDownloadUrl("/files/" + fileName);
+                response.setLastModifiedDate(Instant.now());
+
+                // email to parent/student
+                try {
+                    emailService.sendMessageWithAttachment(
+                            student.getEmail(),
+                            "Grade Report",
+                            "Dear Parent,\n\nPlease find attached the latest grade report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
+                } catch (Exception ignored) {}
+
+                // Persist report record in database
+                ReportRecord record = new ReportRecord();
+                record.setStudentId(response.getStudentId());
+                record.setSemesterId(response.getSemesterId());
+                record.setSubjectId(response.getSubjectId());
+                record.setReportType(response.getReportType());
+                record.setGpa(response.getGpa());
+                record.setStatus(response.getStatus());
+                record.setPdfPath(response.getPdfPath());
+                record.setDownloadUrl(response.getDownloadUrl());
+                record.setGeneratedBy(response.getGeneratedBy());
+                record.setLastModifiedDate(response.getLastModifiedDate());
+                ReportRecord saved = reportRecordRepository.save(record);
+                reportRecordRepository.flush();
+                response.setId(saved.getId());
+
+                return response;
             }
+
+            // if semesters less than 2, still set some defaults and return
             response.setReportType("STUDENT_GRADES");
             response.setCreatedDate(Instant.now());
             Users currentUser = authService.getCurrentUser();
             response.setGeneratedBy(currentUser.getId());
             response.setGeneratedByName(currentUser.getFirstName() + " " + currentUser.getLastName());
-
-            // generate pdf
-            byte[] pdf = generatePDFReport(student, grades, "Student Report");
-            Path dir = Paths.get("generated-reports");
-            Files.createDirectories(dir);
-            String fileName = "student_" + studentId + "_sem_" + semester.getId() + "_" + Instant.now().toEpochMilli() + ".pdf";
-            Path filePath = dir.resolve(fileName);
-            Files.write(filePath, pdf);
-            response.setPdfPath(filePath.toString());
-            response.setDownloadUrl("/files/" + fileName);
-            response.setLastModifiedDate(Instant.now());
-
-            // email to parent/student
-            try {
-                emailService.sendMessageWithAttachment(
-                        student.getEmail(),
-                        "Grade Report",
-                        "Dear Parent,\n\nPlease find attached the latest grade report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
-            } catch (Exception ignored) {}
-
-            // Persist report record in database
-            ReportRecord record = new ReportRecord();
-            record.setStudentId(response.getStudentId());
-            record.setSemesterId(response.getSemesterId());
-            record.setSubjectId(response.getSubjectId());
-            record.setReportType(response.getReportType());
-            record.setGpa(response.getGpa());
-            record.setStatus(response.getStatus());
-            record.setPdfPath(response.getPdfPath());
-            record.setDownloadUrl(response.getDownloadUrl());
-            record.setGeneratedBy(response.getGeneratedBy());
-            record.setLastModifiedDate(response.getLastModifiedDate());
-            ReportRecord saved = reportRecordRepository.save(record);
-            reportRecordRepository.flush();
-            response.setId(saved.getId());
 
             return response;
         } catch (Exception e) {
@@ -248,6 +289,10 @@ public class ReportService {
                 double total = grades.stream().mapToDouble(Grades::getValue).sum();
                 gpa = Math.round((total / grades.size()) * 100.0) / 100.0;
             }
+
+            // map grades
+            java.util.List<com.university.ManageNotes.dto.Response.GradeResponse> gradeDtos = grades.stream().map(this::mapGrade).toList();
+            response.setGrades(gradeDtos);
 
             int creditsEarned = grades.stream()
                     .filter(g -> g.getValue() >= 10)

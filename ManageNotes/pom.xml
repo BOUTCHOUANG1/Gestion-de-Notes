@@ -152,9 +152,7 @@
 							<version>0.2.0</version>
 						</path>
 					</annotationProcessorPaths>
-					<compilerArgs>
-						<arg>-Amapstruct.defaultComponentModel=spring</arg>
-					</compilerArgs>
+					<!-- Removed unsupported MapStruct processor arg causing warning -->
 				</configuration>
 			</plugin>
 			<plugin>

@@ -44,4 +44,15 @@ public class SemesterController {
         Semesters saved = semesterRepository.save(semester);
         return ResponseEntity.ok(saved);
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a semester", description = "Admin only")
+    public com.university.ManageNotes.dto.Response.MessageResponse deleteSemester(@PathVariable Long id) {
+        if (!semesterRepository.existsById(id)) {
+            return com.university.ManageNotes.dto.Response.MessageResponse.error("Semester not found");
+        }
+        semesterRepository.deleteById(id);
+        return com.university.ManageNotes.dto.Response.MessageResponse.success("Semester deleted successfully");
+    }
 }
