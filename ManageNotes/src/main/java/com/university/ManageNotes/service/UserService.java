@@ -147,12 +147,12 @@ public class UserService {
         }
         String username = auth.getName();
         var user = userRepository.findByUsername(username).orElseThrow();
-        return userMapper.toUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
     public List<UserResponse> getUsersByRole(Role role) {
         return userRepository.findByRole(role).stream()
-                .map(userMapper::toUserResponse)
+                .map(userMapper::toResponse)
                 .toList();
     }
 }

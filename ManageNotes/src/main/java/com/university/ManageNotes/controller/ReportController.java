@@ -34,19 +34,6 @@ public class ReportController {
         }
     }
 
-    @PostMapping("/class/{classId}")
-    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<?> generateClassReport(@PathVariable Long classId,
-                                                 @Valid @RequestBody ReportRequest reportRequest) {
-        try {
-            ReportResponse report = reportService.generateClassReport(classId, reportRequest);
-            return ResponseEntity.ok(report);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(MessageResponse.error("Failed to generate class report: " + e.getMessage()));
-        }
-    }
-
     @PostMapping("/subject/{subjectId}")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<?> generateSubjectReport(@PathVariable Long subjectId,

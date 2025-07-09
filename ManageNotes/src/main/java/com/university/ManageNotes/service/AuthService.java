@@ -11,6 +11,7 @@ import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.security.JwtUtils;
+import com.university.ManageNotes.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,6 +47,9 @@ public class AuthService {
     @Autowired
     private InviteService inviteService;
 
+    @Autowired
+    private EmailService emailService;
+
     public MessageResponse registerUser(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return MessageResponse.error("Error: Username is already taken!");
@@ -69,7 +73,7 @@ public class AuthService {
             }
         }
 
-        Users user = userMapper.toUser(signupRequest);
+        Users user = userMapper.toEntity(signupRequest);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setActive(true);
 
@@ -87,7 +91,7 @@ public class AuthService {
         return new MessageResponse(
                 "User registered successfully!",
                 "SUCCESS",
-                userMapper.toUserResponse(saved)
+                userMapper.toResponse(saved)
         );
     }
 
@@ -142,5 +146,29 @@ public class AuthService {
         userRepository.save(user);
 
         return MessageResponse.success("Password changed successfully!");
+    }
+
+    public MessageResponse resetPassword(String email) {
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Error: User with email not found."));
+
+        // generate a random temporary password (8 alphanumeric chars)
+        String tempPassword = java.util.UUID.randomUUID().toString()
+                .replaceAll("[^A-Za-z0-9]", "")
+                .substring(0, 8);
+
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        // send email
+        try {
+            emailService.sendSimpleMessage(
+                    email,
+                    "Your temporary password",
+                    "Hello " + user.getFirstName() + ",\n\nYour new temporary password is: " + tempPassword +
+                            "\nPlease log in and change it immediately.\n\nRegards");
+        } catch (Exception ignored) {}
+
+        return new MessageResponse("Temporary password sent to email", "SUCCESS", tempPassword);
     }
 }

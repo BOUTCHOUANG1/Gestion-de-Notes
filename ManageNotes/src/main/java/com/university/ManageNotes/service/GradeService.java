@@ -38,7 +38,6 @@ public class GradeService {
             grade.setStudent(studentRepository.findById(gradeRequest.getStudentId()).orElseThrow(() -> new RuntimeException("Student not found")));
             grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId()).orElseThrow(() -> new RuntimeException("Subject not found")));
             grade.setValue(gradeRequest.getValue());
-            grade.setCoefficient(gradeRequest.getCoefficient());
             grade.setType(gradeRequest.getType());
             grade.setComments(gradeRequest.getComments());
             grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy()).orElseThrow(() -> new RuntimeException("User not found")));
@@ -56,9 +55,7 @@ public class GradeService {
         if (gradeRequest.getValue() != null) {
             grade.setValue(gradeRequest.getValue());
         }
-        if (gradeRequest.getCoefficient() != null) {
-            grade.setCoefficient(gradeRequest.getCoefficient());
-        }
+
         if (gradeRequest.getComments() != null) {
             grade.setComments(gradeRequest.getComments());
         }
@@ -105,7 +102,6 @@ public class GradeService {
         }
 
         response.setValue(grade.getValue());
-        response.setCoefficient(grade.getCoefficient());
         response.setType(grade.getType());
         response.setComments(grade.getComments());
 
@@ -127,7 +123,6 @@ public class GradeService {
         grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
         grade.setValue(gradeRequest.getValue());
-        grade.setCoefficient(gradeRequest.getCoefficient());
         grade.setType(gradeRequest.getType());
         grade.setComments(gradeRequest.getComments());
         grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
@@ -164,10 +159,8 @@ public class GradeService {
 
         // simple GPA calculation
         if (!grades.isEmpty()) {
-            double total = grades.stream().mapToDouble(g -> g.getValue() * g.getCoefficient()).sum();
-            double coeffSum = grades.stream().mapToDouble(Grades::getCoefficient).sum();
-            if (coeffSum > 0)
-                response.setGpa(Math.round((total / coeffSum) * 100.0) / 100.0);
+            double avg = grades.stream().mapToDouble(Grades::getValue).average().orElse(0);
+            response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
 
         return response;

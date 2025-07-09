@@ -17,8 +17,10 @@ public class ReportResponse extends AbstractEntity {
     private Long semesterId;
     private String semesterName;
     private Double gpa;
+    private Double annualAverage;
     private String status; // "PASS", "FAIL", "INCOMPLETE"
     private String pdfPath;
+    private Integer creditsEarned;
 
     private Long generatedBy;
     private String generatedByName;
@@ -26,8 +28,6 @@ public class ReportResponse extends AbstractEntity {
 
     // Additional fields for different report types
     private String reportType;
-    private Long classId;
-    private String className;
     private Long subjectId;
     private String subjectName;
     private Boolean success;
@@ -47,10 +47,6 @@ public class ReportResponse extends AbstractEntity {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public void setClassId(Long classId) {
-        this.classId = classId;
     }
 
     public void setSubjectId(Long subjectId) {

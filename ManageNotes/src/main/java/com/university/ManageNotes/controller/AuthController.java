@@ -3,6 +3,7 @@ package com.university.ManageNotes.controller;
 import com.university.ManageNotes.dto.Request.LoginRequest;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Request.PasswordChangeRequest;
+import com.university.ManageNotes.dto.Request.PasswordResetRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.security.UserPrincipal;
@@ -66,6 +67,16 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Logout failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody com.university.ManageNotes.dto.Request.PasswordResetRequest request) {
+        try {
+            MessageResponse resp = authService.resetPassword(request.getEmail());
+            return ResponseEntity.ok(resp);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error("Password reset failed: " + ex.getMessage()));
         }
     }
 }

@@ -5,15 +5,19 @@ import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.model.Users;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper<Users, SignupRequest, UserResponse> {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    UserResponse toUserResponse(Users user);
+    @Override
+    UserResponse toResponse(Users user);
 
+    @Override
     @Mapping(target = "username", source = "username")
     @Mapping(target = "email", source = "email")
     @Mapping(target = "firstName", source = "firstName")
@@ -23,5 +27,8 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "gradesEntered", ignore = true)
-    Users toUser(SignupRequest signupRequest);
+    Users toEntity(SignupRequest signupRequest);
+
+    @Override
+    void updateEntityFromRequest(SignupRequest request, @org.mapstruct.MappingTarget Users entity);
 }

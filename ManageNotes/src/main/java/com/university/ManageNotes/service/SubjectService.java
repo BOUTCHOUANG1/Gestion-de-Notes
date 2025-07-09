@@ -3,103 +3,69 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.mapper.SubjectMapper;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.SubjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class SubjectService {
+public class SubjectService extends BaseCrudService<Subject, Long, SubjectRequest, SubjectResponse> {
 
-    @Autowired
-    private SubjectRepository subjectRepository;
+    private final SubjectRepository subjectRepository;
+    private final SubjectMapper mapper;
+
+    public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper) {
+        super(subjectRepository, mapper);
+        this.subjectRepository = subjectRepository;
+        this.mapper = mapper;
+    }
 
     public List<SubjectResponse> getAllSubjects() {
-        return subjectRepository.findAllOrderByName().stream()
-                .map(this::convertToResponse)
-                .toList();
+        return subjectRepository.findAllOrderByName().stream().map(mapper::toResponse).toList();
     }
 
-    public SubjectResponse getSubjectById(Long subjectId) {
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
-        return convertToResponse(subject);
-    }
-
-    public MessageResponse createSubject(SubjectRequest subjectRequest) {
-        try {
-            if (subjectRepository.existsByCode(subjectRequest.getCode())) {
-                return MessageResponse.error("Subject code already exists");
-            }
-            Subject subject = new Subject();
-            subject.setName(subjectRequest.getName());
-            subject.setCode(subjectRequest.getCode());
-            subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
-            subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
-            subject.setDescription(subjectRequest.getDescription());
-            subject.setActive(subjectRequest.getActive());
-            subject.setIdTeacher(subjectRequest.getTeacherId());
-            subjectRepository.save(subject);
-            return new com.university.ManageNotes.dto.Response.MessageResponse("Subject created successfully","SUCCESS",convertToResponse(subject));
-        } catch (Exception e) {
-            return MessageResponse.error("Failed to create subject: " + e.getMessage());
+    @Override
+    public MessageResponse create(SubjectRequest request) {
+        if (subjectRepository.existsByCode(request.getCode())) {
+            return MessageResponse.error("Subject code already exists");
         }
+        return super.create(request);
     }
 
-    public MessageResponse updateSubject(Long subjectId, SubjectRequest subjectRequest) {
-        try {
-            Subject subject = subjectRepository.findById(subjectId)
-                    .orElseThrow(() -> new RuntimeException("Subject not found"));
-            if (!subject.getCode().equals(subjectRequest.getCode()) && subjectRepository.existsByCode(subjectRequest.getCode())) {
-                return MessageResponse.error("Subject code already exists");
-            }
-            subject.setName(subjectRequest.getName());
-            subject.setCode(subjectRequest.getCode());
-            subject.setCredits(java.math.BigDecimal.valueOf(subjectRequest.getCredits()));
-            subject.setCoefficient(java.math.BigDecimal.valueOf(subjectRequest.getCoefficient()));
-            subject.setDescription(subjectRequest.getDescription());
-            subject.setActive(subjectRequest.getActive());
-            subject.setIdTeacher(subjectRequest.getTeacherId());
-            subjectRepository.save(subject);
-            return new com.university.ManageNotes.dto.Response.MessageResponse("Subject updated successfully","SUCCESS",convertToResponse(subject));
-        } catch (Exception e) {
-            return MessageResponse.error("Failed to update subject: " + e.getMessage());
+    @Override
+    public MessageResponse update(Long id, SubjectRequest request) {
+        Subject existing = subjectRepository.findById(id).orElseThrow(() -> new RuntimeException("Subject not found"));
+        if (!existing.getCode().equals(request.getCode()) && subjectRepository.existsByCode(request.getCode())) {
+            return MessageResponse.error("Subject code already exists");
         }
-    }
-
-    public MessageResponse deleteSubject(Long subjectId) {
-        try {
-            if (!subjectRepository.existsById(subjectId)) {
-                return MessageResponse.error("Subject not found");
-            }
-            subjectRepository.deleteById(subjectId);
-            return MessageResponse.success("Subject deleted successfully");
-        } catch (Exception e) {
-            return MessageResponse.error("Failed to delete subject: " + e.getMessage());
-        }
+        return super.update(id, request);
     }
 
     public List<SubjectResponse> getSubjectsByTeacher(Long teacherId) {
-        // Implementation to get subjects by teacher
-        return List.of(); // Placeholder
+        return subjectRepository.findSubjectsByTeacherOrderByName(teacherId).stream().map(mapper::toResponse).toList();
     }
 
-    public List<SubjectResponse> searchSubjects(String searchTerm) {
-        // Implementation to search subjects
-        return List.of(); // Placeholder
+    public List<SubjectResponse> searchSubjects(String term) {
+        return subjectRepository.findByNameContainingIgnoreCase(term).stream().map(mapper::toResponse).toList();
     }
 
-    private SubjectResponse convertToResponse(Subject subject) {
-        SubjectResponse response = new SubjectResponse();
-        response.setId(subject.getId());
-        response.setName(subject.getName());
-        response.setCode(subject.getCode());
-        response.setCredits(subject.getCredits());
-        response.setCoefficient(subject.getCoefficient());
-        response.setDescription(subject.getDescription());
-        response.setActive(subject.getActive());
-        return response;
+    // Adapter methods for existing controllers
+    public SubjectResponse getSubjectById(Long id) {
+        return super.getById(id);
+    }
+
+    public MessageResponse createSubject(SubjectRequest request) {
+        return create(request);
+    }
+
+    public MessageResponse updateSubject(Long id, SubjectRequest request) {
+        return update(id, request);
+    }
+
+    public MessageResponse deleteSubject(Long id) {
+        return delete(id);
     }
 }

@@ -28,10 +28,6 @@ public class SubjectRequest {
     @Max(value = 10, message = "Credits must not exceed 10")
     private Integer credits = 1;
 
-    @DecimalMin(value = "0.1", message = "Coefficient must be at least 0.1")
-    @DecimalMax(value = "100.0", message = "Coefficient must not exceed 100.0")
-    private Double coefficient = 1.0;
-
     @NotNull(message = "Teacher ID is required")
     private Long teacherId;
 

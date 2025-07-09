@@ -44,6 +44,9 @@ public class ReportService {
     @Autowired
     private ReportRecordRepository reportRecordRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public byte[] generatePDFReport(Students student, List<Grades> grades, String reportTitle) throws IOException {
         // Use PDFBox to create a basic PDF so that viewers recognise the file
         try (var document = new org.apache.pdfbox.pdmodel.PDDocument();
@@ -69,10 +72,10 @@ public class ReportService {
                     content.newLineAtOffset(0, -30);
                 }
                 if (grades != null && !grades.isEmpty()) {
-                    content.showText("Type  |  Score  |  Coeff");
+                    content.showText("Type  |  Score");
                     for (Grades g : grades) {
                         content.newLineAtOffset(0, -16);
-                        content.showText(g.getGradeType().name() + "    " + g.getValue() + "    " + g.getCoefficient());
+                        content.showText(g.getGradeType().name() + "    " + g.getValue());
                     }
                 }
                 content.endText();
@@ -92,7 +95,6 @@ public class ReportService {
         for (Grades grade : grades) {
             content.append("Subject: ").append(grade.getSubject().getName()).append("\n");
             content.append("Value: ").append(grade.getValue()).append("\n");
-            content.append("Coefficient: ").append(grade.getCoefficient()).append("\n");
             content.append("Type: ").append(grade.getGradeType().name()).append("\n");
             content.append("Semester: ").append(grade.getSemesters().getName()).append("\n");
             content.append("Comments: ").append(grade.getComments()).append("\n");
@@ -119,10 +121,16 @@ public class ReportService {
             // compute gpa
             double gpa = 0;
             if (!grades.isEmpty()) {
-                double total = grades.stream().mapToDouble(g -> g.getValue() * g.getCoefficient()).sum();
-                double coeff = grades.stream().mapToDouble(Grades::getCoefficient).sum();
-                if (coeff > 0) gpa = Math.round((total / coeff) * 100.0) / 100.0;
+                double total = grades.stream().mapToDouble(Grades::getValue).sum();
+                gpa = Math.round((total / grades.size()) * 100.0) / 100.0;
             }
+
+            // compute creditsEarned
+            int creditsEarned = grades.stream()
+                    .filter(g -> g.getValue() >= 10)
+                    .map(g -> g.getSubject().getCredits().intValue())
+                    .reduce(0, Integer::sum);
+            response.setCreditsEarned(creditsEarned);
 
             // fill response
             response.setStudentId(studentId);
@@ -130,7 +138,28 @@ public class ReportService {
             response.setSemesterId(semester.getId());
             response.setSemesterName(semester.getName());
             response.setGpa(gpa);
-            response.setStatus(gpa >= 10 ? "PASS" : "FAIL");
+            // compute annual average across two semesters
+            var semesters = semesterRepository.findAll();
+            if (semesters.size() >= 2) {
+                double avgS1 = 0, avgS2 = 0;
+                int subjCountS1 = 0, subjCountS2 = 0;
+                var sem1 = semesters.get(0);
+                var sem2 = semesters.get(1);
+                var gradesS1 = gradeRepository.findByStudentIdAndSemesterId(studentId, sem1.getId());
+                var gradesS2 = gradeRepository.findByStudentIdAndSemesterId(studentId, sem2.getId());
+                if (!gradesS1.isEmpty()) {
+                    avgS1 = gradesS1.stream().mapToDouble(Grades::getValue).average().orElse(0);
+                    subjCountS1 = gradesS1.size();
+                }
+                if (!gradesS2.isEmpty()) {
+                    avgS2 = gradesS2.stream().mapToDouble(Grades::getValue).average().orElse(0);
+                    subjCountS2 = gradesS2.size();
+                }
+                double annualAvg = ((avgS1 + avgS2) / 2.0);
+                response.setAnnualAverage(Math.round(annualAvg * 100.0)/100.0);
+                // promotion based on annual average
+                response.setStatus(annualAvg >= 10 ? "PROMOTED" : "RETAKE");
+            }
             response.setReportType("STUDENT_GRADES");
             response.setCreatedDate(Instant.now());
             Users currentUser = authService.getCurrentUser();
@@ -147,17 +176,20 @@ public class ReportService {
             response.setPdfPath(filePath.toString());
             response.setDownloadUrl("/files/" + fileName);
             response.setLastModifiedDate(Instant.now());
-            // dummy class info until proper mapping
-            if (student.getLevel() != null) {
-                response.setClassName(student.getLevel());
-            }
+
+            // email to parent/student
+            try {
+                emailService.sendMessageWithAttachment(
+                        student.getEmail(),
+                        "Grade Report",
+                        "Dear Parent,\n\nPlease find attached the latest grade report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
+            } catch (Exception ignored) {}
 
             // Persist report record in database
             ReportRecord record = new ReportRecord();
             record.setStudentId(response.getStudentId());
             record.setSemesterId(response.getSemesterId());
             record.setSubjectId(response.getSubjectId());
-            record.setClassId(response.getClassId());
             record.setReportType(response.getReportType());
             record.setGpa(response.getGpa());
             record.setStatus(response.getStatus());
@@ -182,7 +214,6 @@ public class ReportService {
             // Logic to generate class report
             ReportResponse response = new ReportResponse();
             response.setReportType("CLASS_GRADES");
-            response.setClassId(classId);
             response.setSuccess(true);
             response.setMessage("Class report generated successfully");
 
@@ -214,10 +245,14 @@ public class ReportService {
 
             double gpa = 0;
             if (!grades.isEmpty()) {
-                double total = grades.stream().mapToDouble(g -> g.getValue() * g.getCoefficient()).sum();
-                double coeff = grades.stream().mapToDouble(Grades::getCoefficient).sum();
-                if (coeff > 0) gpa = Math.round((total / coeff) * 100.0) / 100.0;
+                double total = grades.stream().mapToDouble(Grades::getValue).sum();
+                gpa = Math.round((total / grades.size()) * 100.0) / 100.0;
             }
+
+            int creditsEarned = grades.stream()
+                    .filter(g -> g.getValue() >= 10)
+                    .map(g -> g.getSubject().getCredits().intValue())
+                    .reduce(0, Integer::sum);
 
             response.setStudentId(student.getId());
             response.setStudentName(student.getFirstName() + " " + student.getLastName());
@@ -226,7 +261,7 @@ public class ReportService {
             response.setSubjectId(subject.getId());
             response.setSubjectName(subject.getName());
             response.setGpa(gpa);
-            response.setStatus(gpa >= 10 ? "PASS" : "FAIL");
+            response.setStatus(creditsEarned >= 55 ? "PROMOTED" : "RETAKE");
             response.setReportType("SUBJECT_GRADES");
             response.setCreatedDate(Instant.now());
             Users currentUser = authService.getCurrentUser();
@@ -244,12 +279,18 @@ public class ReportService {
             response.setDownloadUrl("/files/" + fileName);
             response.setLastModifiedDate(response.getCreatedDate());
 
+            try {
+                emailService.sendMessageWithAttachment(
+                        student.getEmail(),
+                        "Subject Report",
+                        "Dear Parent,\n\nAttached is the subject report for " + student.getFirstName() + " " + student.getLastName() + ".\n\nRegards", pdf, fileName);
+            } catch (Exception ignored) {}
+
             // Persist record similar to student report
             ReportRecord record = new ReportRecord();
             record.setStudentId(response.getStudentId());
             record.setSemesterId(response.getSemesterId());
             record.setSubjectId(response.getSubjectId());
-            record.setClassId(response.getClassId());
             record.setReportType(response.getReportType());
             record.setGpa(response.getGpa());
             record.setStatus(response.getStatus());
@@ -274,13 +315,12 @@ public class ReportService {
     public byte[] exportToExcel(List<Grades> grades) throws IOException {
         // Simulate Excel export
         StringBuilder csvContent = new StringBuilder();
-        csvContent.append("Student,Subject,Grade,Coefficient,Type,Semester\n");
+        csvContent.append("Student,Subject,Grade,Type,Semester\n");
 
         for (Grades grade : grades) {
             csvContent.append(grade.getStudent().getFirstName()).append(" ").append(grade.getStudent().getLastName()).append(",");
             csvContent.append(grade.getSubject().getName()).append(",");
             csvContent.append(grade.getValue()).append(",");
-            csvContent.append(grade.getCoefficient()).append(",");
             csvContent.append(grade.getGradeType().name()).append(",");
             csvContent.append(grade.getSemesters().getName()).append("\n");
         }

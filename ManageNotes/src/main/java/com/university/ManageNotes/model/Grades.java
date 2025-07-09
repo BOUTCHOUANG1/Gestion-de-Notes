@@ -14,9 +14,6 @@ public class Grades extends AbstractEntity{
  @Column(name = "value")
  private Double value;
 
- @Column(name = "coefficient")
- private Double coefficient;
-
  @Column(name = "Comments")
  private String comments;
 
@@ -68,10 +65,6 @@ public class Grades extends AbstractEntity{
 
  public Double getValue() {
   return value;
- }
-
- public Double getCoefficient() {
-  return coefficient;
  }
 
  public String getComments() {
