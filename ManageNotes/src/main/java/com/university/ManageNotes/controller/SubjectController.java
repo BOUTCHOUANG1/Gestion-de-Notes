@@ -36,21 +36,21 @@ public class SubjectController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     @Operation(summary = "Create subject", description = "Teacher or Admin can create a subject")
     public MessageResponse create(@Valid @RequestBody SubjectRequest request) {
         return subjectService.createSubject(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     @Operation(summary = "Update subject", description = "Teacher or Admin can update a subject")
     public MessageResponse update(@PathVariable Long id, @Valid @RequestBody SubjectRequest request) {
         return subjectService.updateSubject(id, request);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     @Operation(summary = "Delete subject", description = "Teacher or Admin can delete a subject")
     public MessageResponse delete(@PathVariable Long id) {
         return subjectService.deleteSubject(id);
