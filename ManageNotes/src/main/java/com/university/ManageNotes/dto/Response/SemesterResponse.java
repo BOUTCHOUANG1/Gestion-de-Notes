@@ -11,17 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SemesterResponse extends AbstractEntity {
-
-
-
     private String name;
-
-
     private Boolean active;
-
     private Long totalStudents;
     private Long totalGrades;
-
-
-
 }

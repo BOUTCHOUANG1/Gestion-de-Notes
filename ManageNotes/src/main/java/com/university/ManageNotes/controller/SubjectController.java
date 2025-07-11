@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.university.ManageNotes.security.UserPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -54,5 +56,13 @@ public class SubjectController {
     @Operation(summary = "Delete subject", description = "Teacher or Admin can delete a subject")
     public MessageResponse delete(@PathVariable Long id) {
         return subjectService.deleteSubject(id);
+    }
+
+    @GetMapping("/assigned")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(summary = "Get subjects assigned to current teacher", description = "Return subjects taught by the authenticated teacher")
+    public List<SubjectResponse> assignedSubjects(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long teacherId = userPrincipal.getId();
+        return subjectService.getSubjectsByTeacher(teacherId);
     }
 }
