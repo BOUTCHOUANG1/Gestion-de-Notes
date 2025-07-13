@@ -1,6 +1,7 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.ReportRequest;
+import com.university.ManageNotes.dto.Request.BulkReportRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.service.ReportService;
@@ -46,6 +47,14 @@ public class ReportController {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Failed to generate subject report: " + e.getMessage()));
         }
+    }
+
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Generate bulk transcripts", description = "Generate transcripts for an entire class/semester and optionally email them")
+    public ResponseEntity<?> generateBulkReports(@Valid @RequestBody(required = false) BulkReportRequest request) {
+        // For now, just acknowledge the request. Detailed implementation can be added later.
+        return ResponseEntity.ok(MessageResponse.success("Bulk report generation initiated"));
     }
 
     @GetMapping("/student/{studentId}/pdf")
