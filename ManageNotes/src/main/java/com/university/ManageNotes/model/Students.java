@@ -3,6 +3,7 @@ package com.university.ManageNotes.model;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Entity
 public class Students extends AbstractEntity {
@@ -24,6 +25,16 @@ public class Students extends AbstractEntity {
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<Grades> grades;
+
+    @Column(name = "speciality")
+    private String speciality;
+
+    @Column(name = "cycle")
+    private String cycle;
+
+    private java.time.LocalDate dateOfBirth;
+
+    private String placeOfBirth;
 
     public String getFirstName() {
         return firstName;
@@ -72,4 +83,16 @@ public class Students extends AbstractEntity {
     public void setGrades(List<Grades> grades) {
         this.grades = grades;
     }
+
+    public String getSpeciality() { return speciality; }
+    public void setSpeciality(String speciality) { this.speciality = speciality; }
+
+    public String getCycle() { return cycle; }
+    public void setCycle(String cycle) { this.cycle = cycle; }
+
+    public java.time.LocalDate getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(java.time.LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+
+    public String getPlaceOfBirth() { return placeOfBirth; }
+    public void setPlaceOfBirth(String placeOfBirth) { this.placeOfBirth = placeOfBirth; }
 }

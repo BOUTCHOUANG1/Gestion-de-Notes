@@ -43,4 +43,10 @@ public class SignupRequest {
 
     // Optional academic level/class for students
     private String level;
+
+    // new fields
+    private String speciality;
+    private String cycle;
+    private java.time.LocalDate dateOfBirth;
+    private String placeOfBirth;
 }

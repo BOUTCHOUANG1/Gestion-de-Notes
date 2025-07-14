@@ -23,5 +23,9 @@ public class ReportRecord extends AbstractEntity {
     private String pdfPath;
     private String downloadUrl;
 
+    private String faculty;
+    private String universityName;
+    private String academicYear;
+
     private Long generatedBy;
 }

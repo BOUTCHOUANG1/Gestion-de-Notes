@@ -25,6 +25,11 @@ public class ReportResponse extends AbstractEntity {
     private String pdfPath;
     private Integer creditsEarned;
 
+    // new fields for header info
+    private String faculty;
+    private String universityName;
+    private String academicYear;
+
     // Detailed grade information for the report
     private List<GradeResponse> grades;
 

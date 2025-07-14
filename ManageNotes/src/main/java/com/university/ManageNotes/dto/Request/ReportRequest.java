@@ -26,6 +26,9 @@ public class ReportRequest {
     private Boolean includePdf = false;
     private String recipientEmail; // For email delivery
 
-
+    // new metadata filled by teacher/admin
+    private String faculty;
+    private String universityName;
+    private String academicYear;
 
 }
