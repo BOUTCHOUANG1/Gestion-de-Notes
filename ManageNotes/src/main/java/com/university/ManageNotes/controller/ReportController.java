@@ -25,6 +25,9 @@ public class ReportController {
 
     @PostMapping("/student/{studentId}")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @Operation(summary = "Generate semester transcript for a student",
+            description = "Creates a transcript (gpa, credits, status, grades) for the given student and semester. " +
+                    "Returns ReportResponse containing header info plus detailed grades. Requires faculty, universityName, academicYear in request body.")
     public ResponseEntity<?> generateStudentReport(@PathVariable Long studentId,
                                                    @Valid @RequestBody ReportRequest reportRequest) {
         try {
@@ -38,6 +41,8 @@ public class ReportController {
 
     @PostMapping("/subject/{subjectId}")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @Operation(summary = "Generate subject grade report",
+            description = "Creates a report for all students of the specified subject in a semester, returning aggregated statistics and PDF if requested.")
     public ResponseEntity<?> generateSubjectReport(@PathVariable Long subjectId,
                                                    @Valid @RequestBody ReportRequest reportRequest) {
         try {
@@ -59,6 +64,8 @@ public class ReportController {
 
     @GetMapping("/student/{studentId}/pdf")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN') or (hasRole('STUDENT') and @securityService.isOwnStudent(#studentId))")
+    @Operation(summary = "Download previously generated transcript PDF",
+            description = "Returns the PDF bytes for a student's most recent transcript for the selected semester.")
     public ResponseEntity<byte[]> downloadStudentReportPDF(@PathVariable Long studentId,
                                                            @RequestParam(required = false) String reportTitle) {
         try {
@@ -80,6 +87,8 @@ public class ReportController {
 
     @GetMapping("/export/excel")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @Operation(summary = "Export grades to Excel/CSV",
+            description = "Exports filtered grades (student, subject, semester) to a CSV/Excel file for offline analysis.")
     public ResponseEntity<byte[]> exportGradesToExcel(@RequestParam(required = false) Long studentId,
                                                       @RequestParam(required = false) Long subjectId,
                                                       @RequestParam(required = false) Long semesterId) {
@@ -101,6 +110,8 @@ public class ReportController {
 
     @GetMapping("/analytics")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get grade analytics",
+            description = "Provides aggregated grade distribution, averages and other KPI for the specified filters.")
     public ResponseEntity<?> getGradeAnalytics(@RequestParam(required = false) Long semesterId,
                                                @RequestParam(required = false) Long subjectId) {
         try {
