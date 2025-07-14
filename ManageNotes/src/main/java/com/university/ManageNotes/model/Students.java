@@ -1,11 +1,14 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 import java.time.LocalDate;
 
+@Data
 @Entity
+@Table(name = "students")
 public class Students extends AbstractEntity {
 
     @Column(name = "firstName")
@@ -32,67 +35,9 @@ public class Students extends AbstractEntity {
     @Column(name = "cycle")
     private String cycle;
 
-    private java.time.LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String placeOfBirth;
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getStudentNumber() {
-        return studentNumber;
-    }
-
-    public void setStudentNumber(String studentNumber) {
-        this.studentNumber = studentNumber;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<Grades> getGrades() {
-        return grades;
-    }
-
-    public void setGrades(List<Grades> grades) {
-        this.grades = grades;
-    }
-
-    public String getSpeciality() { return speciality; }
-    public void setSpeciality(String speciality) { this.speciality = speciality; }
-
-    public String getCycle() { return cycle; }
-    public void setCycle(String cycle) { this.cycle = cycle; }
-
-    public java.time.LocalDate getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(java.time.LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-
-    public String getPlaceOfBirth() { return placeOfBirth; }
-    public void setPlaceOfBirth(String placeOfBirth) { this.placeOfBirth = placeOfBirth; }
+    // Lombok will generate getters and setters
 }
