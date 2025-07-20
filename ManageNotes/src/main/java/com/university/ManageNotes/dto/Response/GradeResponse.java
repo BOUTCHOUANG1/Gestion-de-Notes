@@ -3,8 +3,10 @@ package com.university.ManageNotes.dto.Response;
 import com.university.ManageNotes.model.AbstractEntity;
 import com.university.ManageNotes.model.GradeType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class GradeResponse extends AbstractEntity {
     private Long studentId;
     private String studentName;

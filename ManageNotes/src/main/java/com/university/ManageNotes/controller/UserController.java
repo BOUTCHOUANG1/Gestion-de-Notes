@@ -1,22 +1,21 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserProfileResponse;
+import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.security.UserPrincipal;
+import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -29,6 +28,9 @@ public class UserController {
 
     @Autowired
     private com.university.ManageNotes.repository.StudentRepository studentRepository;
+
+    @Autowired
+    private AuthService authService;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
@@ -43,6 +45,12 @@ public class UserController {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
+    }
+
+    @PostMapping("/me/credentials")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    public MessageResponse updateCredentials(@AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody UpdateCredentialsRequest request) {
+        return authService.updateCredentials(principal.getId(), request.getCurrentPassword(), request.getNewUsername(), request.getNewPassword());
     }
 
     @GetMapping("/students")
