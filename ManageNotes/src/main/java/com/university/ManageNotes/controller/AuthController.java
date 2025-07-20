@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.LoginRequest;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Request.PasswordChangeRequest;
 import com.university.ManageNotes.dto.Request.PasswordResetRequest;
+import com.university.ManageNotes.dto.Request.PublicPasswordChangeRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.security.UserPrincipal;
@@ -25,10 +26,26 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
+            // include mustChangePassword in response
+            UserPrincipal userPrincipal = authService.getUserPrincipalByUsername(loginRequest.getUsername());
+            jwtResponse.setMustChangePassword(userPrincipal != null && userPrincipal.isMustChangePassword());
             return ResponseEntity.ok(jwtResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Authentication failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/public-change-password")
+    public ResponseEntity<?> publicChangePassword(@Valid @RequestBody PublicPasswordChangeRequest request) {
+        try {
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(MessageResponse.error("Passwords do not match"));
+            }
+            MessageResponse resp = authService.changePassword(request.getIdentifier(), request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok(resp);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error("Password change failed: " + ex.getMessage()));
         }
     }
 
@@ -46,9 +63,8 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
         try {
-            // Implementation would get current user from security context
             MessageResponse response = authService.changePassword(
-                    userPrincipal.getUsername(), // This would be retrieved from authentication context
+                    userPrincipal.getUsername(),
                     passwordChangeRequest.getOldPassword(),
                     passwordChangeRequest.getNewPassword()
             );
@@ -62,7 +78,6 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         try {
-            // Logout logic here (invalidate token, etc.)
             return ResponseEntity.ok(MessageResponse.success("Logged out successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -71,7 +86,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody com.university.ManageNotes.dto.Request.PasswordResetRequest request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
         try {
             MessageResponse resp = authService.resetPassword(request.getEmail());
             return ResponseEntity.ok(resp);

@@ -3,23 +3,24 @@ package com.university.ManageNotes.dto.Request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class UpdateCredentialsRequest {
+public class PublicPasswordChangeRequest {
+    @NotBlank
+    private String identifier; // matricule for students, username for staff
+
     @NotBlank
     private String currentPassword;
 
-    @Size(min = 3, max = 50)
-    private String newUsername;
-
-    @Size(min = 5, max = 100)
+    @NotBlank
+    @Size(min = 6, max = 100)
     private String newPassword;
 
-    @Size(min = 5, max = 100)
+    @NotBlank
     private String confirmPassword;
 
+    public String getIdentifier() {return identifier;}
+    public void setIdentifier(String identifier) {this.identifier = identifier;}
     public String getCurrentPassword() {return currentPassword;}
     public void setCurrentPassword(String currentPassword) {this.currentPassword = currentPassword;}
-    public String getNewUsername() {return newUsername;}
-    public void setNewUsername(String newUsername) {this.newUsername = newUsername;}
     public String getNewPassword() {return newPassword;}
     public void setNewPassword(String newPassword) {this.newPassword = newPassword;}
     public String getConfirmPassword() {return confirmPassword;}

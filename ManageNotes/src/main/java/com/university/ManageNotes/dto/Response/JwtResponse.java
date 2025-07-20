@@ -24,6 +24,7 @@ public class JwtResponse {
 
     private Role role;
     private List<String> authorities;
+    private Boolean mustChangePassword;
 
     // Additional constructor for convenience
     public JwtResponse(String token, String type, String username, String email, Role role) {

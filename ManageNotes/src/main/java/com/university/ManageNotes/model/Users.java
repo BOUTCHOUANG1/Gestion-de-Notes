@@ -34,6 +34,9 @@ public class Users extends AbstractEntity {
     @Column(name = "active")
     private Boolean active;
 
+    @Column(name = "must_change_password")
+    private Boolean mustChangePassword = true;
+
     @OneToMany(mappedBy = "enteredBy")
     private List<Grades> gradesEntered;
 }

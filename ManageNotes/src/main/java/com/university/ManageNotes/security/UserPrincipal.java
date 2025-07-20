@@ -17,9 +17,10 @@ public class UserPrincipal implements UserDetails {
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
+    private Boolean mustChangePassword;
 
     public UserPrincipal(Long id, String username, String firstName, String lastName, String email, String password,
-                         Collection<? extends GrantedAuthority> authorities) {
+                         Collection<? extends GrantedAuthority> authorities, Boolean mustChangePassword) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
@@ -27,6 +28,7 @@ public class UserPrincipal implements UserDetails {
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.mustChangePassword = mustChangePassword;
     }
 
     public static UserPrincipal create(Users user) {
@@ -42,7 +44,8 @@ public class UserPrincipal implements UserDetails {
                 user.getLastName(),
                 user.getEmail(),
                 user.getPassword(),
-                authorities
+                authorities,
+                user.getMustChangePassword()
         );
     }
 
@@ -109,4 +112,6 @@ public class UserPrincipal implements UserDetails {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public Boolean isMustChangePassword() {return mustChangePassword;}
 }

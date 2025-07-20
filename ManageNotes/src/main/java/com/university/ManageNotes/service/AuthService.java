@@ -12,12 +12,14 @@ import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.security.JwtUtils;
 import com.university.ManageNotes.service.EmailService;
+import com.university.ManageNotes.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +51,9 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     public MessageResponse registerUser(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
@@ -98,6 +103,18 @@ public class AuthService {
             }
         }
 
+        // send default credentials email
+        try {
+            emailService.sendSimpleMessage(
+                    saved.getEmail(),
+                    "Your account credentials",
+                    "Hello " + saved.getFirstName() + ",\n\n" +
+                            "You can now access the Faculty of Science of Yaounde 1 platform.\n" +
+                            "Username: " + saved.getUsername() + "\n" +
+                            "Password: " + signupRequest.getPassword() + "\n" +
+                            "Please change these credentials after your first login.\n\nRegards");
+        } catch (Exception ignored) {}
+
         return new MessageResponse(
                 "User registered successfully!",
                 "SUCCESS",
@@ -127,6 +144,7 @@ public class AuthService {
             jwtResponse.setLastName(userDetails.getLastName());
             jwtResponse.setRole(userDetails.getRole());
             jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(a -> a.getAuthority()).toList());
+            jwtResponse.setMustChangePassword(userDetails.getMustChangePassword());
             return jwtResponse;
         } else {
             throw new RuntimeException("Error: User not authenticated.");
@@ -187,16 +205,27 @@ public class AuthService {
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             return MessageResponse.error("Incorrect current password");
         }
+        boolean changed = false;
         if (newUsername != null && !newUsername.isBlank() && !newUsername.equals(user.getUsername())) {
             if (userRepository.existsByUsername(newUsername)) {
                 return MessageResponse.error("Username already taken");
             }
             user.setUsername(newUsername);
+            changed = true;
         }
         if (newPassword != null && !newPassword.isBlank()) {
             user.setPassword(passwordEncoder.encode(newPassword));
+            changed = true;
         }
+        if (changed) {
+            user.setMustChangePassword(false);
+        }
+
         userRepository.save(user);
         return MessageResponse.success("Credentials updated");
+    }
+
+    public UserPrincipal getUserPrincipalByUsername(String username) {
+        return (UserPrincipal) userDetailsService.loadUserByUsername(username);
     }
 }

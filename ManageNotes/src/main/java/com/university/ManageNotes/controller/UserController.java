@@ -1,21 +1,30 @@
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.dto.Response.UserProfileResponse;
+import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.dto.Response.UserProfileResponse;
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -50,23 +59,30 @@ public class UserController {
     @PostMapping("/me/credentials")
     @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public MessageResponse updateCredentials(@AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody UpdateCredentialsRequest request) {
+        if (request.getNewPassword() != null && !request.getNewPassword().equals(request.getConfirmPassword())) {
+            return MessageResponse.error("Passwords do not match");
+        }
         return authService.updateCredentials(principal.getId(), request.getCurrentPassword(), request.getNewUsername(), request.getNewPassword());
     }
 
     @GetMapping("/students")
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
-    @Operation(summary = "List all students")
-    public java.util.List<UserProfileResponse> students() {
-        return userRepository.findByRole(Role.STUDENT).stream()
-                .map(u -> UserProfileResponse.builder()
-                        .id(u.getId())
-                        .username(u.getUsername())
-                        .firstName(u.getFirstName())
-                        .lastName(u.getLastName())
-                        .email(u.getEmail())
-                        .role(u.getRole())
-                        .build())
-                .toList();
+    @Operation(summary = "List students visible to current user")
+    public java.util.List<UserProfileResponse> students(@AuthenticationPrincipal UserPrincipal principal) {
+        java.util.List<com.university.ManageNotes.model.Students> students;
+        if (principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            students = studentRepository.findAll();
+        } else {
+            students = studentRepository.findStudentsByTeacherId(principal.getId());
+        }
+        return students.stream().map(s -> UserProfileResponse.builder()
+                .id(s.getId())
+                .username(s.getMatricule())
+                .firstName(s.getFirstName())
+                .lastName(s.getLastName())
+                .email(s.getEmail())
+                .role(Role.STUDENT)
+                .build()).toList();
     }
 
     @GetMapping("/teachers")

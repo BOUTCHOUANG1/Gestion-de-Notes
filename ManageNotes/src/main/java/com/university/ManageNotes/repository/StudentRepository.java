@@ -2,6 +2,7 @@ package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Students;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +16,8 @@ public interface StudentRepository extends JpaRepository<Students, Long> {
     List<Students> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 
     Optional<Students> findByEmail(String email);
+
+    @org.springframework.data.jpa.repository.Query("select distinct g.student from Grades g where g.subject.idTeacher = :teacherId")
+    java.util.List<Students> findStudentsByTeacherId(Long teacherId);
 
 }
