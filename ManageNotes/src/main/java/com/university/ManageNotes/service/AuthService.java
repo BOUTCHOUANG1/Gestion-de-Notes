@@ -89,6 +89,14 @@ public class AuthService {
             student.setCycle(signupRequest.getCycle());
             studentRepository.save(student);
         }
+        // ensure student usernames equal matricule
+        if (saved.getRole() == Role.STUDENT) {
+            Students st = studentRepository.findByEmail(saved.getEmail()).orElse(null);
+            if (st != null && !saved.getUsername().equals(st.getMatricule())) {
+                saved.setUsername(st.getMatricule());
+                userRepository.save(saved);
+            }
+        }
 
         return new MessageResponse(
                 "User registered successfully!",
@@ -172,5 +180,23 @@ public class AuthService {
         } catch (Exception ignored) {}
 
         return new MessageResponse("Temporary password sent to email", "SUCCESS", tempPassword);
+    }
+
+    public MessageResponse updateCredentials(Long userId, String currentPassword, String newUsername, String newPassword) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return MessageResponse.error("Incorrect current password");
+        }
+        if (newUsername != null && !newUsername.isBlank() && !newUsername.equals(user.getUsername())) {
+            if (userRepository.existsByUsername(newUsername)) {
+                return MessageResponse.error("Username already taken");
+            }
+            user.setUsername(newUsername);
+        }
+        if (newPassword != null && !newPassword.isBlank()) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+        userRepository.save(user);
+        return MessageResponse.success("Credentials updated");
     }
 }
