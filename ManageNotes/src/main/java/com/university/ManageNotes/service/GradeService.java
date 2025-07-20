@@ -102,6 +102,14 @@ public class GradeService {
         }
 
         response.setValue(grade.getValue());
+
+        response.setPassed(grade.getValue() >= 10);
+        if (response.isPassed()) {
+            response.setCreditsEarned(grade.getSubject().getCredits());
+        } else {
+            response.setCreditsEarned(java.math.BigDecimal.ZERO);
+        }
+
         response.setType(grade.getType());
         response.setComments(grade.getComments());
 
@@ -127,6 +135,36 @@ public class GradeService {
         grade.setComments(gradeRequest.getComments());
         grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
                 .orElseThrow(() -> new RuntimeException("User not found")));
+
+        Grades saved = gradeRepository.save(grade);
+        return convertToResponse(saved);
+    }
+
+    public GradeResponse createGradeByCode(com.university.ManageNotes.dto.Request.GradeByCodeRequest req) {
+        Students student = studentRepository.findByMatricule(req.getStudentMatricule())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        var subject = subjectRepository.findByCode(req.getSubjectCode())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        // Ensure current logged-in teacher is owner of the subject
+        Long teacherId = null;
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal up) {
+            teacherId = up.getId();
+        }
+        if (teacherId == null || !teacherId.equals(subject.getIdTeacher())) {
+            throw new RuntimeException("You are not allowed to enter grades for this subject");
+        }
+
+        Grades grade = new Grades();
+        grade.setStudent(student);
+        grade.setSubject(subject);
+        grade.setSemesters(semesterRepository.findById(req.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("Semester not found")));
+        grade.setValue(req.getValue());
+        grade.setType(req.getType());
+        grade.setComments(req.getComments());
+        grade.setEnteredBy(userRepository.findById(teacherId).orElseThrow());
 
         Grades saved = gradeRepository.save(grade);
         return convertToResponse(saved);

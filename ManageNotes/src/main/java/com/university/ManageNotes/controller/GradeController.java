@@ -36,6 +36,17 @@ public class GradeController {
         }
     }
 
+    @PostMapping("/by-code")
+    @Operation(summary = "Create grade by matricule & subject code", description = "Teacher enters grade using student matricule and subject code")
+    public ResponseEntity<?> createGradeByCode(@Valid @RequestBody com.university.ManageNotes.dto.Request.GradeByCodeRequest request) {
+        try {
+            GradeResponse resp = gradeService.createGradeByCode(request);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
+        }
+    }
+
     @PutMapping("/{gradeId}")
     @Operation(summary = "Update grade", description = "Update an existing grade (Teacher/Admin only)")
     public ResponseEntity<?> updateGrade(

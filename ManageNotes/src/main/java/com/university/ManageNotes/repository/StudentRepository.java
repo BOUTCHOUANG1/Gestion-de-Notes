@@ -20,4 +20,15 @@ public interface StudentRepository extends JpaRepository<Students, Long> {
     @org.springframework.data.jpa.repository.Query("select distinct g.student from Grades g where g.subject.idTeacher = :teacherId")
     java.util.List<Students> findStudentsByTeacherId(Long teacherId);
 
+    @org.springframework.data.jpa.repository.Query("""
+            select distinct s
+            from Students s
+            join Subject subj
+                on subj.level = s.level and subj.cycle = s.cycle
+            where subj.idTeacher = :teacherId
+            """)
+    java.util.List<Students> findStudentsByTeacherSubject(Long teacherId);
+
+    java.util.Optional<Students> findByMatricule(String matricule);
+
 }

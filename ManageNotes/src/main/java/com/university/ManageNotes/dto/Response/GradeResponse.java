@@ -20,4 +20,6 @@ public class GradeResponse extends AbstractEntity {
     private String comments;
     private Long enteredBy;
     private String enteredByName;
+    private boolean passed;
+    private java.math.BigDecimal creditsEarned;
 }
