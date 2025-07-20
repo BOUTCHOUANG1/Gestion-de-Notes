@@ -42,6 +42,9 @@ public class DefaultStudentInitializer implements CommandLineRunner {
             student.setMatricule("MAT" + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
             student.setLevel(StudentLevel.LEVEL1);
             student.setCycle(StudentCycle.BACHELOR);
+            student.setSpeciality("Computer Science");
+            student.setDateOfBirth(java.time.LocalDate.of(2000,1,1));
+            student.setPlaceOfBirth("TestCity");
             studentRepository.save(student);
         }
     }
