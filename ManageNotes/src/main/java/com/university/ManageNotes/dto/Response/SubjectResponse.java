@@ -11,4 +11,8 @@ public class SubjectResponse {
     private BigDecimal credits;
     private String description;
     private Boolean active;
+    private com.university.ManageNotes.model.StudentLevel level;
+    private com.university.ManageNotes.model.StudentCycle cycle;
+    private Long semesterId;
+    private String semesterName;
 }

@@ -32,6 +32,7 @@ public class DefaultStudentInitializer implements CommandLineRunner {
             user.setFirstName("Default");
             user.setLastName("Student");
             user.setActive(true);
+            user.setMustChangePassword(false);
             user = userRepository.save(user);
 
             // link to Students entity

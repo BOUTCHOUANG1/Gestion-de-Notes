@@ -19,6 +19,15 @@ public class Subject extends AbstractEntity {
      private Long idTeacher;
      @Column(name = "description", length = 500)
      private String description;
+     @Enumerated(EnumType.STRING)
+     @Column(name = "level")
+     private com.university.ManageNotes.model.StudentLevel level;
+     @Enumerated(EnumType.STRING)
+     @Column(name = "cycle")
+     private com.university.ManageNotes.model.StudentCycle cycle;
+     @ManyToOne
+     @JoinColumn(name = "idSemester")
+     private com.university.ManageNotes.model.Semesters semester;
      @Column(name = "active")
      private Boolean active = true;
 

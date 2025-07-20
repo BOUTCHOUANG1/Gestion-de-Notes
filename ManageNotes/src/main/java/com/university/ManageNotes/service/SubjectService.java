@@ -6,7 +6,9 @@ import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.mapper.SubjectMapper;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,8 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
 
     private final SubjectRepository subjectRepository;
     private final SubjectMapper mapper;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.university.ManageNotes.repository.SemesterRepository semesterRepository;
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper) {
         super(subjectRepository, mapper);
@@ -32,7 +36,12 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         if (subjectRepository.existsByCode(request.getCode())) {
             return MessageResponse.error("Subject code already exists");
         }
-        return super.create(request);
+        var subject = mapper.toEntity(request);
+        subject.setLevel(request.getLevel());
+        subject.setCycle(request.getCycle());
+        subject.setSemester(semesterRepository.findById(request.getSemesterId()).orElseThrow(() -> new RuntimeException("Semester not found")));
+        subjectRepository.save(subject);
+        return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject created");
     }
 
     @Override
@@ -41,7 +50,17 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         if (!existing.getCode().equals(request.getCode()) && subjectRepository.existsByCode(request.getCode())) {
             return MessageResponse.error("Subject code already exists");
         }
-        return super.update(id, request);
+        existing.setName(request.getName());
+        existing.setCode(request.getCode());
+        existing.setDescription(request.getDescription());
+        existing.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
+        existing.setIdTeacher(request.getTeacherId());
+        existing.setActive(request.getActive());
+        existing.setLevel(request.getLevel());
+        existing.setCycle(request.getCycle());
+        existing.setSemester(semesterRepository.findById(request.getSemesterId()).orElseThrow(() -> new RuntimeException("Semester not found")));
+        subjectRepository.save(existing);
+        return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject updated");
     }
 
     public List<SubjectResponse> getSubjectsByTeacher(Long teacherId) {

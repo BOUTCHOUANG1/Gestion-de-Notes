@@ -30,6 +30,15 @@ public class SubjectRequest {
     @NotNull(message = "Teacher ID is required")
     private Long teacherId;
 
+    @NotNull(message = "Level is required")
+    private com.university.ManageNotes.model.StudentLevel level;
+
+    @NotNull(message = "Cycle is required")
+    private com.university.ManageNotes.model.StudentCycle cycle;
+
+    @NotNull(message = "Semester ID is required")
+    private Long semesterId;
+
     private Boolean active = true;
 
 }
