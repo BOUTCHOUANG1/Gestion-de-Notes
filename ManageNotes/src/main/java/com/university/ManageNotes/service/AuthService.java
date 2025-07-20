@@ -84,8 +84,9 @@ public class AuthService {
             student.setFirstName(saved.getFirstName());
             student.setLastName(saved.getLastName());
             student.setEmail(saved.getEmail());
-            student.setStudentNumber(UUID.randomUUID().toString());
+            student.setMatricule(signupRequest.getMatricule() != null ? signupRequest.getMatricule() : UUID.randomUUID().toString());
             student.setLevel(signupRequest.getLevel());
+            student.setCycle(signupRequest.getCycle());
             studentRepository.save(student);
         }
 

@@ -21,7 +21,7 @@ public class UserResponse extends AbstractEntity {
 
     private String lastName;
 
-    private String phone;
+    // phone removed
 
     private Role role;
 
@@ -45,10 +45,6 @@ public class UserResponse extends AbstractEntity {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public void setRole(Role role) {

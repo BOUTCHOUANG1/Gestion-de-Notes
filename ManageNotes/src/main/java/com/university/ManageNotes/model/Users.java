@@ -24,9 +24,6 @@ public class Users extends AbstractEntity {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "phone")
-    private String phone;
-
     @Column(name = "password")
     private String password;
 

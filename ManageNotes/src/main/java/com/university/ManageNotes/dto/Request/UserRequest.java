@@ -25,8 +25,7 @@ public class UserRequest {
     @Size(min = 2, max = 50)
     private String lastName;
 
-    @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Phone number should be valid")
-    private String phone;
+    // phone removed
 
     @NotNull(message = "Role is required")
     private Role role;
@@ -53,10 +52,6 @@ public class UserRequest {
 
     public String getLastName() {
         return lastName;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public Role getRole() {

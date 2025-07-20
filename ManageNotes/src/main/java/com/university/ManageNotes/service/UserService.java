@@ -34,7 +34,6 @@ public class UserService {
             response.setEmail(userRequest.getEmail());
             response.setFirstName(userRequest.getFirstName());
             response.setLastName(userRequest.getLastName());
-            response.setPhone(userRequest.getPhone());
             response.setRole(userRequest.getRole());
             response.setActive(userRequest.getActive());
 
@@ -58,7 +57,6 @@ public class UserService {
             response.setEmail(userRequest.getEmail());
             response.setFirstName(userRequest.getFirstName());
             response.setLastName(userRequest.getLastName());
-            response.setPhone(userRequest.getPhone());
             response.setRole(userRequest.getRole());
             response.setActive(userRequest.getActive());
 
@@ -134,7 +132,7 @@ public class UserService {
         response.setEmail(user.getEmail());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
-        response.setPhone(user.getPhone());
+        // phone removed
         response.setRole(user.getRole());
         response.setActive(user.getActive());
         return response;

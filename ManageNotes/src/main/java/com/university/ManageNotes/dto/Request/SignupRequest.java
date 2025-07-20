@@ -1,6 +1,8 @@
 package com.university.ManageNotes.dto.Request;
 
 import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.model.StudentCycle;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,20 +35,15 @@ public class SignupRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    @Pattern(regexp = "^[+]?[0-9]{12}$", message = "Phone number should be valid")
-    private String phone;
-
     // Optional invite/registration code required for privileged roles
     private String registrationKey;
 
     private Role role;
 
-    // Optional academic level/class for students
-    private String level;
-
-    // new fields
+    private StudentLevel level;
+    private String matricule;
     private String speciality;
-    private String cycle;
+    private StudentCycle cycle;
     private java.time.LocalDate dateOfBirth;
     private String placeOfBirth;
 }

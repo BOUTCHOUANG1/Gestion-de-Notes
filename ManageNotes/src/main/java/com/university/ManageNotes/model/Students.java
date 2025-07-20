@@ -2,11 +2,13 @@ package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.time.LocalDate;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "students")
 public class Students extends AbstractEntity {
@@ -17,11 +19,12 @@ public class Students extends AbstractEntity {
     @Column(name = "lastName")
     private String lastName;
 
-    @Column(name = "studentNumber", unique = true)
-    private String studentNumber;
+    @Column(name = "matricule", unique = true)
+    private String matricule;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "level")
-    private String level;
+    private StudentLevel level;
 
     @Column(name = "email")
     private String email;
@@ -32,8 +35,9 @@ public class Students extends AbstractEntity {
     @Column(name = "speciality")
     private String speciality;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "cycle")
-    private String cycle;
+    private StudentCycle cycle;
 
     private LocalDate dateOfBirth;
 

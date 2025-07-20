@@ -162,7 +162,7 @@ public class ReportService {
             // fill response
             response.setStudentId(studentId);
             response.setStudentName(student.getFirstName() + " " + student.getLastName());
-            response.setLevel(student.getLevel());
+            response.setLevel(student.getLevel() != null ? student.getLevel().name() : null);
             response.setSemesterId(semester.getId());
             response.setSemesterName(semester.getName());
             response.setGpa(gpa);

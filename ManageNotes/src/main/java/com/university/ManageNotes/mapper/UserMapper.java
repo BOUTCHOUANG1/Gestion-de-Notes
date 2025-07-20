@@ -22,7 +22,6 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     @Mapping(target = "email", source = "email")
     @Mapping(target = "firstName", source = "firstName")
     @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "phone", source = "phone")
     @Mapping(target = "role", source = "role")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
