@@ -29,4 +29,6 @@ public class GradeByCodeRequest {
     private GradeType type;
 
     private String comments;
+
+    private String periodLabel;
 }

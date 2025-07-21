@@ -37,6 +37,9 @@ public class GradeRequest {
     @NotNull(message = "Entered by user ID is required")
     private Long enteredBy;
 
+    // For cases like "CC #2", optional
+    private String periodLabel;
+
     @Size(max = 500, message = "Comments must not exceed 500 characters")
     private String comments;
 

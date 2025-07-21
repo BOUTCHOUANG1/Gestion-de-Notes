@@ -17,6 +17,9 @@ public class Grades extends AbstractEntity{
  @Column(name = "Comments")
  private String comments;
 
+ @Column(name = "period_label")
+ private String periodLabel; // e.g., "CC #2", "SN #1"
+
  @ManyToOne
  @JoinColumn(name = "idStudents")
  private Students student;

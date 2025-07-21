@@ -133,6 +133,7 @@ public class GradeService {
         grade.setValue(gradeRequest.getValue());
         grade.setType(gradeRequest.getType());
         grade.setComments(gradeRequest.getComments());
+        grade.setPeriodLabel(gradeRequest.getPeriodLabel());
         grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
                 .orElseThrow(() -> new RuntimeException("User not found")));
 
@@ -164,6 +165,7 @@ public class GradeService {
         grade.setValue(req.getValue());
         grade.setType(req.getType());
         grade.setComments(req.getComments());
+        grade.setPeriodLabel(req.getPeriodLabel());
         grade.setEnteredBy(userRepository.findById(teacherId).orElseThrow());
 
         Grades saved = gradeRepository.save(grade);
@@ -221,15 +223,99 @@ public class GradeService {
         return grades.stream().map(this::convertToResponse).collect(java.util.stream.Collectors.toList());
     }
 
-     public com.university.ManageNotes.dto.Response.GradeSheetResponse getGradeSheet(String subjectCode, Long semesterId, String period) {
-        var subject = subjectRepository.findByCode(subjectCode).orElseThrow(() -> new RuntimeException("Subject not found"));
-        Long teacherId = null;
+    public com.university.ManageNotes.dto.Response.GradeSheetResponse getGradeSheet(String subjectCode, Long semesterId, String period) {
+        var subject = subjectRepository.findByCode(subjectCode)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        // Ensure that, if a teacher is requesting, they own the subject
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-…        resp.setCycle(subject.getCycle().name());
+        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal up) {
+            boolean isAdmin = up.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (!isAdmin && !up.getId().equals(subject.getIdTeacher())) {
+                throw new RuntimeException("You are not allowed to view the grade sheet for this subject");
+            }
+        }
+
+        // Prepare response
+        var resp = new com.university.ManageNotes.dto.Response.GradeSheetResponse();
+        resp.setSubjectCode(subject.getCode());
+        resp.setSubjectName(subject.getName());
+        if (subject.getLevel() != null) resp.setLevel(subject.getLevel().name());
+        if (subject.getCycle() != null) resp.setCycle(subject.getCycle().name());
         resp.setPeriod(period);
+
+        java.util.List<com.university.ManageNotes.model.Students> students;
+        if (semesterId != null) {
+            students = getStudentsBySemester(semesterId);
+        } else {
+            // Fallback: all students who have grades for this subject
+            var grades = gradeRepository.findBySubjectId(subject.getId());
+            students = grades.stream().map(com.university.ManageNotes.model.Grades::getStudent).distinct().collect(java.util.stream.Collectors.toList());
+        }
+
         resp.setTotalStudents(students.size());
-        resp.setConflicts(conflicts);
+
+        // Collect distinct (type,label) pairs
+        java.util.Set<String> colKeys = new java.util.LinkedHashSet<>();
+        java.util.Map<String, String> keyToLabel = new java.util.LinkedHashMap<>();
+
+        java.util.List<com.university.ManageNotes.model.Grades> allGradesForSubject = gradeRepository.findBySubjectId(subject.getId());
+        if (semesterId != null) {
+            allGradesForSubject = allGradesForSubject.stream().filter(g -> g.getSemesters() != null && g.getSemesters().getId().equals(semesterId)).toList();
+        }
+        for (var g : allGradesForSubject) {
+            String key = g.getType().name() + "::" + (g.getPeriodLabel() == null ? "" : g.getPeriodLabel());
+            String label = g.getPeriodLabel() != null && !g.getPeriodLabel().isBlank() ? g.getPeriodLabel() : g.getType().name();
+            colKeys.add(key);
+            keyToLabel.put(key, label);
+        }
+
+        java.util.List<com.university.ManageNotes.dto.Response.GradeSheetColumn> cols = new java.util.ArrayList<>();
+        for (String k : colKeys) {
+            String[] parts = k.split("::",2);
+            com.university.ManageNotes.model.GradeType t = com.university.ManageNotes.model.GradeType.valueOf(parts[0]);
+            cols.add(new com.university.ManageNotes.dto.Response.GradeSheetColumn(t, keyToLabel.get(k)));
+        }
         resp.setColumns(cols);
+        // Build rows
+        java.util.List<com.university.ManageNotes.dto.Response.GradeSheetRow> rows = new java.util.ArrayList<>();
+        int conflicts = 0;
+        for (var student : students) {
+            var row = new com.university.ManageNotes.dto.Response.GradeSheetRow();
+            row.setStudentId(student.getId());
+            row.setMatricule(student.getMatricule());
+            row.setFullName(student.getFirstName()+" "+student.getLastName());
+
+            java.util.Map<String, Double> gradeMap = new java.util.HashMap<>();
+            for (String k : colKeys) gradeMap.put(k, null);
+
+            java.util.List<com.university.ManageNotes.model.Grades> sg;
+            if (semesterId!=null) {
+                sg = gradeRepository.findByStudentIdAndSemesterId(student.getId(), semesterId);
+            } else sg = gradeRepository.findByStudentIdAndSubjectId(student.getId(), subject.getId());
+
+            for (var g: sg) {
+                if (!g.getSubject().getId().equals(subject.getId())) continue;
+                String k = g.getType().name()+"::"+(g.getPeriodLabel()==null?"":g.getPeriodLabel());
+                if (gradeMap.get(k)!=null) conflicts++;// duplicate
+                gradeMap.put(k, g.getValue());
+            }
+
+            long missing = gradeMap.values().stream().filter(java.util.Objects::isNull).count();
+            conflicts += missing;
+
+            double avg = gradeMap.values().stream().filter(java.util.Objects::nonNull).mapToDouble(Double::doubleValue).average().orElse(0);
+            row.setPassed(avg>=10);
+
+            // convert map keys to label for dto
+            java.util.Map<String, Double> labelMap = new java.util.HashMap<>();
+            for (String k: gradeMap.keySet()) labelMap.put(keyToLabel.get(k), gradeMap.get(k));
+            row.setGrades(labelMap);
+            rows.add(row);
+        }
+
+        resp.setConflicts(conflicts);
         resp.setRows(rows);
         return resp;
     }

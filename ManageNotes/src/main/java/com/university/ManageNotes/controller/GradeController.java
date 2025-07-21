@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class GradeController {
 
     @Autowired
     private GradeService gradeService;
+
+    @Autowired
+    private com.university.ManageNotes.repository.StudentRepository studentRepository;
 
     @PostMapping
     @Operation(summary = "Create new grade", description = "Create a new grade entry (Teacher/Admin only)")
@@ -110,5 +114,19 @@ public class GradeController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
         }
+    }
+
+    @GetMapping("/sheet/self")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> getMySheet(@AuthenticationPrincipal com.university.ManageNotes.security.UserPrincipal principal,
+                                        @RequestParam Long semesterId) {
+        var studentOpt = studentRepository.findByMatricule(principal.getUsername());
+        if (studentOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Student record not found", "ERROR"));
+        }
+        var student = studentOpt.get();
+        // We need subjectCode – show all subjects ? For now return all grades for the semester aggregated
+        var rows = gradeService.getStudentGrades(student.getId(), semesterId);
+        return ResponseEntity.ok(rows);
     }
 }
