@@ -5,6 +5,7 @@ import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
+import com.university.ManageNotes.dto.Response.GradeSheetResponse;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -93,6 +95,20 @@ public class GradeController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + e.getMessage(), "ERROR"));
+        }
+    }
+
+    @GetMapping("/sheet")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    @Operation(summary = "Get grade sheet", description = "Return the full grade sheet for a subject and semester. Teachers may only request their own subject.")
+    public ResponseEntity<?> getGradeSheet(@RequestParam String subjectCode,
+                                           @RequestParam Long semesterId,
+                                           @RequestParam(required = false) String period) {
+        try {
+            GradeSheetResponse resp = gradeService.getGradeSheet(subjectCode, semesterId, period);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
         }
     }
 }

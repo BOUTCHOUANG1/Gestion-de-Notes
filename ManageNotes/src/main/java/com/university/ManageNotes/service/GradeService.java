@@ -221,6 +221,19 @@ public class GradeService {
         return grades.stream().map(this::convertToResponse).collect(java.util.stream.Collectors.toList());
     }
 
+     public com.university.ManageNotes.dto.Response.GradeSheetResponse getGradeSheet(String subjectCode, Long semesterId, String period) {
+        var subject = subjectRepository.findByCode(subjectCode).orElseThrow(() -> new RuntimeException("Subject not found"));
+        Long teacherId = null;
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+…        resp.setCycle(subject.getCycle().name());
+        resp.setPeriod(period);
+        resp.setTotalStudents(students.size());
+        resp.setConflicts(conflicts);
+        resp.setColumns(cols);
+        resp.setRows(rows);
+        return resp;
+    }
+
     public List<Students> getStudentsBySemester(Long semesterId) {
         List<Grades> grades = gradeRepository.findBySemesterId(semesterId);
         return grades.stream()
