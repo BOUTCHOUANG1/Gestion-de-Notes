@@ -113,5 +113,5 @@ public class UserPrincipal implements UserDetails {
         return Objects.hash(id);
     }
 
-    public Boolean isMustChangePassword() {return mustChangePassword;}
+    public boolean isMustChangePassword() {return Boolean.TRUE.equals(mustChangePassword);}
 }
