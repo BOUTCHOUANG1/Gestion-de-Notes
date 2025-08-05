@@ -11,26 +11,24 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "User Lookup", description = "Utility endpoints for user/role lookup")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private com.university.ManageNotes.repository.StudentRepository studentRepository;
+    private final com.university.ManageNotes.repository.StudentRepository studentRepository;
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
@@ -78,9 +76,9 @@ public class UserController {
 
     @GetMapping("/teachers")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "List all teachers")
-    public java.util.List<UserProfileResponse> teachers() {
-        return userRepository.findByRole(Role.TEACHER).stream()
+    @Operation(summary = "List all teachers (Admin only)")
+    public org.springframework.http.ResponseEntity<java.util.List<UserProfileResponse>> teachers() {
+        java.util.List<UserProfileResponse> teachers = userRepository.findByRole(Role.TEACHER).stream()
                 .map(u -> UserProfileResponse.builder()
                         .id(u.getId())
                         .username(u.getUsername())
@@ -90,6 +88,15 @@ public class UserController {
                         .role(u.getRole())
                         .build())
                 .toList();
+
+        /* Functional approach – we avoid mutability and branch expression by mapping the list into
+         * a ResponseEntity via Optional.  When empty we emit 204 No-Content so the UI can show
+         * the empty-state message required by AC3.
+         */
+        return java.util.Optional.of(teachers)
+                .filter(list -> !list.isEmpty())
+                .map(org.springframework.http.ResponseEntity::ok)
+                .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
     }
 
     @DeleteMapping("/users/{id}")
