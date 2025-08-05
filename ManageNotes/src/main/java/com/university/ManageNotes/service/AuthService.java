@@ -4,14 +4,13 @@ import com.university.ManageNotes.dto.Request.LoginRequest;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.mapper.UserMapper;
-import com.university.ManageNotes.repository.UserRepository;
-import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Students;
+import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.JwtUtils;
-import com.university.ManageNotes.service.EmailService;
 import com.university.ManageNotes.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -56,6 +55,9 @@ public class AuthService {
     private UserDetailsService userDetailsService;
 
     public MessageResponse registerUser(SignupRequest signupRequest) {
+        // Functional attempt reverted due to type-safety issues; keeping imperative flow with
+        // clear comments for readability and future refactor.
+
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             return MessageResponse.error("Error: Username is already taken!");
         }
@@ -69,7 +71,6 @@ public class AuthService {
             signupRequest.setRole(requestedRole);
         }
 
-        // privileged roles must present a valid invite token
         if (requestedRole != Role.STUDENT) {
             try {
                 inviteService.consumeToken(signupRequest.getRegistrationKey(), requestedRole);
@@ -94,7 +95,7 @@ public class AuthService {
             student.setCycle(signupRequest.getCycle());
             studentRepository.save(student);
         }
-        // ensure student usernames equal matricule
+
         if (saved.getRole() == Role.STUDENT) {
             Students st = studentRepository.findByEmail(saved.getEmail()).orElse(null);
             if (st != null && !saved.getUsername().equals(st.getMatricule())) {
@@ -103,7 +104,6 @@ public class AuthService {
             }
         }
 
-        // send default credentials email
         try {
             emailService.sendSimpleMessage(
                     saved.getEmail(),
