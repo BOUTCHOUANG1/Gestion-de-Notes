@@ -40,6 +40,14 @@ public class Users extends AbstractEntity {
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = true;
 
+    // --- Extra fields for teacher profile (US N6) ---
+    @Column(name = "phone", length = 30)
+    private String phone;
+
+    // Simple department name reference; we avoid full FK to keep migration light.
+    @Column(name = "department", length = 100)
+    private String department;
+
     @OneToMany(mappedBy = "enteredBy")
     private List<Grades> gradesEntered;
 }

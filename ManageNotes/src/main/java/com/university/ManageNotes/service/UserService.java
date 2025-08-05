@@ -6,20 +6,24 @@ import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+
+    private final com.university.ManageNotes.repository.SubjectRepository subjectRepository;
+
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public UserResponse createUser(UserRequest userRequest) {
         try {
@@ -100,6 +104,47 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve user: " + e.getMessage());
         }
+    }
+
+    // ---------------------- Teacher Creation (US N6) ----------------------
+    /**
+     * Creates a teacher user and assigns optional subjects.
+     * Functional style: 1) map request -> entity, 2) save, 3) side-effect assignment & email.
+     */
+    public com.university.ManageNotes.dto.Response.MessageResponse createTeacher(com.university.ManageNotes.dto.Request.TeacherCreateRequest req) {
+        // Validate uniqueness via Optional pipeline
+        java.util.Optional<String> duplicationError = java.util.stream.Stream.of(
+                        userRepository.existsByUsername(req.getPhone()) ? "Username already exists" : null,
+                        userRepository.existsByEmail(req.getEmail()) ? "Email already exists" : null)
+                .filter(java.util.Objects::nonNull)
+                .findFirst();
+        if (duplicationError.isPresent()) {
+            return com.university.ManageNotes.dto.Response.MessageResponse.error(duplicationError.get());
+        }
+
+        Users teacher = new Users();
+        teacher.setUsername(req.getPhone()); // Use phone as login by default
+        teacher.setFirstName(req.getFirstName());
+        teacher.setLastName(req.getLastName());
+        teacher.setPhone(req.getPhone());
+        teacher.setDepartment(req.getDepartment());
+        teacher.setEmail(req.getEmail());
+        teacher.setPassword(passwordEncoder.encode(req.getPassword()));
+        teacher.setRole(Role.TEACHER);
+        teacher.setActive(true);
+
+        Users saved = userRepository.save(teacher);
+
+        // Assign subjects if provided
+        if (!req.getSubjectIds().isEmpty()) {
+            // Each subject gets idTeacher mapping; stream for functional style
+            subjectRepository.findAllById(req.getSubjectIds()).forEach(s -> {
+                s.setIdTeacher(saved.getId());
+                subjectRepository.save(s);
+            });
+        }
+
+        return new com.university.ManageNotes.dto.Response.MessageResponse("Teacher created", "SUCCESS", userMapper.toResponse(saved));
     }
 
     public void activateUser(Long userId) {
