@@ -25,6 +25,11 @@ public class JwtResponse {
     private Role role;
     private List<String> authorities;
     private Boolean mustChangePassword;
+    /** Indicates an admin must choose department before accessing dashboard */
+    private boolean mustChooseDepartment;
+
+    /** List of departments available to the admin */
+    private java.util.List<String> departments;
 
     // Additional constructor for convenience
     public JwtResponse(String token, String type, String username, String email, Role role) {

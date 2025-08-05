@@ -1,7 +1,7 @@
 package com.university.ManageNotes.repository;
 
-import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

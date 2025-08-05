@@ -8,14 +8,16 @@ import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.JwtUtils;
 import com.university.ManageNotes.security.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,34 +27,19 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private InviteService inviteService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final StudentRepository studentRepository;
+    private final InviteService inviteService;
+    private final EmailService emailService;
+    private final DepartmentRepository departmentRepository;
+    private final UserDetailsService userDetailsService;
 
     public MessageResponse registerUser(SignupRequest signupRequest) {
         // Functional attempt reverted due to type-safety issues; keeping imperative flow with
@@ -143,8 +130,18 @@ public class AuthService {
             jwtResponse.setFirstName(userDetails.getFirstName());
             jwtResponse.setLastName(userDetails.getLastName());
             jwtResponse.setRole(userDetails.getRole());
-            jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(a -> a.getAuthority()).toList());
+            jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
             jwtResponse.setMustChangePassword(userDetails.getMustChangePassword());
+            // If admin, populate department selection metadata
+            if (userDetails.getRole() == Role.ADMIN) {
+                jwtResponse.setMustChooseDepartment(true);
+                jwtResponse.setDepartments(departmentRepository.findAll()
+                        .stream()
+                        .map(com.university.ManageNotes.model.Department::getName)
+                        .toList());
+            } else {
+                jwtResponse.setMustChooseDepartment(false);
+            }
             return jwtResponse;
         } else {
             throw new RuntimeException("Error: User not authenticated.");

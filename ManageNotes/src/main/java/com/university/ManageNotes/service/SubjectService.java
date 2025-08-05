@@ -6,9 +6,6 @@ import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.mapper.SubjectMapper;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.SubjectRepository;
-import com.university.ManageNotes.repository.SemesterRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

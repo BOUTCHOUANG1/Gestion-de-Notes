@@ -2,8 +2,8 @@ package com.university.ManageNotes.config;
 
 import com.university.ManageNotes.security.AuthEntryPointJwt;
 import com.university.ManageNotes.security.AuthTokenFilter;
-import com.university.ManageNotes.security.UserDetailsServiceImpl;
 import com.university.ManageNotes.security.JwtUtils;
+import com.university.ManageNotes.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

@@ -5,9 +5,8 @@ import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.model.Users;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper<Users, SignupRequest, UserResponse> {

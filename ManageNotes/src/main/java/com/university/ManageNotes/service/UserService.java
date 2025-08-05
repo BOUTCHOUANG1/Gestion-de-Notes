@@ -2,14 +2,13 @@ package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.UserRequest;
 import com.university.ManageNotes.dto.Response.UserResponse;
-import com.university.ManageNotes.model.Users;
-import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.security.UserPrincipal;
-import org.springframework.stereotype.Service;
+import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 

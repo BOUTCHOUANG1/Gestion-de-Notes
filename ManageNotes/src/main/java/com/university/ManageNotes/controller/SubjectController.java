@@ -3,17 +3,17 @@ package com.university.ManageNotes.controller;
 import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.SubjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.university.ManageNotes.security.UserPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController

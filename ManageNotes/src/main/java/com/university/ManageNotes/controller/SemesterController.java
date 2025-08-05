@@ -1,7 +1,7 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Request.SemesterRequest;
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.Semesters;
 import com.university.ManageNotes.repository.SemesterRepository;
 import io.swagger.v3.oas.annotations.Operation;

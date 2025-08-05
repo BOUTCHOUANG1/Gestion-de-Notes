@@ -1,8 +1,11 @@
 package com.university.ManageNotes.model;
 
-import jakarta.persistence.*;
-import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;

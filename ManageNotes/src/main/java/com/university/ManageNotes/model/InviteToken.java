@@ -2,6 +2,7 @@ package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.Instant;
 
 @Entity
