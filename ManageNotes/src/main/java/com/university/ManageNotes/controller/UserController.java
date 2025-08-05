@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserProfileResponse;
 import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
@@ -29,6 +30,8 @@ public class UserController {
     private final com.university.ManageNotes.repository.StudentRepository studentRepository;
 
     private final AuthService authService;
+
+    private final SubjectRepository subjectRepository;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
@@ -97,6 +100,40 @@ public class UserController {
                 .filter(list -> !list.isEmpty())
                 .map(org.springframework.http.ResponseEntity::ok)
                 .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
+    }
+
+    /**
+     * Delete a teacher by id.
+     * <p>
+     * Functional-style implementation uses Optional mapping to keep the control-flow declarative
+     * and side-effect free as much as possible. The method will:
+     *  1. Fetch the user and filter to TEACHER role.
+     *  2. For all subjects linked to the teacher, remove the assignment (idTeacher ← null).
+     *  3. Delete the teacher record.
+     *  4. Return a SUCCESS MessageResponse that includes a hint for the UI (AC2) when at least one
+     *     subject became unassigned.
+     * If the user is not a teacher or doesn't exist, we short-circuit with an ERROR response.
+     */
+    @DeleteMapping("/teachers/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a teacher by ID (Admin only)")
+    public MessageResponse deleteTeacher(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.TEACHER)
+                .map(teacher -> {
+                    // All subjects currently linked to this teacher.
+                    java.util.List<com.university.ManageNotes.model.Subject> orphanedSubjects = subjectRepository.findByIdTeacher(teacher.getId());
+
+                    // Detach teacher from subjects (pure side-effect kept minimal & transactional by Spring).
+                    orphanedSubjects.forEach(sub -> sub.setIdTeacher(null));
+                    subjectRepository.saveAll(orphanedSubjects);
+
+                    userRepository.delete(teacher);
+
+                    String msgSuffix = orphanedSubjects.isEmpty() ? "" : " Note: there are now " + orphanedSubjects.size() + " subject(s) without an assigned teacher.";
+                    return MessageResponse.success("Teacher deleted successfully." + msgSuffix);
+                })
+                .orElse(MessageResponse.error("Teacher not found or not a teacher"));
     }
 
     @DeleteMapping("/users/{id}")
