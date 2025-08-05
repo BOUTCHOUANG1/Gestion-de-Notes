@@ -1,6 +1,7 @@
 package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Students;
+import com.university.ManageNotes.model.StudentLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,5 +30,7 @@ public interface StudentRepository extends JpaRepository<Students, Long> {
     java.util.List<Students> findStudentsByTeacherSubject(Long teacherId);
 
     java.util.Optional<Students> findByMatricule(String matricule);
+
+    java.util.List<Students> findByLevel(com.university.ManageNotes.model.StudentLevel level);
 
 }

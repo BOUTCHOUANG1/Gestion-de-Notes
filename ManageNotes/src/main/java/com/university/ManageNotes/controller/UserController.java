@@ -4,8 +4,9 @@ import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserProfileResponse;
 import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,6 +76,29 @@ public class UserController {
                 .email(s.getEmail())
                 .role(Role.STUDENT)
                 .build()).toList();
+    }
+
+    @GetMapping("/students/level/{level}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List students by level (Admin only)")
+    public java.util.List<UserProfileResponse> studentsByLevel(@PathVariable String level) {
+        return java.util.Optional.ofNullable(level)
+                .map(String::toUpperCase)
+                .flatMap(lv -> java.util.Arrays.stream(StudentLevel.values())
+                        .filter(sl -> sl.name().equals("LEVEL" + lv.replace("L", "")))
+                        .findFirst())
+                .map(studentRepository::findByLevel)
+                .orElseGet(java.util.Collections::emptyList)
+                .stream()
+                .map(s -> UserProfileResponse.builder()
+                        .id(s.getId())
+                        .username(s.getMatricule())
+                        .firstName(s.getFirstName())
+                        .lastName(s.getLastName())
+                        .email(s.getEmail())
+                        .role(Role.STUDENT)
+                        .build())
+                .toList();
     }
 
     @GetMapping("/teachers")
