@@ -6,6 +6,7 @@ import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.GradeSheetResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
+import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/grades")
@@ -128,5 +130,26 @@ public class GradeController {
         // We need subjectCode – show all subjects ? For now return all grades for the semester aggregated
         var rows = gradeService.getStudentGrades(student.getId(), semesterId);
         return ResponseEntity.ok(rows);
+    }
+
+    @GetMapping("/level/{level}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get grades for all students in a level (Admin only)")
+    public ResponseEntity<?> getGradesByLevel(@PathVariable String level) {
+        try {
+            var lvlOpt = java.util.Arrays.stream(StudentLevel.values())
+                    .filter(l -> l.name().equals("LEVEL" + level.replace("L", "")))
+                    .findFirst();
+            if (lvlOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Invalid level", "ERROR"));
+            }
+            var students = studentRepository.findByLevel(lvlOpt.get());
+            var results = students.stream()
+                    .map(s -> gradeService.getStudentGrades(s.getId(), null))
+                    .toList();
+            return ResponseEntity.ok(results);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + ex.getMessage(), "ERROR"));
+        }
     }
 }
