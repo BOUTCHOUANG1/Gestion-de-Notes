@@ -17,6 +17,8 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     private final SubjectMapper mapper;
     @org.springframework.beans.factory.annotation.Autowired
     private com.university.ManageNotes.repository.SemesterRepository semesterRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.university.ManageNotes.repository.DepartmentRepository departmentRepository;
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper) {
         super(subjectRepository, mapper);
@@ -36,7 +38,16 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         var subject = mapper.toEntity(request);
         subject.setLevel(request.getLevel());
         subject.setCycle(request.getCycle());
-        subject.setSemester(semesterRepository.findById(request.getSemesterId()).orElseThrow(() -> new RuntimeException("Semester not found")));
+        subject.setSemester(semesterRepository.findById(request.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("Semester not found")));
+
+        // Functional style: retrieve department via Optional and map
+        subject.setDepartment(
+                java.util.Optional.ofNullable(request.getDepartmentId())
+                        .flatMap(departmentRepository::findById)
+                        .orElseThrow(() -> new RuntimeException("Department not found"))
+        );
+
         subjectRepository.save(subject);
         return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject created");
     }
@@ -55,7 +66,14 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         existing.setActive(request.getActive());
         existing.setLevel(request.getLevel());
         existing.setCycle(request.getCycle());
-        existing.setSemester(semesterRepository.findById(request.getSemesterId()).orElseThrow(() -> new RuntimeException("Semester not found")));
+        existing.setSemester(semesterRepository.findById(request.getSemesterId())
+                .orElseThrow(() -> new RuntimeException("Semester not found")));
+        existing.setDepartment(
+                java.util.Optional.ofNullable(request.getDepartmentId())
+                        .flatMap(departmentRepository::findById)
+                        .orElseThrow(() -> new RuntimeException("Department not found"))
+        );
+
         subjectRepository.save(existing);
         return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject updated");
     }

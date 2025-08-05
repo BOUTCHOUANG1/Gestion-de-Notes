@@ -16,4 +16,6 @@ public class SubjectResponse {
     private com.university.ManageNotes.model.StudentCycle cycle;
     private Long semesterId;
     private String semesterName;
+    private Long departmentId;
+    private String departmentName;
 }

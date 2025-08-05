@@ -28,6 +28,9 @@ public class Subject extends AbstractEntity {
      @ManyToOne
      @JoinColumn(name = "idSemester")
      private com.university.ManageNotes.model.Semesters semester;
+     @ManyToOne
+     @JoinColumn(name = "department_id")
+     private Department department;
      @Column(name = "active")
      private Boolean active = true;
 

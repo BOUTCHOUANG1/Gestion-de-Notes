@@ -17,6 +17,7 @@ public class GradeResponse extends AbstractEntity {
     private String semesterName;
     private Double value;
     private GradeType type;
+    private String periodLabel;
     private String comments;
     private Long enteredBy;
     private String enteredByName;

@@ -11,6 +11,8 @@ public interface SubjectMapper extends com.university.ManageNotes.mapper.BaseMap
 
     @org.mapstruct.Mapping(target = "semesterId", source = "semester.id")
     @org.mapstruct.Mapping(target = "semesterName", source = "semester.name")
+    @org.mapstruct.Mapping(target = "departmentId", source = "department.id")
+    @org.mapstruct.Mapping(target = "departmentName", source = "department.name")
     SubjectResponse toResponse(Subject entity);
 
     @org.mapstruct.Mapping(target = "id", ignore = true)

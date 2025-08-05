@@ -65,4 +65,24 @@ public class SubjectController {
         Long teacherId = userPrincipal.getId();
         return subjectService.getSubjectsByTeacher(teacherId);
     }
+
+    /**
+     * View-only endpoint for administrators to retrieve the list of subjects.
+     * <p>
+     * Functional-style implementation: the service call returns a List which we convert to an Optional.
+     * If the list is empty, we map it to an internationalised fallback message; otherwise we return the list itself.
+     * This avoids imperative <code>if/else</code> logic and relies on the monadic map capabilities of {@link java.util.Optional}.
+     * </p>
+     *
+     * @return 200-OK with either the subject list or a fallback message.
+     */
+    @GetMapping("/view-only")
+    @PreAuthorize("hasRole('ADMIN')")
+    public org.springframework.http.ResponseEntity<?> listViewOnly() {
+        var subjects = subjectService.getAllSubjects();
+        return java.util.Optional.of(subjects)
+                .filter(list -> !list.isEmpty())
+                .<org.springframework.http.ResponseEntity<?>>map(org.springframework.http.ResponseEntity::ok)
+                .orElseGet(() -> org.springframework.http.ResponseEntity.ok("No subjects found"));
+    }
 }

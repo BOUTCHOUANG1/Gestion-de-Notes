@@ -27,8 +27,10 @@ public class SubjectRequest {
     @Max(value = 10, message = "Credits must not exceed 10")
     private Integer credits = 1;
 
-    @NotNull(message = "Teacher ID is required")
     private Long teacherId;
+
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
 
     @NotNull(message = "Level is required")
     private com.university.ManageNotes.model.StudentLevel level;
