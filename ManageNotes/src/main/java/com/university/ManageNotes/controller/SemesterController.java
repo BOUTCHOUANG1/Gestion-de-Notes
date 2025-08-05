@@ -4,10 +4,11 @@ import com.university.ManageNotes.dto.Request.SemesterRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.Semesters;
 import com.university.ManageNotes.repository.SemesterRepository;
+import com.university.ManageNotes.service.SemesterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,18 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/semesters")
 @Tag(name = "Semester Management", description = "Create and list semesters (Admin only)")
 public class SemesterController {
 
-    @Autowired
-    private SemesterRepository semesterRepository;
+    private final SemesterRepository semesterRepository;
 
-    @GetMapping
-    @Operation(summary = "List all semesters")
-    public List<Semesters> listSemesters() {
-        return semesterRepository.findAll();
-    }
+    private final SemesterService semesterService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -54,5 +51,12 @@ public class SemesterController {
         }
         semesterRepository.deleteById(id);
         return com.university.ManageNotes.dto.Response.MessageResponse.success("Semester deleted successfully");
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List all semesters, creating defaults if none exist")
+    public List<Semesters> listSemesters() {
+        return semesterService.getSemestersWithDefaults();
     }
 }
