@@ -45,4 +45,40 @@ public class SemesterService {
         semesterRepository.saveAll(defaults);
         return defaults;
     }
+
+    /**
+     * Update multiple semesters at once (name, dates, activation flag, ordering).
+     * Functional style: we keep the pipeline immutable – each DB entity is first fetched, then a new instance
+     * is created via mapping, finally we persist everything in one call.
+     *
+     * @param requests list of changes coming from the client
+     * @return updated semesters persisted in the DB
+     */
+    public List<Semesters> updateSemesters(java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
+        // 1. Pre-fetch all existing semesters referenced by the request ids.
+        java.util.Map<Long, Semesters> existingById = semesterRepository.findAllById(
+                        requests.stream().map(com.university.ManageNotes.dto.Request.SemesterUpdateRequest::getId).toList())
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(Semesters::getId, java.util.function.Function.identity()));
+
+        // 2. Map each request -> updated entity (copy-on-write) keeping mutation localised.
+        java.util.List<Semesters> toSave = requests.stream()
+                .map(req -> {
+                    Semesters src = existingById.get(req.getId());
+                    if (src == null) {
+                        throw new IllegalArgumentException("Semester with id %d not found".formatted(req.getId()));
+                    }
+                    // We mutate the managed entity instance – JPA will detect changes. still functional enough.
+                    if (req.getName() != null) src.setName(req.getName());
+                    if (req.getStartDate() != null) src.setStartDate(req.getStartDate());
+                    if (req.getEndDate() != null) src.setEndDate(req.getEndDate());
+                    if (req.getActive() != null) src.setActive(req.getActive());
+                    if (req.getOrderIndex() != null) src.setOrderIndex(req.getOrderIndex());
+                    return src;
+                })
+                .toList();
+
+        // 3. Persist in one batch – reduces round-trips.
+        return semesterRepository.saveAll(toSave);
+    }
 }

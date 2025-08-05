@@ -59,4 +59,15 @@ public class SemesterController {
     public List<Semesters> listSemesters() {
         return semesterService.getSemestersWithDefaults();
     }
+
+    /**
+     * Bulk update of school periods – covers user-story N4 AC2+AC3.
+     * We accept a list so the admin can edit names, dates, ordering in one shot.
+     */
+    @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Bulk update semesters", description = "Update name, dates, active flag and order index for many semesters at once")
+    public List<Semesters> updateSemesters(@Valid @RequestBody java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
+        return semesterService.updateSemesters(requests);
+    }
 }

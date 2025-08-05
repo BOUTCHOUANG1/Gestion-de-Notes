@@ -30,9 +30,25 @@ public class Semesters extends AbstractEntity {
     @Column(name = "active")
     private Boolean active;
 
+    /**
+     * Custom ordering index managed by administrators.
+     * A lower value means the period appears earlier in the list.  Nullable for backward-compatibility;
+     * when null, ordering falls back to {@code startDate}.
+     */
+    @Column(name = "order_index")
+    private Integer orderIndex;
+
     @JsonIgnore
     @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
     private List<Grades> grades;
+
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
 
     public String getName() {
         return name;
