@@ -160,22 +160,36 @@ public class UserController {
                 .orElse(MessageResponse.error("Teacher not found or not a teacher"));
     }
 
+    /**
+     * Activate or deactivate a student account.
+     * Functional approach: Optional pipeline ensures declarative flow without imperative branching.
+     */
+    @PatchMapping("/students/{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public MessageResponse setStudentActive(@PathVariable Long id, @RequestParam boolean active) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.STUDENT)
+                .map(u -> {
+                    u.setActive(active);
+                    userRepository.save(u);
+                    String state = active ? "activated" : "deactivated";
+                    return MessageResponse.success("Student account " + state + " successfully");
+                })
+                .orElse(MessageResponse.error("Student not found"));
+    }
+
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a user by ID (Admin only)")
-    public com.university.ManageNotes.dto.Response.MessageResponse deleteUser(@PathVariable Long id) {
-        var userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            return com.university.ManageNotes.dto.Response.MessageResponse.error("User not found");
-        }
-        var user = userOpt.get();
-
-        // If the user is a student, also remove the corresponding student record
-        if (user.getRole() == Role.STUDENT) {
-            studentRepository.findByEmail(user.getEmail()).ifPresent(studentRepository::delete);
-        }
-
-        userRepository.deleteById(id);
-        return com.university.ManageNotes.dto.Response.MessageResponse.success("User deleted successfully");
+    public MessageResponse deleteUser(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    if (user.getRole() == Role.STUDENT) {
+                        studentRepository.findByEmail(user.getEmail()).ifPresent(studentRepository::delete);
+                    }
+                    userRepository.delete(user);
+                    return MessageResponse.success("User deleted successfully");
+                })
+                .orElse(MessageResponse.error("User not found"));
     }
 }

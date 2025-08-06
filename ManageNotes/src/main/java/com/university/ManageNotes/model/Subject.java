@@ -2,12 +2,14 @@ package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Subject extends AbstractEntity {
      @Column(name = "name")
      private String name;

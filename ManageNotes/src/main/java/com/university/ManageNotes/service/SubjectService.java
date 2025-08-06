@@ -5,7 +5,10 @@ import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.mapper.SubjectMapper;
 import com.university.ManageNotes.model.Subject;
+import com.university.ManageNotes.repository.DepartmentRepository;
+import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,15 +18,15 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
 
     private final SubjectRepository subjectRepository;
     private final SubjectMapper mapper;
-    @org.springframework.beans.factory.annotation.Autowired
-    private com.university.ManageNotes.repository.SemesterRepository semesterRepository;
-    @org.springframework.beans.factory.annotation.Autowired
-    private com.university.ManageNotes.repository.DepartmentRepository departmentRepository;
+    private final SemesterRepository semesterRepository;
+    private final DepartmentRepository departmentRepository;
 
-    public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper) {
+    public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper, SemesterRepository semesterRepository, DepartmentRepository departmentRepository) {
         super(subjectRepository, mapper);
         this.subjectRepository = subjectRepository;
         this.mapper = mapper;
+        this.semesterRepository = semesterRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     public List<SubjectResponse> getAllSubjects() {
@@ -54,28 +57,30 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
 
     @Override
     public MessageResponse update(Long id, SubjectRequest request) {
-        Subject existing = subjectRepository.findById(id).orElseThrow(() -> new RuntimeException("Subject not found"));
-        if (!existing.getCode().equals(request.getCode()) && subjectRepository.existsByCode(request.getCode())) {
-            return MessageResponse.error("Subject code already exists");
-        }
-        existing.setName(request.getName());
-        existing.setCode(request.getCode());
-        existing.setDescription(request.getDescription());
-        existing.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
-        existing.setIdTeacher(request.getTeacherId());
-        existing.setActive(request.getActive());
-        existing.setLevel(request.getLevel());
-        existing.setCycle(request.getCycle());
-        existing.setSemester(semesterRepository.findById(request.getSemesterId())
-                .orElseThrow(() -> new RuntimeException("Semester not found")));
-        existing.setDepartment(
-                java.util.Optional.ofNullable(request.getDepartmentId())
-                        .flatMap(departmentRepository::findById)
-                        .orElseThrow(() -> new RuntimeException("Department not found"))
-        );
-
-        subjectRepository.save(existing);
-        return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject updated");
+        return subjectRepository.findById(id)
+                .map(existing -> {
+                    if (!existing.getCode().equals(request.getCode()) && subjectRepository.existsByCode(request.getCode())) {
+                        return MessageResponse.error("Subject code already exists");
+                    }
+                    existing.setName(request.getName());
+                    existing.setCode(request.getCode());
+                    existing.setDescription(request.getDescription());
+                    existing.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
+                    existing.setIdTeacher(request.getTeacherId());
+                    existing.setActive(request.getActive());
+                    existing.setLevel(request.getLevel());
+                    existing.setCycle(request.getCycle());
+                    existing.setSemester(semesterRepository.findById(request.getSemesterId())
+                            .orElseThrow(() -> new RuntimeException("Semester not found")));
+                    existing.setDepartment(
+                            java.util.Optional.ofNullable(request.getDepartmentId())
+                                    .flatMap(departmentRepository::findById)
+                                    .orElseThrow(() -> new RuntimeException("Department not found"))
+                    );
+                    subjectRepository.save(existing);
+                    return MessageResponse.success("Subject updated");
+                })
+                .orElse(MessageResponse.error("Subject not found"));
     }
 
     public List<SubjectResponse> getSubjectsByTeacher(Long teacherId) {
@@ -100,6 +105,12 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     }
 
     public MessageResponse deleteSubject(Long id) {
-        return delete(id);
+        // Functional-style: use Optional to branch without imperative if/else.
+        return subjectRepository.findById(id)
+                .map(entity -> {
+                    subjectRepository.delete(entity);
+                    return com.university.ManageNotes.dto.Response.MessageResponse.success("Deleted successfully");
+                })
+                .orElseGet(() -> com.university.ManageNotes.dto.Response.MessageResponse.error("Subject not found"));
     }
 }
