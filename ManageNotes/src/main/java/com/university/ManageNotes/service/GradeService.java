@@ -203,6 +203,38 @@ public class GradeService {
             response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
 
+        // Build TopicDto list expected by frontend
+        java.util.Map<String, com.university.ManageNotes.dto.Response.TopicDto> topicMap = new java.util.HashMap<>();
+        for (var gr : gradeResponses) {
+            var topic = topicMap.computeIfAbsent(gr.getSubjectCode(), k -> {
+                var subj = subjectRepository.findById(gr.getSubjectId()).orElse(null);
+                return com.university.ManageNotes.dto.Response.TopicDto.builder()
+                        .code(gr.getSubjectCode())
+                        .title(gr.getSubjectName())
+                        .credit(subj != null ? subj.getCredits() : java.math.BigDecimal.ZERO)
+                        .semester(gr.getSemesterName() != null && gr.getSemesterName().toLowerCase().contains("2") ? "s2" : "s1")
+                        .build();
+            });
+            if (gr.getPeriodLabel() != null) {
+                if (gr.getPeriodLabel().toUpperCase().startsWith("CC")) {
+                    topic.setCc(gr.getValue());
+                } else if (gr.getPeriodLabel().toUpperCase().startsWith("SN")) {
+                    topic.setSn(gr.getValue());
+                }
+            }
+        }
+
+        java.util.List<com.university.ManageNotes.dto.Response.TopicDto> topicList = new java.util.ArrayList<>(topicMap.values());
+
+        response.setTopics(topicList);
+        studentOpt.ifPresent(s -> {
+            response.setFirstName(s.getFirstName());
+            response.setLastName(s.getLastName());
+            response.setEmail(s.getEmail());
+            response.setUsername(s.getMatricule());
+            response.setRole("STUDENT");
+        });
+
         return response;
     }
 
