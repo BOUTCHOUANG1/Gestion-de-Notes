@@ -124,6 +124,29 @@ public class UserController {
                 .filter(list -> !list.isEmpty())
                 .map(org.springframework.http.ResponseEntity::ok)
                 .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
+
+        // enrich each teacher with levels taught
+        teachers.forEach(t -> {
+            var subjects = subjectRepository.findByIdTeacher(t.getId());
+            java.util.Map<String, java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo>> map = new java.util.HashMap<>();
+            for (var sub : subjects) {
+                String level = sub.getLevel()!=null?sub.getLevel().name().replace("LEVEL","L"):"";
+                var list = map.computeIfAbsent(level, k->new java.util.ArrayList<>());
+                list.add(com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo.builder()
+                        .code(sub.getCode())
+                        .title(sub.getName())
+                        .build());
+            }
+            java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto> levels = map.entrySet().stream()
+                    .map(e -> com.university.ManageNotes.dto.Response.TeacherSubjectDto.builder()
+                            .level(e.getKey())
+                            .subjects(e.getValue())
+                            .build())
+                    .toList();
+            t.setLevels(levels);
+        });
+
+        /* Functional approach ...*/
     }
 
     /**

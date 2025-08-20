@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class UserProfileResponse {
     private String lastName;
     private String email;
     private Role role;
+    private List<TeacherSubjectDto> levels;
 }
