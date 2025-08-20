@@ -2,8 +2,11 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.SemesterRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.SemesterResponse;
 import com.university.ManageNotes.model.Semesters;
+import com.university.ManageNotes.model.GradingWindow;
 import com.university.ManageNotes.repository.SemesterRepository;
+import com.university.ManageNotes.repository.GradingWindowRepository;
 import com.university.ManageNotes.service.SemesterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,8 +25,8 @@ import java.util.List;
 public class SemesterController {
 
     private final SemesterRepository semesterRepository;
-
     private final SemesterService semesterService;
+    private final GradingWindowRepository windowRepository;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -45,19 +48,27 @@ public class SemesterController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a semester", description = "Admin only")
-    public com.university.ManageNotes.dto.Response.MessageResponse deleteSemester(@PathVariable Long id) {
+    public MessageResponse deleteSemester(@PathVariable Long id) {
         if (!semesterRepository.existsById(id)) {
-            return com.university.ManageNotes.dto.Response.MessageResponse.error("Semester not found");
+            return MessageResponse.error("Semester not found");
         }
         semesterRepository.deleteById(id);
-        return com.university.ManageNotes.dto.Response.MessageResponse.success("Semester deleted successfully");
+        return MessageResponse.success("Semester deleted successfully");
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     @Operation(summary = "List all semesters, creating defaults if none exist")
-    public List<Semesters> listSemesters() {
-        return semesterService.getSemestersWithDefaults();
+    public List<SemesterResponse> listSemesters() {
+        return semesterService.getSemestersWithDefaults().stream()
+                .map(s -> SemesterResponse.builder()
+                        .id(s.getId())
+                        .name(s.getName())
+                        .startDate(s.getStartDate())
+                        .endDate(s.getEndDate())
+                        .active(s.getActive())
+                        .build())
+                .toList();
     }
 
     /**
@@ -69,5 +80,11 @@ public class SemesterController {
     @Operation(summary = "Bulk update semesters", description = "Update name, dates, active flag and order index for many semesters at once")
     public List<Semesters> updateSemesters(@Valid @RequestBody java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
         return semesterService.updateSemesters(requests);
+    }
+
+    @GetMapping("/{id}/windows")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    public List<GradingWindow> windows(@PathVariable Long id) {
+        return windowRepository.findBySemesterId(id);
     }
 }

@@ -7,6 +7,7 @@ import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.GradeRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,19 +35,60 @@ public class UserController {
 
     private final SubjectRepository subjectRepository;
 
+    private final com.university.ManageNotes.repository.GradeRepository gradeRepository;
+
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
     public com.university.ManageNotes.dto.Response.UserProfileResponse me(Authentication authentication) {
         String username = authentication.getName();
         var user = userRepository.findByUsername(username).orElseThrow();
-        return com.university.ManageNotes.dto.Response.UserProfileResponse.builder()
+
+        var builder = com.university.ManageNotes.dto.Response.UserProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+                .role(user.getRole());
+
+        if (user.getRole() == com.university.ManageNotes.model.Role.STUDENT) {
+            java.util.List<com.university.ManageNotes.model.Grades> grades = gradeRepository.findByStudentId(user.getId());
+            java.util.Map<Long, com.university.ManageNotes.dto.Response.TopicDto.TopicDtoBuilder> map = new java.util.HashMap<>();
+            for (var g : grades) {
+                var subj = g.getSubject();
+                var b = map.computeIfAbsent(subj.getId(), k -> com.university.ManageNotes.dto.Response.TopicDto.builder()
+                        .code(subj.getCode())
+                        .title(subj.getName())
+                        .semester(g.getSemesters()!=null?g.getSemesters().getName().toLowerCase():null));
+                if (g.getPeriodLabel()!=null) {
+                    String pl = g.getPeriodLabel().toUpperCase();
+                    if (pl.startsWith("CC")) b.cc(g.getValue());
+                    else if (pl.startsWith("SN")) b.sn(g.getValue());
+                }
+                if (b.build().getCredit()==null && g.getSubject().getCredits()!=null) {
+                    b.credit(g.getSubject().getCredits());
+                }
+            }
+            builder.topics(map.values().stream().map(com.university.ManageNotes.dto.Response.TopicDto.TopicDtoBuilder::build).toList());
+        } else if (user.getRole() == com.university.ManageNotes.model.Role.TEACHER) {
+            var subjects = subjectRepository.findByIdTeacher(user.getId());
+            java.util.Map<String, java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo>> map = new java.util.HashMap<>();
+            for (var sub : subjects) {
+                String level = sub.getLevel()!=null?sub.getLevel().name().replace("LEVEL","L"):"";
+                map.computeIfAbsent(level, k->new java.util.ArrayList<>())
+                        .add(com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo.builder()
+                                .code(sub.getCode())
+                                .title(sub.getName())
+                                .build());
+            }
+            var levels = map.entrySet().stream().map(e-> com.university.ManageNotes.dto.Response.TeacherSubjectDto.builder()
+                    .level(e.getKey())
+                    .subjects(e.getValue())
+                    .build()).toList();
+            builder.levels(levels);
+        }
+
+        return builder.build();
     }
 
     @PostMapping("/me/credentials")
@@ -116,15 +158,6 @@ public class UserController {
                         .build())
                 .toList();
 
-        /* Functional approach – we avoid mutability and branch expression by mapping the list into
-         * a ResponseEntity via Optional.  When empty we emit 204 No-Content so the UI can show
-         * the empty-state message required by AC3.
-         */
-        return java.util.Optional.of(teachers)
-                .filter(list -> !list.isEmpty())
-                .map(org.springframework.http.ResponseEntity::ok)
-                .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
-
         // enrich each teacher with levels taught
         teachers.forEach(t -> {
             var subjects = subjectRepository.findByIdTeacher(t.getId());
@@ -146,7 +179,12 @@ public class UserController {
             t.setLevels(levels);
         });
 
-        /* Functional approach ...*/
+        org.springframework.http.ResponseEntity<java.util.List<UserProfileResponse>> resp = java.util.Optional.of(teachers)
+                .filter(list -> !list.isEmpty())
+                .map(org.springframework.http.ResponseEntity::ok)
+                .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
+
+        return resp;
     }
 
     /**

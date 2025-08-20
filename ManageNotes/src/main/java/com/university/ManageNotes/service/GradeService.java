@@ -8,6 +8,7 @@ import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.repository.*;
+import com.university.ManageNotes.service.GradingWindowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +23,16 @@ public class GradeService {
     private final SubjectRepository subjectRepository;
     private final UserRepository userRepository;
     private final SemesterRepository semesterRepository;
+    private final GradingWindowService gradingWindowService;
 
     @Autowired
-    public GradeService(GradeRepository gradeRepository, StudentRepository studentRepository, SubjectRepository subjectRepository, UserRepository userRepository, SemesterRepository semesterRepository) {
+    public GradeService(GradeRepository gradeRepository, StudentRepository studentRepository, SubjectRepository subjectRepository, UserRepository userRepository, SemesterRepository semesterRepository, GradingWindowService gradingWindowService) {
         this.gradeRepository = gradeRepository;
         this.studentRepository = studentRepository;
         this.subjectRepository = subjectRepository;
         this.userRepository = userRepository;
         this.semesterRepository = semesterRepository;
+        this.gradingWindowService = gradingWindowService;
     }
 
     public MessageResponse addGrade(GradeRequest gradeRequest) {
@@ -123,6 +126,15 @@ public class GradeService {
     }
 
     public GradeResponse createGrade(GradeRequest gradeRequest) {
+        // window validation for teachers
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isTeacher = auth!=null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
+        if (isTeacher) {
+            if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel())) {
+                throw new RuntimeException("Grading window closed");
+            }
+        }
+
         Grades grade = new Grades();
         grade.setStudent(studentRepository.findById(gradeRequest.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found")));
@@ -142,6 +154,15 @@ public class GradeService {
     }
 
     public GradeResponse createGradeByCode(com.university.ManageNotes.dto.Request.GradeByCodeRequest req) {
+        // window validation for teacher (current auth is the caller)
+        var auth2 = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isTeacher2 = auth2!=null && auth2.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
+        if (isTeacher2) {
+            if (!gradingWindowService.isWindowOpen(req.getSemesterId(), req.getPeriodLabel())) {
+                throw new RuntimeException("Grading window closed");
+            }
+        }
+
         Students student = studentRepository.findByMatricule(req.getStudentMatricule())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
         var subject = subjectRepository.findByCode(req.getSubjectCode())

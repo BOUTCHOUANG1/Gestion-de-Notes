@@ -20,4 +20,5 @@ public class UserProfileResponse {
     private String email;
     private Role role;
     private List<TeacherSubjectDto> levels;
+    private List<TopicDto> topics;
 }

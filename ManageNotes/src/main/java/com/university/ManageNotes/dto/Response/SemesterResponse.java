@@ -1,18 +1,20 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.model.AbstractEntity;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
+import java.time.LocalDate;
+
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SemesterResponse extends AbstractEntity {
+public class SemesterResponse {
+    private Long id;
     private String name;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Boolean active;
-    private Long totalStudents;
-    private Long totalGrades;
 }
