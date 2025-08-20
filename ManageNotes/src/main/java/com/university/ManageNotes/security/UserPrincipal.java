@@ -80,6 +80,12 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
+    public boolean hasRole(String role) {
+        return authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
+    }
+
+    public boolean isTeacher() {return hasRole("TEACHER");}
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
