@@ -4,7 +4,6 @@ import com.university.ManageNotes.dto.Request.GradeClaimDecisionRequest;
 import com.university.ManageNotes.dto.Request.GradeClaimRequest;
 import com.university.ManageNotes.dto.Response.GradeClaimResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.model.GradeClaim;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradeClaimService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,11 +25,12 @@ public class GradeClaimController {
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Submit a grade claim (student)")
-    public ResponseEntity<?> create(@AuthenticationPrincipal UserPrincipal principal,
-                                    @Valid @RequestBody GradeClaimRequest req) {
+    public ResponseEntity<?> create(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody GradeClaimRequest req) {
         try {
-            GradeClaim claim = claimService.createClaim(principal.getId(), req);
-            return ResponseEntity.ok(GradeClaimResponse.fromEntity(claim));
+            GradeClaimResponse response = claimService.create(req);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException ex) {
             return ResponseEntity.status(403).body(MessageResponse.error(ex.getMessage()));
         } catch (Exception ex) {
@@ -43,23 +43,71 @@ public class GradeClaimController {
     @Operation(summary = "List grade claims (teacher/admin)")
     public ResponseEntity<?> list(@AuthenticationPrincipal UserPrincipal principal) {
         try {
-            List<GradeClaim> claims = principal.isTeacher()
+            List<GradeClaimResponse> claims = principal.isTeacher()
                     ? claimService.listClaimsForTeacher(principal.getId())
                     : claimService.listAll();
-            return ResponseEntity.ok(claims.stream().map(GradeClaimResponse::fromEntity).toList());
+            return ResponseEntity.ok(claims);
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
         }
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
-    @Operation(summary = "Decide on a grade claim (approve/reject)")
-    public ResponseEntity<?> decide(@PathVariable Long id,
-                                    @Valid @RequestBody GradeClaimDecisionRequest decision) {
+    @GetMapping("/teacher")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(summary = "List grade claims for current teacher")
+    public ResponseEntity<?> listForTeacher() {
         try {
-            GradeClaim updated = claimService.decide(id, decision.getApprove(), decision.getComment());
-            return ResponseEntity.ok(GradeClaimResponse.fromEntity(updated));
+            return ResponseEntity.ok(claimService.getClaimsForCurrentTeacher());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    @Operation(summary = "Approve a grade claim (teacher/admin)")
+    public ResponseEntity<?> approve(
+            @PathVariable Long id,
+            @RequestParam(required = false) String comment) {
+        try {
+            GradeClaimResponse response = claimService.approve(id, comment);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/reject")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
+    @Operation(summary = "Reject a grade claim (teacher/admin)")
+    public ResponseEntity<?> reject(
+            @PathVariable Long id,
+            @RequestParam(required = false) String reason) {
+        try {
+            GradeClaimResponse response = claimService.reject(id, reason);
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+        }
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all pending claims (admin only)")
+    public ResponseEntity<?> getPending() {
+        try {
+            return ResponseEntity.ok(claimService.getPending());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get claim by ID")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(claimService.getById(id));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
         }

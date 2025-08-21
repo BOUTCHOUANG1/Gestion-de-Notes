@@ -1,63 +1,130 @@
 package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.GradeClaimRequest;
+import com.university.ManageNotes.dto.Response.GradeClaimResponse;
+import com.university.ManageNotes.mapper.GradeClaimMapper;
 import com.university.ManageNotes.model.GradeClaim;
-import com.university.ManageNotes.repository.*;
-import lombok.RequiredArgsConstructor;
+import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.GradeClaimRepository;
+import com.university.ManageNotes.repository.GradeRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.service.GradingWindowService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-public class GradeClaimService {
+public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeClaimResponse, GradeClaimRequest> {
+
+    private final GradeClaimRepository claimRepository;
     private final GradeRepository gradeRepository;
     private final SubjectRepository subjectRepository;
-    private final GradeClaimRepository claimRepository;
     private final GradingWindowService windowService;
+    private final UserRepository userRepository;
+    private final GradeClaimMapper gradeClaimMapper;
 
-    public GradeClaim createClaim(Long studentId, GradeClaimRequest req) {
-        var grade = gradeRepository.findById(req.getGradeId()).orElseThrow();
-        if (!grade.getStudent().getId().equals(studentId)) throw new RuntimeException("Grade not owned by student");
-        var semester = grade.getSemesters();
-        if (!windowService.isWindowOpen(semester.getId(), grade.getPeriodLabel())) {
-            throw new RuntimeException("Claim period closed");
+    public GradeClaimService(GradeClaimRepository claimRepository,
+                             GradeRepository gradeRepository,
+                             SubjectRepository subjectRepository,
+                             GradingWindowService windowService,
+                             UserRepository userRepository,
+                             GradeClaimMapper gradeClaimMapper) {
+        super(claimRepository, gradeClaimMapper::toResponse);
+        this.claimRepository = claimRepository;
+        this.gradeRepository = gradeRepository;
+        this.subjectRepository = subjectRepository;
+        this.windowService = windowService;
+        this.userRepository = userRepository;
+        this.gradeClaimMapper = gradeClaimMapper;
+    }
+
+    @Override
+    @Transactional
+    public GradeClaimResponse create(GradeClaimRequest req) {
+        var grade = gradeRepository.findById(req.getGradeId())
+                .orElseThrow(() -> new RuntimeException("Grade not found"));
+
+        if (!windowService.isWindowOpen(grade.getSemesters().getId(), grade.getPeriodLabel())) {
+            throw new RuntimeException("Claim period is closed");
         }
+
+        String period = req.getPeriod();
+        if(period==null || (!period.equals("CC") && !period.equals("SN"))){
+            throw new RuntimeException("period must be CC or SN");
+        }
+
         GradeClaim claim = new GradeClaim();
         claim.setStudent(grade.getStudent());
         claim.setGrade(grade);
-        claim.setSemester(semester);
-        claim.setPeriodLabel(grade.getPeriodLabel());
+        claim.setSemester(grade.getSemesters());
+        claim.setPeriodLabel(period);
         claim.setRequestedScore(req.getRequestedScore());
         claim.setCause(req.getCause());
         claim.setDescription(req.getDescription());
-        claim.setStatus(GradeClaim.ClaimStatus.PENDING);
-        return claimRepository.save(claim);
+
+        // Set created by from security context
+        var currentUser = getCurrentUser();
+        claim.setCreatedBy(currentUser);
+
+        return gradeClaimMapper.toResponse(claimRepository.save(claim));
     }
 
-    public List<GradeClaim> listClaimsForTeacher(Long teacherId) {
-        return claimRepository.findByGrade_Subject_IdIn(
-                subjectRepository.findByIdTeacher(teacherId).stream().map(s->s.getId()).toList());
+    public List<GradeClaimResponse> listClaimsForTeacher(Long teacherId) {
+        return claimRepository.findByGrade_Subject_IdTeacher(teacherId).stream()
+                .map(gradeClaimMapper::toResponse)
+                .toList();
     }
 
-    public List<GradeClaim> listAll() {
-        return claimRepository.findAll();
+    public List<GradeClaimResponse> listAll() {
+        return claimRepository.findAll().stream()
+                .map(gradeClaimMapper::toResponse)
+                .toList();
     }
 
-    public GradeClaim decide(Long claimId, boolean approve, String comment) {
-        var claim = claimRepository.findById(claimId).orElseThrow();
-        if (claim.getStatus() != GradeClaim.ClaimStatus.PENDING) {
-            throw new RuntimeException("Claim already decided");
+    public List<GradeClaimResponse> getClaimsForCurrentTeacher() {
+        Users user = getCurrentUser();
+        return listClaimsForTeacher(user.getId());
+    }
+
+    @Override
+    protected void onApprove(GradeClaim claim) {
+        // This is called when a claim is approved
+        var grade = claim.getGrade();
+        grade.setValue(claim.getRequestedScore());
+        gradeRepository.save(grade);
+    }
+
+    // MapStruct handles the DTO conversion through the mapper interface
+
+    private Users getCurrentUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.User) {
+            var userPrincipal = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+            return userRepository.findByUsername(userPrincipal.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
         }
-        claim.setStatus(approve ? GradeClaim.ClaimStatus.APPROVED : GradeClaim.ClaimStatus.REJECTED);
-        claim.setTeacherComment(comment);
-        claim.setResolvedAt(LocalDateTime.now());
-        if (approve) {
-            var grade = claim.getGrade();
-            grade.setValue(claim.getRequestedScore());
-            gradeRepository.save(grade);
-        }
-        return claimRepository.save(claim);
+        throw new RuntimeException("No authenticated user");
+    }
+
+    // Implement any additional methods required by the abstract class or interface
+    @Override
+    public GradeClaimResponse toDto(GradeClaim entity) {
+        return gradeClaimMapper.toResponse(entity);
+    }
+
+    @Override
+    public List<GradeClaimResponse> getPending() {
+        return super.getPending();
+    }
+
+    @Override
+    public GradeClaimResponse getById(Long id) {
+        return super.getById(id);
     }
 }

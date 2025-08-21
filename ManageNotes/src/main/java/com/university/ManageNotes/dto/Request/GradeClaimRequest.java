@@ -15,5 +15,9 @@ public class GradeClaimRequest {
     private String cause;
 
     @NotBlank
+    @Pattern(regexp = "CC|SN", message = "period must be CC or SN")
+    private String period;
+
+    @NotBlank
     private String description;
 }
