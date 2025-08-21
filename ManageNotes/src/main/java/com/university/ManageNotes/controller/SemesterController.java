@@ -42,6 +42,9 @@ public class SemesterController {
         semester.setEndDate(request.getEndDate());
         semester.setActive(Boolean.TRUE.equals(request.getActive()));
         Semesters saved = semesterRepository.save(semester);
+        if(Boolean.TRUE.equals(saved.getActive())){
+            semesterRepository.deactivateOtherSemesters(saved.getId());
+        }
         return ResponseEntity.ok(saved);
     }
 

@@ -72,13 +72,21 @@ public class SemesterService {
                     if (req.getName() != null) src.setName(req.getName());
                     if (req.getStartDate() != null) src.setStartDate(req.getStartDate());
                     if (req.getEndDate() != null) src.setEndDate(req.getEndDate());
-                    if (req.getActive() != null) src.setActive(req.getActive());
+                    if (req.getActive() != null && req.getActive()) {
+                        src.setActive(true);
+                        // deactivate others later
+                    } else if(req.getActive()!=null) {
+                        src.setActive(false);
+                    }
                     if (req.getOrderIndex() != null) src.setOrderIndex(req.getOrderIndex());
                     return src;
                 })
                 .toList();
 
         // 3. Persist in one batch – reduces round-trips.
-        return semesterRepository.saveAll(toSave);
+        List<Semesters> saved = semesterRepository.saveAll(toSave);
+        saved.stream().filter(Semesters::getActive).findFirst()
+                .ifPresent(s -> semesterRepository.deactivateOtherSemesters(s.getId()));
+        return saved;
     }
 }
