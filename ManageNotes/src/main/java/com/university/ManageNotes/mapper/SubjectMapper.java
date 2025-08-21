@@ -6,7 +6,7 @@ import com.university.ManageNotes.model.Subject;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface SubjectMapper extends com.university.ManageNotes.mapper.BaseMapper<Subject, SubjectRequest, SubjectResponse> {
 
     @org.mapstruct.Mapping(target = "semesterId", source = "semester.id")
