@@ -37,9 +37,6 @@ public class SignupRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    // Optional invite/registration code required for privileged roles
-    private String registrationKey;
-
     private Role role;
 
     private StudentLevel level;

@@ -58,13 +58,7 @@ public class AuthService {
             signupRequest.setRole(requestedRole);
         }
 
-        if (requestedRole != Role.STUDENT) {
-            try {
-                inviteService.consumeToken(signupRequest.getRegistrationKey(), requestedRole);
-            } catch (RuntimeException ex) {
-                return MessageResponse.error(ex.getMessage());
-            }
-        }
+        // No registrationKey handling; admins directly register any role
 
         Users user = userMapper.toEntity(signupRequest);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
