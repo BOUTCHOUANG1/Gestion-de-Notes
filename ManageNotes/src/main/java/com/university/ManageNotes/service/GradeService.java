@@ -83,77 +83,77 @@ public class GradeService {
             return MessageResponse.error("Failed to delete grade: " + e.getMessage());
         }
     }
-    
+
     public ReportResponse calculateSemesterSummary(Long studentId, Long semesterId) {
         // 1. Get student and semester info
         Students student = studentRepository.findById(studentId)
-            .orElseThrow(() -> new RuntimeException("Student not found"));
-        
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
         // 2. Get all grades for the student in this semester
         List<Grades> semesterGrades = gradeRepository.findByStudentIdAndSemesterId(studentId, semesterId);
-        
+
         // 3. Group grades by subject
         Map<Subject, List<Grades>> gradesBySubject = semesterGrades.stream()
                 .collect(Collectors.groupingBy(Grades::getSubject));
-        
+
         // 4. Initialize counters
         int totalCredits = 0;
         int creditsEarned = 0;
         double totalGradePoints = 0;
         int passedSubjects = 0;
         List<ReportResponse.SubjectResult> subjectResults = new ArrayList<>();
-        
+
         // 5. Process each subject
         for (Map.Entry<Subject, List<Grades>> entry : gradesBySubject.entrySet()) {
             Subject subject = entry.getKey();
             List<Grades> subjectGrades = entry.getValue();
-            
+
             // Calculate subject average (0-20 scale)
             double subjectAverage = GradeCalculator.calculateSubjectAverage(subjectGrades);
             boolean passed = subjectAverage >= 10.0;
-            
+
             // Update totals
             int subjectCredits = subject.getCredits().intValue();
             totalCredits += subjectCredits;
-            
+
             if (passed) {
                 creditsEarned += subjectCredits;
                 passedSubjects++;
-                
+
                 // Convert to GPA (0-4.0 scale) and weight by credits
                 double subjectGPA = GradeCalculator.calculateGPA(subjectAverage);
                 totalGradePoints += subjectGPA * subjectCredits;
             }
-            
+
             // Add to subject results
             subjectResults.add(new ReportResponse.SubjectResult(
-                subject.getName(),
-                subjectAverage,
-                subject.getCredits(),
-                passed
+                    subject.getName(),
+                    subjectAverage,
+                    subject.getCredits(),
+                    passed
             ));
         }
-        
+
         // 6. Calculate semester GPA (weighted average of passed subjects)
-        double semesterGPA = creditsEarned > 0 ? 
+        double semesterGPA = creditsEarned > 0 ?
                 Math.round((totalGradePoints / creditsEarned) * 100.0) / 100.0 : 0.0;
-        
+
         // 7. Create and return response
         ReportResponse response = new ReportResponse();
         response.setStudentId(studentId);
         response.setStudentName(student.getFirstName() + " " + student.getLastName());
         response.setSemesterId(semesterId);
         response.setSemesterName(semesterRepository.findById(semesterId)
-            .map(sem -> sem.getName())
-            .orElse("Semester " + semesterId));
+                .map(sem -> sem.getName())
+                .orElse("Semester " + semesterId));
         response.setGpa(semesterGPA);
         response.setCreditsEarned(creditsEarned);
         response.setStatus(calculateStatus(passedSubjects, gradesBySubject.size()));
         response.setSubjectResults(subjectResults);
-        
+
         return response;
     }
-    
+
     private String calculateStatus(int passedSubjects, int totalSubjects) {
         if (passedSubjects == 0) return "FAIL";
         if (passedSubjects == totalSubjects) return "PASS";
@@ -186,11 +186,11 @@ public class GradeService {
         }
 
         response.setValue(grade.getValue());
-        
+
         // Check if student passed the subject (score ≥ 10/20)
         boolean passed = grade.getValue() >= 10;
         response.setPassed(passed);
-        
+
         // Award credits if passed
         if (passed) {
             response.setCreditsEarned(grade.getSubject().getCredits());
@@ -338,6 +338,7 @@ public class GradeService {
             response.setLastName(s.getLastName());
             response.setEmail(s.getEmail());
             response.setUsername(s.getMatricule());
+            if(s.getLevel()!=null) response.setLevel(s.getLevel().name());
             response.setRole("STUDENT");
         });
 
