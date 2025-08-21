@@ -31,6 +31,8 @@ public class GradeRequest {
     @DecimalMax(value = "20.0", message = "Grade value must not exceed 20")
     private Double value;
 
+    private Double maxValue; // optional, default 20
+
     @NotNull(message = "Grade type is required")
     private GradeType type;
 

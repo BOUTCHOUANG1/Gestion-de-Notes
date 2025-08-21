@@ -5,6 +5,7 @@ import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.GradeSheetResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.service.GradeService;
@@ -115,6 +116,20 @@ public class GradeController {
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
+        }
+    }
+
+    @GetMapping("/semester-summary")
+    @Operation(summary = "Get semester summary", description = "Get a summary of a student's performance for a semester")
+    public ResponseEntity<?> getSemesterSummary(
+            @RequestParam Long studentId,
+            @RequestParam Long semesterId) {
+        try {
+            ReportResponse response = gradeService.calculateSemesterSummary(studentId, semesterId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error calculating semester summary: " + e.getMessage(), "ERROR"));
         }
     }
 

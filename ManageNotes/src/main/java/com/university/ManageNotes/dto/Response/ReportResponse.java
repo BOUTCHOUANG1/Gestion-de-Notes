@@ -1,18 +1,32 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.model.AbstractEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-@Setter
-@Getter
-@AllArgsConstructor
+@Data
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ReportResponse extends AbstractEntity {
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SubjectResult {
+        private String subjectName;
+        private double average;
+        private java.math.BigDecimal credits;
+        private boolean passed;
+    }
+    
+    private List<SubjectResult> subjectResults;
 
     private Long studentId;
     private String studentName;
@@ -62,5 +76,13 @@ public class ReportResponse extends AbstractEntity {
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
+    }
+    
+    public List<SubjectResult> getSubjectResults() {
+        return subjectResults;
+    }
+    
+    public void setSubjectResults(List<SubjectResult> subjectResults) {
+        this.subjectResults = subjectResults;
     }
 }
