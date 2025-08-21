@@ -1,49 +1,44 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Table(name = "grade_claims")
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class GradeClaim extends AbstractEntity {
-
-    @ManyToOne
-    @JoinColumn(name = "idStudent")
+@ToString(callSuper = true)
+public class GradeClaim extends BaseRequest {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
     private Students student;
 
-    @ManyToOne
-    @JoinColumn(name = "idGrade")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grade_id", nullable = false)
     private Grades grade;
 
-    @ManyToOne
-    @JoinColumn(name = "idSemester")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id")
     private Semesters semester;
 
     @Column(name = "period_label")
-    private String periodLabel; // CC, SN, etc.
+    private String periodLabel;
 
-    @Column(name = "requested_score")
+    @Column(name = "requested_score", nullable = false)
     private Double requestedScore;
-
-    @Column(name = "cause")
+    
+    @Column(columnDefinition = "TEXT")
     private String cause;
-
-    @Column(name = "description", length = 1000)
+    
+    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private ClaimStatus status = ClaimStatus.PENDING;
-
-    @Column(name = "teacher_comment", length = 1000)
+    
+    @Column(name = "teacher_comment", columnDefinition = "TEXT")
     private String teacherComment;
-
-    @Column(name = "resolved_at")
-    private LocalDateTime resolvedAt;
-
-    public enum ClaimStatus {PENDING, APPROVED, REJECTED}
 }

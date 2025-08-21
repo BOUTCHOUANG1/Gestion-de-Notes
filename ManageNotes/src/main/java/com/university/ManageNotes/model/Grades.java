@@ -11,74 +11,77 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 public class Grades extends AbstractEntity{
 
- @Column(name = "value")
- private Double value;
+    @Column(name = "value")
+    private Double value;
 
- @Column(name = "Comments")
- private String comments;
+    @Column(name="max_value")
+    private Double maxValue = 20.0;
 
- @Column(name = "period_label")
- private String periodLabel; // e.g., "CC #2", "SN #1"
+    @Column(name = "Comments")
+    private String comments;
 
- @ManyToOne
- @JoinColumn(name = "idStudents")
- private Students student;
+    @Column(name = "period_label")
+    private String periodLabel; // e.g., "CC #2", "SN #1"
 
- @ManyToOne
- @JoinColumn(name = "idSubject")
- private Subject subject;
+    @ManyToOne
+    @JoinColumn(name = "idStudents")
+    private Students student;
 
- @ManyToOne
- @JoinColumn(name = "idUsers")
- private Users enteredBy;
+    @ManyToOne
+    @JoinColumn(name = "idSubject")
+    private Subject subject;
 
- @ManyToOne
- @JoinColumn(name = "idSemester")
- private Semesters semester;
+    @ManyToOne
+    @JoinColumn(name = "idUsers")
+    private Users enteredBy;
 
- @Enumerated(EnumType.STRING)
- @Column(name = "gradeType")
- private GradeType type;
+    @ManyToOne
+    @JoinColumn(name = "idSemester")
+    private Semesters semester;
 
- // Backward compatibility methods
- public GradeType getGradeType() {
-  return this.type;
- }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gradeType")
+    private GradeType type;
 
- public void setGradeType(GradeType gradeType) {
-  this.type = gradeType;
- }
+    // Backward compatibility methods
+    public GradeType getGradeType() {
+        return this.type;
+    }
 
- public Semesters getSemesters() {
-  return this.semester;
- }
+    public void setGradeType(GradeType gradeType) {
+        this.type = gradeType;
+    }
 
- public void setSemesters(Semesters semesters) {
-  this.semester = semesters;
- }
+    public Semesters getSemesters() {
+        return this.semester;
+    }
+
+    public void setSemesters(Semesters semesters) {
+        this.semester = semesters;
+    }
 
 
- public Students getStudent() {
-  return student;
- }
+    public Students getStudent() {
+        return student;
+    }
 
- public Subject getSubject() {
-  return subject;
- }
+    public Subject getSubject() {
+        return subject;
+    }
 
- public Double getValue() {
-  return value;
- }
+    public Double getValue() {
+        return value;
+    }
 
- public String getComments() {
-  return comments;
- }
+    public String getComments() {
+        return comments;
+    }
 
- public Users getEnteredBy() {
-  return enteredBy;
- }
+    public Users getEnteredBy() {
+        return enteredBy;
+    }
 
- public GradeType getType() {
-  return type;
- }
+    public GradeType getType() {
+        return type;
+    }
 }
