@@ -30,15 +30,19 @@ public class GradeClaim extends BaseRequest {
     @Column(name = "period_label")
     private String periodLabel;
 
+    public void setPeriodLabel(String periodLabel){
+        this.periodLabel = com.university.ManageNotes.util.PeriodLabelUtil.normalize(periodLabel);
+    }
+
     @Column(name = "requested_score", nullable = false)
     private Double requestedScore;
-    
+
     @Column(columnDefinition = "TEXT")
     private String cause;
-    
+
     @Column(columnDefinition = "TEXT")
     private String description;
-    
+
     @Column(name = "teacher_comment", columnDefinition = "TEXT")
     private String teacherComment;
 }

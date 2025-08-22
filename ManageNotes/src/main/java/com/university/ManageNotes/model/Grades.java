@@ -60,6 +60,9 @@ public class Grades extends AbstractEntity{
         this.semester = semesters;
     }
 
+    public void setPeriodLabel(String periodLabel){
+        this.periodLabel = com.university.ManageNotes.util.PeriodLabelUtil.normalize(periodLabel);
+    }
 
     public Students getStudent() {
         return student;
