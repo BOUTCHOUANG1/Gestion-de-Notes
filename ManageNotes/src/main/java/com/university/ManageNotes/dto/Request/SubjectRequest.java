@@ -29,8 +29,8 @@ public class SubjectRequest {
 
     private Long teacherId;
 
-    @NotNull(message = "Department ID is required")
-    private Long departmentId;
+    @NotBlank(message = "Department name is required")
+    private String departmentName;
 
     @NotNull(message = "Level is required")
     private com.university.ManageNotes.model.StudentLevel level;

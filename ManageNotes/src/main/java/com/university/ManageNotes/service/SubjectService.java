@@ -46,9 +46,13 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
 
         // Functional style: retrieve department via Optional and map
         subject.setDepartment(
-                java.util.Optional.ofNullable(request.getDepartmentId())
-                        .flatMap(departmentRepository::findById)
-                        .orElseThrow(() -> new RuntimeException("Department not found"))
+                java.util.Optional.ofNullable(request.getDepartmentName())
+                        .flatMap(departmentRepository::findByName)
+                        .orElseGet(() -> {
+                            var dept = new com.university.ManageNotes.model.Department();
+                            dept.setName(request.getDepartmentName());
+                            return departmentRepository.save(dept);
+                        })
         );
 
         subjectRepository.save(subject);
@@ -73,9 +77,13 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                     existing.setSemester(semesterRepository.findById(request.getSemesterId())
                             .orElseThrow(() -> new RuntimeException("Semester not found")));
                     existing.setDepartment(
-                            java.util.Optional.ofNullable(request.getDepartmentId())
-                                    .flatMap(departmentRepository::findById)
-                                    .orElseThrow(() -> new RuntimeException("Department not found"))
+                            java.util.Optional.ofNullable(request.getDepartmentName())
+                                    .flatMap(departmentRepository::findByName)
+                                    .orElseGet(() -> {
+                                        var dept = new com.university.ManageNotes.model.Department();
+                                        dept.setName(request.getDepartmentName());
+                                        return departmentRepository.save(dept);
+                                    })
                     );
                     subjectRepository.save(existing);
                     return MessageResponse.success("Subject updated");
