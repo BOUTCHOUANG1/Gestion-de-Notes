@@ -1,19 +1,18 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.model.Student;
 import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.GradeType;
-import com.university.ManageNotes.repository.StudentRepository;
-import com.university.ManageNotes.repository.UserRepository;
-import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.model.Students;
+import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.GradeRepository;
 import com.university.ManageNotes.repository.SemesterRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StudentService implements CommandLineRunner {
+public class DefaultStudentInitializer implements CommandLineRunner {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -30,7 +29,7 @@ public class StudentService implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Example: create a sample student and generate grades for them
-        Student student = new Student();
+        Students student = new Students();
         student.setFirstName("Sample");
         student.setLastName("Student");
         student.setEmail("sample.student@university.com");
