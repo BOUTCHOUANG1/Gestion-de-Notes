@@ -1,52 +1,84 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.model.Student;
+import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.GradeType;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.GradeRepository;
+import com.university.ManageNotes.repository.SemesterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+@Service
+public class StudentService implements CommandLineRunner {
 
-@Component
-public class DefaultStudentInitializer implements CommandLineRunner {
-
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private StudentRepository studentRepository;
+
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
+
+    @Autowired
+    private SemesterRepository semesterRepository;
 
     @Override
     public void run(String... args) throws Exception {
-        // create default student user 'student'
-        if (userRepository.findByUsername("student").isEmpty()) {
-            Users user = new Users();
-            user.setUsername("student");
-            user.setPassword(passwordEncoder.encode("student"));
-            user.setRole(Role.STUDENT);
-            user.setEmail("student@example.com");
-            user.setFirstName("Default");
-            user.setLastName("Student");
-            user.setActive(true);
-            user.setMustChangePassword(false);
-            user = userRepository.save(user);
+        // Example: create a sample student and generate grades for them
+        Student student = new Student();
+        student.setFirstName("Sample");
+        student.setLastName("Student");
+        student.setEmail("sample.student@university.com");
+        studentRepository.save(student);
 
-            // link to Students entity
-            Students student = new Students();
-            student.setFirstName(user.getFirstName());
-            student.setLastName(user.getLastName());
-            student.setEmail(user.getEmail());
-            student.setMatricule("MAT" + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
-            student.setLevel(StudentLevel.LEVEL1);
-            student.setCycle(StudentCycle.BACHELOR);
-            student.setSpeciality("Computer Science");
-            student.setDateOfBirth(java.time.LocalDate.of(2000,1,1));
-            student.setPlaceOfBirth("TestCity");
-            studentRepository.save(student);
+        // generate multiple grades for each subject
+        var subjects = subjectRepository.findAll();
+        var semesterOpt = semesterRepository.findAll().stream().findFirst();
+        java.util.Random random = new java.util.Random();
+
+        for (Subject subj : subjects) {
+            // two CC grades
+            for (int i = 1; i <= 2; i++) {
+                Grades g = new Grades();
+                g.setStudent(student);
+                g.setSubject(subj);
+                g.setValue(10 + random.nextDouble() * 10);
+                g.setMaxValue(20.0);
+                g.setComments("Sample auto grade");
+                g.setPeriodLabel("CC #" + i);
+                // skip grade type to avoid DB constraint
+                semesterOpt.ifPresent(g::setSemester);
+                gradeRepository.save(g);
+            }
+
+            // SN grade
+            Grades sn = new Grades();
+            sn.setStudent(student);
+            sn.setSubject(subj);
+            sn.setValue(10 + random.nextDouble() * 10);
+            sn.setMaxValue(20.0);
+            sn.setComments("Sample SN grade");
+            sn.setPeriodLabel("SN #1");
+            // skip type
+            semesterOpt.ifPresent(sn::setSemester);
+            gradeRepository.save(sn);
+
+            // Exam grade using EXAM enum
+            Grades ex = new Grades();
+            ex.setStudent(student);
+            ex.setSubject(subj);
+            ex.setValue(10 + random.nextDouble() * 10);
+            ex.setMaxValue(20.0);
+            ex.setComments("Sample exam grade");
+            ex.setPeriodLabel("EX #1");
+            // skip type
+            semesterOpt.ifPresent(ex::setSemester);
+            gradeRepository.save(ex);
         }
     }
 }
