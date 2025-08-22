@@ -29,6 +29,8 @@ public class TeacherInitializer implements CommandLineRunner {
             teacher.setLastName("Teacher");
             teacher.setActive(true);
             teacher.setMustChangePassword(false);
+            teacher.setPhone("+1234567890");
+            teacher.setDepartment("Mathematics");
             userRepository.save(teacher);
         }
     }

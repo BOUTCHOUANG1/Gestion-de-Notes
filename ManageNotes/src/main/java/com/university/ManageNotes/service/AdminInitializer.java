@@ -29,6 +29,8 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setLastName("Administrator");
             admin.setActive(true);
             admin.setMustChangePassword(false);
+            admin.setPhone("+1111111111");
+            admin.setDepartment("Administration");
             userRepository.save(admin);
         }
     }
