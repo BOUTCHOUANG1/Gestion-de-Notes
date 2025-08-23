@@ -76,7 +76,10 @@ public abstract class AbstractRequestService<T extends BaseRequest, D, C>
     protected abstract void onApprove(T request);
 
     protected Long getCurrentUserId() {
-        return ((com.university.ManageNotes.security.UserPrincipal)
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal) {
+            return ((com.university.ManageNotes.security.UserPrincipal) auth.getPrincipal()).getId();
+        }
+        throw new RuntimeException("No authenticated user");
     }
 }

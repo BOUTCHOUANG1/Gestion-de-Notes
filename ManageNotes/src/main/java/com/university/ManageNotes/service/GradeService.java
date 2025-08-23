@@ -43,12 +43,19 @@ public class GradeService {
     public MessageResponse addGrade(GradeRequest gradeRequest) {
         try {
             Grades grade = new Grades();
-            grade.setStudent(studentRepository.findById(gradeRequest.getStudentId()).orElseThrow(() -> new RuntimeException("Student not found")));
-            grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId()).orElseThrow(() -> new RuntimeException("Subject not found")));
+            grade.setStudent(studentRepository.findById(gradeRequest.getStudentId())
+                    .orElseThrow(() -> new RuntimeException("Student not found")));
+            grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId())
+                    .orElseThrow(() -> new RuntimeException("Subject not found")));
+            grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
+                    .orElseThrow(() -> new RuntimeException("Semester not found")));
             grade.setValue(gradeRequest.getValue());
+            grade.setMaxValue(gradeRequest.getMaxValue() != null ? gradeRequest.getMaxValue() : 20.0);
             grade.setType(gradeRequest.getType());
+            grade.setPeriodLabel(gradeRequest.getPeriodLabel());
             grade.setComments(gradeRequest.getComments());
-            grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy()).orElseThrow(() -> new RuntimeException("User not found")));
+            grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
+                    .orElseThrow(() -> new RuntimeException("User not found")));
             gradeRepository.save(grade);
             return MessageResponse.success("Grade added successfully!");
         } catch (Exception e) {
@@ -186,13 +193,14 @@ public class GradeService {
         }
 
         response.setValue(grade.getValue());
+        response.setPeriodLabel(grade.getPeriodLabel());
 
         // Check if student passed the subject (score ≥ 10/20)
-        boolean passed = grade.getValue() >= 10;
+        boolean passed = grade.getValue() != null && grade.getValue() >= 10;
         response.setPassed(passed);
 
         // Award credits if passed
-        if (passed) {
+        if (passed && grade.getSubject().getCredits() != null) {
             response.setCreditsEarned(grade.getSubject().getCredits());
         } else {
             response.setCreditsEarned(java.math.BigDecimal.ZERO);
@@ -201,8 +209,10 @@ public class GradeService {
         response.setType(grade.getType());
         response.setComments(grade.getComments());
 
-        response.setEnteredBy(grade.getEnteredBy().getId());
-        response.setEnteredByName(grade.getEnteredBy().getFirstName() + " " + grade.getEnteredBy().getLastName());
+        if (grade.getEnteredBy() != null) {
+            response.setEnteredBy(grade.getEnteredBy().getId());
+            response.setEnteredByName(grade.getEnteredBy().getFirstName() + " " + grade.getEnteredBy().getLastName());
+        }
 
         response.setCreatedDate(grade.getCreatedDate());
         response.setLastModifiedDate(grade.getLastModifiedDate());
@@ -216,7 +226,8 @@ public class GradeService {
         boolean isTeacher = auth!=null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher) {
             if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel())) {
-                throw new RuntimeException("Grading window closed");
+                String statusMessage = gradingWindowService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel());
+                throw new RuntimeException(statusMessage);
             }
         }
 
@@ -244,7 +255,8 @@ public class GradeService {
         boolean isTeacher2 = auth2!=null && auth2.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher2) {
             if (!gradingWindowService.isWindowOpen(req.getSemesterId(), req.getPeriodLabel())) {
-                throw new RuntimeException("Grading window closed");
+                String statusMessage = gradingWindowService.getWindowStatusMessage(req.getSemesterId(), req.getPeriodLabel());
+                throw new RuntimeException(statusMessage);
             }
         }
 

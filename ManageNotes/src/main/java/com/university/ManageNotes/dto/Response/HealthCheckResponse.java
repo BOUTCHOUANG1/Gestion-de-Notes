@@ -12,6 +12,6 @@ import lombok.Setter;
 public class HealthCheckResponse {
     private String status;
     private String message;
-    private String timestamp;
+    private java.time.Instant timestamp;
     private String version;
 }

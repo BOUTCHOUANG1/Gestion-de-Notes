@@ -45,7 +45,14 @@ public class SemesterController {
         if(Boolean.TRUE.equals(saved.getActive())){
             semesterRepository.deactivateOtherSemesters(saved.getId());
         }
-        return ResponseEntity.ok(saved);
+        SemesterResponse response = SemesterResponse.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .startDate(saved.getStartDate())
+                .endDate(saved.getEndDate())
+                .active(saved.getActive())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
@@ -81,8 +88,16 @@ public class SemesterController {
     @PutMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Bulk update semesters", description = "Update name, dates, active flag and order index for many semesters at once")
-    public List<Semesters> updateSemesters(@Valid @RequestBody java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
-        return semesterService.updateSemesters(requests);
+    public List<SemesterResponse> updateSemesters(@Valid @RequestBody java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
+        return semesterService.updateSemesters(requests).stream()
+                .map(s -> SemesterResponse.builder()
+                        .id(s.getId())
+                        .name(s.getName())
+                        .startDate(s.getStartDate())
+                        .endDate(s.getEndDate())
+                        .active(s.getActive())
+                        .build())
+                .toList();
     }
 
     @GetMapping("/{id}/windows")

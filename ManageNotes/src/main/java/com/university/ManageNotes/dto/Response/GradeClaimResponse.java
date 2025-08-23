@@ -19,20 +19,5 @@ public class GradeClaimResponse {
     private String teacherComment;
     private LocalDateTime resolvedAt;
 
-    public static GradeClaimResponse fromEntity(GradeClaim c) {
-        GradeClaimResponse r = new GradeClaimResponse();
-        r.setId(c.getId());
-        r.setGradeId(c.getGrade().getId());
-        r.setStudentId(c.getStudent().getId());
-        r.setSubjectCode(c.getGrade().getSubject().getCode());
-        r.setPeriod(c.getPeriodLabel());
-        r.setCurrentScore(c.getGrade().getValue());
-        r.setRequestedScore(c.getRequestedScore());
-        r.setCause(c.getCause());
-        r.setDescription(c.getDescription());
-        r.setStatus(c.getStatus().name());
-        r.setTeacherComment(c.getTeacherComment());
-        r.setResolvedAt(c.getResolvedAt());
-        return r;
-    }
+
 }

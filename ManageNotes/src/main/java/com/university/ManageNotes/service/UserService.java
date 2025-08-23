@@ -26,84 +26,70 @@ public class UserService {
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public UserResponse createUser(UserRequest userRequest) {
-        try {
-            // Create user logic here
-            // Hash password
-            // Save to database
-            // Convert to response
-
-            UserResponse response = new UserResponse();
-            response.setUsername(userRequest.getUsername());
-            response.setEmail(userRequest.getEmail());
-            response.setFirstName(userRequest.getFirstName());
-            response.setLastName(userRequest.getLastName());
-            response.setRole(userRequest.getRole());
-            response.setActive(userRequest.getActive());
-
-            return response;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create user: " + e.getMessage());
+        if (userRepository.existsByUsername(userRequest.getUsername())) {
+            throw new RuntimeException("Username already exists");
         }
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        Users user = new Users();
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        user.setFirstName(userRequest.getFirstName());
+        user.setLastName(userRequest.getLastName());
+        user.setRole(userRequest.getRole());
+        user.setActive(userRequest.getActive());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        user.setMustChangePassword(false);
+
+        Users saved = userRepository.save(user);
+        return userMapper.toResponse(saved);
     }
 
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
-        try {
-            // Update user logic here
-            // Find existing user
-            // Update fields
-            // Save to database
-            // Convert to response
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            UserResponse response = new UserResponse();
-            response.setId(userId);
-            response.setUsername(userRequest.getUsername());
-            response.setEmail(userRequest.getEmail());
-            response.setFirstName(userRequest.getFirstName());
-            response.setLastName(userRequest.getLastName());
-            response.setRole(userRequest.getRole());
-            response.setActive(userRequest.getActive());
-
-            return response;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update user: " + e.getMessage());
+        if (!user.getUsername().equals(userRequest.getUsername()) && 
+            userRepository.existsByUsername(userRequest.getUsername())) {
+            throw new RuntimeException("Username already exists");
         }
+        if (!user.getEmail().equals(userRequest.getEmail()) && 
+            userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        user.setFirstName(userRequest.getFirstName());
+        user.setLastName(userRequest.getLastName());
+        user.setRole(userRequest.getRole());
+        user.setActive(userRequest.getActive());
+        if (userRequest.getPassword() != null && !userRequest.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        }
+
+        Users updated = userRepository.save(user);
+        return userMapper.toResponse(updated);
     }
 
     public void deleteUser(Long userId) {
-        try {
-            // Delete user logic here
-            // Find user
-            // Delete from database
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delete user: " + e.getMessage());
-        }
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.delete(user);
     }
 
     public List<UserResponse> getAllUsers() {
-        try {
-            // Get all users logic here
-            // Retrieve from database
-            // Convert to response list
-            return List.of(); // Placeholder
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to retrieve users: " + e.getMessage());
-        }
+        return userRepository.findAll().stream()
+                .map(userMapper::toResponse)
+                .toList();
     }
 
     public UserResponse getUserById(Long userId) {
-        try {
-            // Get user by ID logic here
-            // Find in database
-            // Convert to response
-
-            UserResponse response = new UserResponse();
-            response.setId(userId);
-            // Set other fields from database
-
-            return response;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to retrieve user: " + e.getMessage());
-        }
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toResponse(user);
     }
 
     // ---------------------- Teacher Creation (US N6) ----------------------
@@ -148,25 +134,17 @@ public class UserService {
     }
 
     public void activateUser(Long userId) {
-        try {
-            // Activate user logic here
-            // Find user
-            // Set active = true
-            // Save to database
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to activate user: " + e.getMessage());
-        }
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setActive(true);
+        userRepository.save(user);
     }
 
     public void deactivateUser(Long userId) {
-        try {
-            // Deactivate user logic here
-            // Find user
-            // Set active = false
-            // Save to database
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deactivate user: " + e.getMessage());
-        }
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setActive(false);
+        userRepository.save(user);
     }
 
     private UserResponse convertToResponse(Users user) {

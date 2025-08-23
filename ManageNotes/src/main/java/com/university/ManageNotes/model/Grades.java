@@ -25,23 +25,23 @@ public class Grades extends AbstractEntity{
     private String periodLabel; // e.g., "CC #2", "SN #1"
 
     @ManyToOne
-    @JoinColumn(name = "idStudents")
+    @JoinColumn(name = "id_students")
     private Students student;
 
     @ManyToOne
-    @JoinColumn(name = "idSubject")
+    @JoinColumn(name = "id_subject")
     private Subject subject;
 
     @ManyToOne
-    @JoinColumn(name = "idUsers")
+    @JoinColumn(name = "id_users")
     private Users enteredBy;
 
     @ManyToOne
-    @JoinColumn(name = "idSemester")
+    @JoinColumn(name = "id_semester")
     private Semesters semester;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gradeType")
+    @Column(name = "grade_type")
     private GradeType type;
 
     // Backward compatibility methods

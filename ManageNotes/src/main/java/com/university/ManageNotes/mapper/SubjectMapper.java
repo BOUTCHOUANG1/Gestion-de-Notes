@@ -4,19 +4,23 @@ import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.model.Subject;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface SubjectMapper extends BaseMapper<Subject, SubjectRequest, SubjectResponse> {
 
-    @org.mapstruct.Mapping(target = "semesterId", source = "semester.id")
-    @org.mapstruct.Mapping(target = "semesterName", source = "semester.name")
-    @org.mapstruct.Mapping(target = "departmentId", source = "department.id")
-    @org.mapstruct.Mapping(target = "departmentName", source = "department.name")
+    @Mapping(target = "semesterId", source = "semester.id")
+    @Mapping(target = "semesterName", source = "semester.name")
+    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
+    @Mapping(target = "teacherId", source = "idTeacher")
     SubjectResponse toResponse(Subject entity);
 
-    @org.mapstruct.Mapping(target = "id", ignore = true)
-    @org.mapstruct.Mapping(target = "semester", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "semester", ignore = true)
+    @Mapping(target = "department", ignore = true)
+    @Mapping(target = "idTeacher", source = "teacherId")
     Subject toEntity(SubjectRequest request);
     
     default Subject updateEntityFromRequest(SubjectRequest request, Subject entity) {
@@ -24,6 +28,7 @@ public interface SubjectMapper extends BaseMapper<Subject, SubjectRequest, Subje
         entity.setCode(request.getCode());
         entity.setDescription(request.getDescription());
         entity.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
+        entity.setIdTeacher(request.getTeacherId());
         entity.setActive(request.getActive());
         entity.setLevel(request.getLevel());
         entity.setCycle(request.getCycle());

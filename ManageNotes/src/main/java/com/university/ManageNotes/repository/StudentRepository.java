@@ -11,8 +11,6 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Students, Long> {
 
-    List<Students> findByLevel(String level);
-
     List<Students> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 
     Optional<Students> findByEmail(String email);

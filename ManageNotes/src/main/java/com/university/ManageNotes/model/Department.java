@@ -16,18 +16,10 @@ import lombok.*;
 @Entity
 @Table(name = "departments")
 @ToString(onlyExplicitlyIncluded = true)
-public class Department {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class Department extends AbstractEntity {
 
     @Column(nullable = false, unique = true, length = 100)
     @ToString.Include
     private String name;
-
-    // Inherited from AbstractEntity:
-    // - id
-    // - createdDate
-    // - lastModifiedDate
 }

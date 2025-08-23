@@ -13,10 +13,10 @@ import java.util.List;
 @Table(name = "students")
 public class Students extends AbstractEntity {
 
-    @Column(name = "firstName")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "matricule", unique = true)
@@ -39,8 +39,10 @@ public class Students extends AbstractEntity {
     @Column(name = "cycle")
     private StudentCycle cycle;
 
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Column(name = "place_of_birth")
     private String placeOfBirth;
 
     // Lombok will generate getters and setters

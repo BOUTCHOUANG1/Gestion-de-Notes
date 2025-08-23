@@ -1,5 +1,6 @@
 package com.university.ManageNotes.dto.Response;
 
+import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.StudentCycle;
 import com.university.ManageNotes.model.StudentLevel;
 import lombok.Data;
@@ -20,4 +21,6 @@ public class SubjectResponse {
     private String semesterName;
     private Long departmentId;
     private String departmentName;
+    private Long teacherId;
+    private String teacherName;
 }

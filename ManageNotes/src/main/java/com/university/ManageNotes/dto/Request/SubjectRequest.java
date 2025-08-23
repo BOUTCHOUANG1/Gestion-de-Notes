@@ -1,5 +1,7 @@
 package com.university.ManageNotes.dto.Request;
 
+import com.university.ManageNotes.model.StudentCycle;
+import com.university.ManageNotes.model.StudentLevel;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,14 +31,14 @@ public class SubjectRequest {
 
     private Long teacherId;
 
-    @NotBlank(message = "Department name is required")
-    private String departmentName;
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
 
     @NotNull(message = "Level is required")
-    private com.university.ManageNotes.model.StudentLevel level;
+    private StudentLevel level;
 
     @NotNull(message = "Cycle is required")
-    private com.university.ManageNotes.model.StudentCycle cycle;
+    private StudentCycle cycle;
 
     @NotNull(message = "Semester ID is required")
     private Long semesterId;

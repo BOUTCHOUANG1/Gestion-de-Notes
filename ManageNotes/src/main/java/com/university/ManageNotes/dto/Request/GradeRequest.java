@@ -28,10 +28,12 @@ public class GradeRequest {
 
     @NotNull(message = "Grade value is required")
     @DecimalMin(value = "0.0", message = "Grade value must be at least 0")
-    @DecimalMax(value = "20.0", message = "Grade value must not exceed 20")
+    @DecimalMax(value = "100.0", message = "Grade value must not exceed 100")
     private Double value;
 
-    private Double maxValue; // optional, default 20
+    @DecimalMin(value = "1.0", message = "Max value must be at least 1")
+    @DecimalMax(value = "100.0", message = "Max value must not exceed 100")
+    private Double maxValue = 20.0; // optional, default 20
 
     @NotNull(message = "Grade type is required")
     private GradeType type;

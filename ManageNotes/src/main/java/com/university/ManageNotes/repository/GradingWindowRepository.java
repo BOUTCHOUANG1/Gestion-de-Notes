@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface GradingWindowRepository extends JpaRepository<GradingWindow, Long> {
     List<GradingWindow> findBySemesterId(Long idSemester);
-    List<GradingWindow> findBySemesterIdAndNameIgnoreCase(Long idSemester, String name);
+    List<GradingWindow> findBySemesterIdAndShortNameIgnoreCase(Long idSemester, String shortName);
+    List<GradingWindow> findBySemesterIdAndIsActive(Long idSemester, Boolean isActive);
+    List<GradingWindow> findAllByOrderByOrderAsc();
 }

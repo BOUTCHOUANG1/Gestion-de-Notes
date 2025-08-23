@@ -1,5 +1,6 @@
 package com.university.ManageNotes.dto.Request;
 
+import com.university.ManageNotes.model.GradingWindow;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,9 +13,21 @@ public class GradingWindowRequest {
     private Long semesterId;
 
     @NotBlank
-    private String name; // CC or SN
+    private String name;
 
+    @NotBlank
+    private String shortName;
+
+    @NotNull
+    private GradingWindow.PeriodType type;
+
+    @NotNull
     private LocalDate startDate;
+
+    @NotNull
     private LocalDate endDate;
-    private Boolean active = true;
+
+    private String color;
+    private Boolean isActive = false;
+    private Integer order;
 }

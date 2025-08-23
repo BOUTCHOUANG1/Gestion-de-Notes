@@ -21,17 +21,21 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     private final SubjectMapper mapper;
     private final SemesterRepository semesterRepository;
     private final DepartmentRepository departmentRepository;
+    private final com.university.ManageNotes.repository.UserRepository userRepository;
 
-    public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper, SemesterRepository semesterRepository, DepartmentRepository departmentRepository) {
+    public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper, SemesterRepository semesterRepository, DepartmentRepository departmentRepository, com.university.ManageNotes.repository.UserRepository userRepository) {
         super(subjectRepository, (BaseMapper<Subject, SubjectRequest, SubjectResponse>) mapper);
         this.subjectRepository = subjectRepository;
         this.mapper = mapper;
         this.semesterRepository = semesterRepository;
         this.departmentRepository = departmentRepository;
+        this.userRepository = userRepository;
     }
 
     public List<SubjectResponse> getAllSubjects() {
-        return subjectRepository.findAllOrderByName().stream().map(mapper::toResponse).toList();
+        return subjectRepository.findAllOrderByName().stream()
+                .map(this::enrichSubjectResponse)
+                .toList();
     }
 
     @Override
@@ -45,17 +49,9 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         subject.setSemester(semesterRepository.findById(request.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
 
-        // Functional style: retrieve department via Optional and map
-        subject.setDepartment(
-                java.util.Optional.ofNullable(request.getDepartmentName())
-                        .flatMap(departmentRepository::findByName)
-                        .orElseGet(() -> {
-                            var dept = com.university.ManageNotes.model.Department.builder()
-                                    .name(request.getDepartmentName())
-                                    .build();
-                            return departmentRepository.save(dept);
-                        })
-        );
+        // Set department using departmentId
+        subject.setDepartment(departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found")));
 
         subjectRepository.save(subject);
         return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject created");
@@ -78,16 +74,8 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                     existing.setCycle(request.getCycle());
                     existing.setSemester(semesterRepository.findById(request.getSemesterId())
                             .orElseThrow(() -> new RuntimeException("Semester not found")));
-                    existing.setDepartment(
-                            java.util.Optional.ofNullable(request.getDepartmentName())
-                                    .flatMap(departmentRepository::findByName)
-                                    .orElseGet(() -> {
-                                        var dept = com.university.ManageNotes.model.Department.builder()
-                                                .name(request.getDepartmentName())
-                                                .build();
-                                        return departmentRepository.save(dept);
-                                    })
-                    );
+                    existing.setDepartment(departmentRepository.findById(request.getDepartmentId())
+                            .orElseThrow(() -> new RuntimeException("Department not found")));
                     subjectRepository.save(existing);
                     return MessageResponse.success("Subject updated");
                 })
@@ -95,22 +83,38 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     }
 
     public List<SubjectResponse> getSubjectsByTeacher(Long teacherId) {
-        return subjectRepository.findSubjectsByTeacherOrderByName(teacherId).stream().map(mapper::toResponse).toList();
+        return subjectRepository.findSubjectsByTeacherOrderByName(teacherId).stream()
+                .map(this::enrichSubjectResponse)
+                .toList();
     }
 
     public List<SubjectResponse> getSubjectsByDepartment(Long deptId) {
         return subjectRepository.findByDepartmentId(deptId).stream()
-                .map(mapper::toResponse)
+                .map(this::enrichSubjectResponse)
                 .collect(Collectors.toList());
     }
 
     public List<SubjectResponse> searchSubjects(String term) {
-        return subjectRepository.findByNameContainingIgnoreCase(term).stream().map(mapper::toResponse).toList();
+        return subjectRepository.findByNameContainingIgnoreCase(term).stream()
+                .map(this::enrichSubjectResponse)
+                .toList();
     }
 
     // Adapter methods for existing controllers
     public SubjectResponse getSubjectById(Long id) {
-        return super.getById(id);
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        return enrichSubjectResponse(subject);
+    }
+    
+    private SubjectResponse enrichSubjectResponse(Subject subject) {
+        SubjectResponse response = mapper.toResponse(subject);
+        if (subject.getIdTeacher() != null) {
+            userRepository.findById(subject.getIdTeacher())
+                    .ifPresent(teacher -> response.setTeacherName(
+                            teacher.getFirstName() + " " + teacher.getLastName()));
+        }
+        return response;
     }
 
     public MessageResponse createSubject(SubjectRequest request) {

@@ -1,9 +1,6 @@
 package com.university.ManageNotes.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,8 +13,15 @@ public class GradingWindow extends AbstractEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "short_name")
+    private String shortName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private PeriodType type;
+
     @ManyToOne
-    @JoinColumn(name = "idSemester")
+    @JoinColumn(name = "id_semester")
     private Semesters semester;
 
     @Column(name = "start_date")
@@ -26,6 +30,16 @@ public class GradingWindow extends AbstractEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "active")
-    private Boolean active = true;
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "is_active")
+    private Boolean isActive = false;
+
+    @Column(name = "order_index")
+    private Integer order;
+
+    public enum PeriodType {
+        CC, SN
+    }
 }

@@ -10,7 +10,7 @@ public interface GradeClaimRepository extends JpaRepository<GradeClaim, Long> {
     List<GradeClaim> findBySemesterId(Long semesterId);
     List<GradeClaim> findByGradeSubjectId(Long subjectId);
     List<GradeClaim> findByStudentId(Long studentId);
-    List<GradeClaim> findByGrade_Subject_IdIn(List<Long> subjectIds);
+    List<GradeClaim> findByGradeSubjectIdIn(List<Long> subjectIds);
 
     List<GradeClaim> findByStatus(RequestStatus status);
     List<GradeClaim> findByGrade_Subject_IdTeacher(Long teacherId);

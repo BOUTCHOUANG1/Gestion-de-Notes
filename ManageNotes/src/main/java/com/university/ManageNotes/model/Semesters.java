@@ -21,10 +21,10 @@ public class Semesters extends AbstractEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "startDate")
+    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name = "endDate")
+    @Column(name = "end_date")
     private LocalDate endDate;
 
     @Column(name = "active")

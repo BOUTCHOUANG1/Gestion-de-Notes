@@ -104,9 +104,9 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
 
     private Users getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.User) {
-            var userPrincipal = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-            return userRepository.findByUsername(userPrincipal.getUsername())
+        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal) {
+            var userPrincipal = (com.university.ManageNotes.security.UserPrincipal) auth.getPrincipal();
+            return userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
         }
         throw new RuntimeException("No authenticated user");
