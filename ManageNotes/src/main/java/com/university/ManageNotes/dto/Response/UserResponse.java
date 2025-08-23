@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -26,6 +28,11 @@ public class UserResponse extends AbstractEntity {
     private Role role;
 
     private Boolean active;
+
+    // Teacher fields
+    private List<String> levels;
+    private String department;
+    private String phone;
 
     public void setId(Long id) {
         super.setId(id);

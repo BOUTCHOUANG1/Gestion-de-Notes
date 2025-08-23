@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class UserRequest {
@@ -36,6 +38,23 @@ public class UserRequest {
     private Boolean active = true;
 
     private String password;
+
+    // For teachers: levels they can teach
+    private List<String> levels;
+
+    // For teachers: department
+    private String department;
+
+    // For teachers: phone
+    private String phone;
+
+    // For students: their academic level
+    private String level;
+
+    // For students: additional fields
+    private String matricule;
+    private String speciality;
+    private String cycle;
 
     public String getPassword() {
         return password;
