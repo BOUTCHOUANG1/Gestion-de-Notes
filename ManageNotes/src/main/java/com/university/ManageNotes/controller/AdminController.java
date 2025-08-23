@@ -22,7 +22,7 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @PostMapping("/-teachers")
+    @PostMapping("/Sub-teachers")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Creating a new teacher and signing it to subjects")
     public MessageResponse createTeacher(@Valid @RequestBody TeacherCreateRequest request) {

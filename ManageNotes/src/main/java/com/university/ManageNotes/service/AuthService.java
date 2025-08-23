@@ -110,11 +110,13 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
-            Users userDetails = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+            Users userDetails = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             JwtResponse jwtResponse = new JwtResponse();
             jwtResponse.setToken(jwt);
             jwtResponse.setType("Bearer");
