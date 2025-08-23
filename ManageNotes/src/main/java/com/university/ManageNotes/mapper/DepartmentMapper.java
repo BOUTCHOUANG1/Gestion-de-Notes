@@ -5,7 +5,6 @@ import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.model.Department;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface DepartmentMapper extends BaseMapper<Department, DepartmentRequest, DepartmentResponse> {
@@ -13,8 +12,14 @@ public interface DepartmentMapper extends BaseMapper<Department, DepartmentReque
     @Mapping(target = "subjects", ignore = true)
     DepartmentResponse toResponse(Department entity);
     
-    @Mapping(target = "id", ignore = true)
-    Department toEntity(DepartmentRequest request);
+    default Department toEntity(DepartmentRequest request) {
+        return Department.builder()
+                .name(request.getName())
+                .build();
+    }
     
-    void updateEntityFromRequest(DepartmentRequest request, @MappingTarget Department entity);
+    default Department updateEntityFromRequest(DepartmentRequest request, Department entity) {
+        entity.setName(request.getName());
+        return entity;
+    }
 }

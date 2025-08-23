@@ -3,15 +3,16 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.mapper.BaseMapper;
 import com.university.ManageNotes.mapper.SubjectMapper;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SubjectService extends BaseCrudService<Subject, Long, SubjectRequest, SubjectResponse> {
@@ -22,7 +23,7 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     private final DepartmentRepository departmentRepository;
 
     public SubjectService(SubjectRepository subjectRepository, SubjectMapper mapper, SemesterRepository semesterRepository, DepartmentRepository departmentRepository) {
-        super(subjectRepository, mapper);
+        super(subjectRepository, (BaseMapper<Subject, SubjectRequest, SubjectResponse>) mapper);
         this.subjectRepository = subjectRepository;
         this.mapper = mapper;
         this.semesterRepository = semesterRepository;
@@ -49,8 +50,9 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                 java.util.Optional.ofNullable(request.getDepartmentName())
                         .flatMap(departmentRepository::findByName)
                         .orElseGet(() -> {
-                            var dept = new com.university.ManageNotes.model.Department();
-                            dept.setName(request.getDepartmentName());
+                            var dept = com.university.ManageNotes.model.Department.builder()
+                                    .name(request.getDepartmentName())
+                                    .build();
                             return departmentRepository.save(dept);
                         })
         );
@@ -80,8 +82,9 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                             java.util.Optional.ofNullable(request.getDepartmentName())
                                     .flatMap(departmentRepository::findByName)
                                     .orElseGet(() -> {
-                                        var dept = new com.university.ManageNotes.model.Department();
-                                        dept.setName(request.getDepartmentName());
+                                        var dept = com.university.ManageNotes.model.Department.builder()
+                                                .name(request.getDepartmentName())
+                                                .build();
                                         return departmentRepository.save(dept);
                                     })
                     );
@@ -126,12 +129,5 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                     return com.university.ManageNotes.dto.Response.MessageResponse.success("Deleted successfully");
                 })
                 .orElseGet(() -> com.university.ManageNotes.dto.Response.MessageResponse.error("Subject not found"));
-    }
-    
-    public List<SubjectResponse> getSubjectsByDepartment(Long departmentId) {
-        return subjectRepository.findByDepartmentId(departmentId)
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
     }
 }

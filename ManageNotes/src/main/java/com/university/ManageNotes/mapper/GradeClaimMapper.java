@@ -30,7 +30,8 @@ public interface GradeClaimMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "resolvedAt", ignore = true)
     @Mapping(target = "rejectionReason", ignore = true)
@@ -46,7 +47,8 @@ public interface GradeClaimMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "resolvedAt", ignore = true)
     @Mapping(target = "rejectionReason", ignore = true)

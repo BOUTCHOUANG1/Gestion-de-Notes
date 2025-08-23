@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.mapper.DepartmentMapper;
+import com.university.ManageNotes.mapper.BaseMapper;
 import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
@@ -23,7 +24,7 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                            DepartmentMapper mapper,
                            UserRepository userRepository,
                            SubjectRepository subjectRepository) {
-        super(departmentRepository, mapper);
+        super(departmentRepository, (BaseMapper<Department, DepartmentRequest, DepartmentResponse>) mapper);
         this.departmentRepository = departmentRepository;
         this.departmentMapper = mapper;
         this.userRepository = userRepository;

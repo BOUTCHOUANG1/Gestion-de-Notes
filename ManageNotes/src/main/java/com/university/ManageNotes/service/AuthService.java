@@ -131,7 +131,7 @@ public class AuthService {
                 jwtResponse.setMustChooseDepartment(true);
                 jwtResponse.setDepartments(departmentRepository.findAll()
                         .stream()
-                        .map(com.university.ManageNotes.model.Department::getName)
+                        .map(dept -> dept.getName())
                         .toList());
             } else {
                 jwtResponse.setMustChooseDepartment(false);

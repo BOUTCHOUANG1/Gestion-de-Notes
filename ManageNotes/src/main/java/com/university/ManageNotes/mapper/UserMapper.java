@@ -23,5 +23,5 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     Users toEntity(SignupRequest signupRequest);
 
     @Override
-    void updateEntityFromRequest(SignupRequest request, @org.mapstruct.MappingTarget Users entity);
+    Users updateEntityFromRequest(SignupRequest request, @org.mapstruct.MappingTarget Users entity);
 }
