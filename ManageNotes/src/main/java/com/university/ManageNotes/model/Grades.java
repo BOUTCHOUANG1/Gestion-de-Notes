@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.util.PeriodLabelUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -61,7 +62,7 @@ public class Grades extends AbstractEntity{
     }
 
     public void setPeriodLabel(String periodLabel){
-        this.periodLabel = com.university.ManageNotes.util.PeriodLabelUtil.normalize(periodLabel);
+        this.periodLabel = PeriodLabelUtil.normalize(periodLabel);
     }
 
     public Students getStudent() {

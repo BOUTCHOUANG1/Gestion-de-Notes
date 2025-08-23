@@ -25,4 +25,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("SELECT s FROM Subject s ORDER BY s.name")
     List<Subject> findAllOrderByName();
+    
+    List<Subject> findByDepartmentId(Long departmentId);
 }

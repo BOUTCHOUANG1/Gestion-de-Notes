@@ -1,26 +1,33 @@
 package com.university.ManageNotes.service;
 
-// ... existing code ... <imports>
+import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.mapper.DepartmentMapper;
 import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.repository.DepartmentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
-@RequiredArgsConstructor
-public class DepartmentService {
+public class DepartmentService extends BaseCrudService<Department, Long, DepartmentRequest, DepartmentResponse> {
+    
     private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
-    private final SubjectService subjectService;
+    private final SubjectRepository subjectRepository;
+    private final DepartmentMapper departmentMapper;
 
-    public List<Department> list() {
-        return departmentRepository.findAll();
+    public DepartmentService(DepartmentRepository departmentRepository,
+                           DepartmentMapper mapper,
+                           UserRepository userRepository,
+                           SubjectRepository subjectRepository) {
+        super(departmentRepository, mapper);
+        this.departmentRepository = departmentRepository;
+        this.departmentMapper = mapper;
+        this.userRepository = userRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     @Transactional
@@ -38,10 +45,19 @@ public class DepartmentService {
     public DepartmentResponse getDepartmentDetails(Long deptId) {
         return departmentRepository.findById(deptId)
                 .map(dept -> {
-                    DepartmentResponse response = new DepartmentResponse();
-                    response.setId(dept.getId());
-                    response.setName(dept.getName());
-                    response.setSubjects(subjectService.getSubjectsByDepartment(dept.getId()));
+                    DepartmentResponse response = departmentMapper.toResponse(dept);
+                    response.setSubjects(subjectRepository.findByDepartmentId(deptId)
+                        .stream()
+                        .map(subject -> {
+                            var subjectResponse = new com.university.ManageNotes.dto.Response.SubjectResponse();
+                            subjectResponse.setId(subject.getId());
+                            subjectResponse.setName(subject.getName());
+                            subjectResponse.setCode(subject.getCode());
+                            subjectResponse.setDepartmentId(subject.getDepartment().getId());
+                            subjectResponse.setDepartmentName(subject.getDepartment().getName());
+                            return subjectResponse;
+                        })
+                        .toList());
                     return response;
                 })
                 .orElseThrow(() -> new RuntimeException("Department not found"));

@@ -127,4 +127,11 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                 })
                 .orElseGet(() -> com.university.ManageNotes.dto.Response.MessageResponse.error("Subject not found"));
     }
+    
+    public List<SubjectResponse> getSubjectsByDepartment(Long departmentId) {
+        return subjectRepository.findByDepartmentId(departmentId)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
 }

@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.util.PeriodLabelUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -31,7 +32,7 @@ public class GradeClaim extends BaseRequest {
     private String periodLabel;
 
     public void setPeriodLabel(String periodLabel){
-        this.periodLabel = com.university.ManageNotes.util.PeriodLabelUtil.normalize(periodLabel);
+        this.periodLabel = PeriodLabelUtil.normalize(periodLabel);
     }
 
     @Column(name = "requested_score", nullable = false)
