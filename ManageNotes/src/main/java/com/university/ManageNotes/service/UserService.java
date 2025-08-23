@@ -60,10 +60,10 @@ public class UserService {
             student.setLastName(userRequest.getLastName());
             student.setEmail(userRequest.getEmail());
             student.setMatricule(userRequest.getMatricule());
-            student.setLevel(StudentLevel.valueOf(userRequest.getLevel()));
+            student.setLevel(StudentLevel.valueOf(userRequest.getLevel().toUpperCase()));
             student.setSpeciality(userRequest.getSpeciality());
             if (userRequest.getCycle() != null) {
-                student.setCycle(StudentCycle.valueOf(userRequest.getCycle()));
+                student.setCycle(StudentCycle.valueOf(userRequest.getCycle().toUpperCase()));
             }
             studentRepository.save(student);
         }
