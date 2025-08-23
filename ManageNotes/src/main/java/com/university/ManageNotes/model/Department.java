@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Represents an academic department. Currently exposes only id & name to support
+ * Represents an academic department. Currently, exposes only id & name to support
  * department listing for admin selection after login. Additional fields can be
  * added later without impacting the login flow.
  */

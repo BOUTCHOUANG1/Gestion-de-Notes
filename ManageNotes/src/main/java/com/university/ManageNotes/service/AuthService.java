@@ -153,13 +153,13 @@ public class AuthService {
         }
     }
 
-    public MessageResponse changePassword(String username, String oldPassword, String newPassword) {
+    public MessageResponse changePassword(String username, String newPassword) {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Error: User is not found."));
 
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        /*if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return MessageResponse.error("Error: Incorrect old password!");
-        }
+        }*/
 
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);

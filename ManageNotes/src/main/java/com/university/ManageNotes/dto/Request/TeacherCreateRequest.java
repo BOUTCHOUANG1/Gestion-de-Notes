@@ -31,7 +31,7 @@ public class TeacherCreateRequest {
     private String department;
 
     /** Subject IDs the teacher will teach.  Can be empty. */
-    private List<Long> subjectIds = java.util.List.of();
+    private List<Long> subjectIds = List.of();
 
     @Email(message = "Email must be valid")
     private String email;

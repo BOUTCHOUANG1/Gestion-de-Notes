@@ -8,6 +8,7 @@ import com.university.ManageNotes.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,17 +40,19 @@ public class AuthController {
     public ResponseEntity<?> publicChangePassword(@Valid @RequestBody PublicPasswordChangeRequest request) {
         try {
             if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-                return ResponseEntity.badRequest().body(MessageResponse.error("Passwords do not match"));
+                return ResponseEntity.badRequest()
+                        .body(MessageResponse.error("Passwords do not match"));
             }
-            MessageResponse resp = authService.changePassword(request.getIdentifier(), request.getCurrentPassword(), request.getNewPassword());
+            MessageResponse resp = authService.changePassword(request.getIdentifier(), request.getNewPassword());
             return ResponseEntity.ok(resp);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error("Password change failed: " + ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Password change failed: " + ex.getMessage()));
         }
     }
 
     @PostMapping("/register")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> register(@Valid @RequestBody SignupRequest signupRequest) {
         try {
             MessageResponse response = authService.registerUser(signupRequest);
@@ -61,11 +64,12 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal, @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                            @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
         try {
             MessageResponse response = authService.changePassword(
                     userPrincipal.getUsername(),
-                    passwordChangeRequest.getOldPassword(),
+                   // passwordChangeRequest.getOldPassword(),
                     passwordChangeRequest.getNewPassword()
             );
             return ResponseEntity.ok(response);
@@ -91,7 +95,8 @@ public class AuthController {
             MessageResponse resp = authService.resetPassword(request.getEmail());
             return ResponseEntity.ok(resp);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error("Password reset failed: " + ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Password reset failed: " + ex.getMessage()));
         }
     }
 }
