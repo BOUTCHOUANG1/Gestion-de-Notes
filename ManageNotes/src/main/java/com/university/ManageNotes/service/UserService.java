@@ -3,13 +3,15 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.UserRequest;
 import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -18,11 +20,10 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final StudentRepository studentRepository;
+    private final com.university.ManageNotes.repository.GradeRepository gradeRepository;
     private final UserMapper userMapper;
-
     private final com.university.ManageNotes.repository.SubjectRepository subjectRepository;
-
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public UserResponse createUser(UserRequest userRequest) {
@@ -43,7 +44,30 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setMustChangePassword(false);
 
+        // Handle role-specific fields
+        if (userRequest.getRole() == Role.TEACHER) {
+            user.setLevels(userRequest.getLevels());
+            user.setDepartment(userRequest.getDepartment());
+            user.setPhone(userRequest.getPhone());
+        }
+
         Users saved = userRepository.save(user);
+
+        // Create Students entity if role is STUDENT
+        if (userRequest.getRole() == Role.STUDENT) {
+            Students student = new Students();
+            student.setFirstName(userRequest.getFirstName());
+            student.setLastName(userRequest.getLastName());
+            student.setEmail(userRequest.getEmail());
+            student.setMatricule(userRequest.getMatricule());
+            student.setLevel(StudentLevel.valueOf(userRequest.getLevel()));
+            student.setSpeciality(userRequest.getSpeciality());
+            if (userRequest.getCycle() != null) {
+                student.setCycle(StudentCycle.valueOf(userRequest.getCycle()));
+            }
+            studentRepository.save(student);
+        }
+
         return userMapper.toResponse(saved);
     }
 
@@ -70,13 +94,31 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
 
+        // Handle role-specific fields
+        if (userRequest.getRole() == Role.TEACHER) {
+            user.setLevels(userRequest.getLevels());
+            user.setDepartment(userRequest.getDepartment());
+            user.setPhone(userRequest.getPhone());
+        }
+
         Users updated = userRepository.save(user);
         return userMapper.toResponse(updated);
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Delete related grades first to avoid foreign key constraint violation
+        gradeRepository.deleteByEnteredBy(user);
+        
+        // If user is a student, delete the student record too
+        if (user.getRole() == Role.STUDENT) {
+            studentRepository.findByEmail(user.getEmail())
+                    .ifPresent(studentRepository::delete);
+        }
+        
         userRepository.delete(user);
     }
 
