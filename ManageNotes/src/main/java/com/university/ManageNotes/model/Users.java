@@ -48,6 +48,12 @@ public class Users extends AbstractEntity {
     @Column(name = "department", length = 100)
     private String department;
 
+    // Levels that a teacher can teach (stored as JSON array)
+    @ElementCollection
+    @CollectionTable(name = "user_levels", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "level")
+    private List<String> levels;
+
     @OneToMany(mappedBy = "enteredBy")
     private List<Grades> gradesEntered;
 }
