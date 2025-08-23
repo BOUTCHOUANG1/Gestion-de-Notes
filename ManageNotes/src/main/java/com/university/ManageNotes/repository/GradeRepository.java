@@ -1,6 +1,7 @@
 package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +23,6 @@ public interface GradeRepository extends JpaRepository<Grades, Long> {
     List<Grades> findByStudentIdAndSemesterId(Long studentId, Long semesterId);
 
     List<Grades> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
+
+    void deleteByEnteredBy(Users enteredBy);
 }
