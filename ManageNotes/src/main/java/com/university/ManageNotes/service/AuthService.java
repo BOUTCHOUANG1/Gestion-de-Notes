@@ -162,6 +162,7 @@ public class AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
         userRepository.save(user);
 
         return MessageResponse.success("Password changed successfully!");
