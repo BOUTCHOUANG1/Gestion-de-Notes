@@ -1,19 +1,19 @@
 package com.university.ManageNotes.model;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Value;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Value
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BulkError {
-    private Long index;
-    private String error;
-    private GradeRequest failedGrade;
+    Long index;
+    String error;
+    GradeRequest failedGrade;
 
-
+    @Override
+    public String toString() {
+        return String.format("BulkError(index=%d, error='%s', failedGrade=%s)",
+                             index, error, failedGrade);
+    }
 }

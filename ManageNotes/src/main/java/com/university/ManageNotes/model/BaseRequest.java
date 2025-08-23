@@ -14,9 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-public abstract class BaseRequest {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public abstract class BaseRequest extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -24,9 +22,6 @@ public abstract class BaseRequest {
 
     private String rejectionReason;
     private LocalDateTime resolvedAt;
-    
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     private Users createdBy;
