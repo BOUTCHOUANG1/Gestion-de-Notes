@@ -95,6 +95,12 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         return subjectRepository.findSubjectsByTeacherOrderByName(teacherId).stream().map(mapper::toResponse).toList();
     }
 
+    public List<SubjectResponse> getSubjectsByDepartment(Long deptId) {
+        return subjectRepository.findByDepartmentId(deptId).stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<SubjectResponse> searchSubjects(String term) {
         return subjectRepository.findByNameContainingIgnoreCase(term).stream().map(mapper::toResponse).toList();
     }

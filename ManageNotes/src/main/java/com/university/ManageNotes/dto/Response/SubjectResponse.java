@@ -1,5 +1,7 @@
 package com.university.ManageNotes.dto.Response;
 
+import com.university.ManageNotes.model.StudentCycle;
+import com.university.ManageNotes.model.StudentLevel;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,8 +14,8 @@ public class SubjectResponse {
     private BigDecimal credits;
     private String description;
     private Boolean active;
-    private com.university.ManageNotes.model.StudentLevel level;
-    private com.university.ManageNotes.model.StudentCycle cycle;
+    private StudentLevel level;
+    private StudentCycle cycle;
     private Long semesterId;
     private String semesterName;
     private Long departmentId;

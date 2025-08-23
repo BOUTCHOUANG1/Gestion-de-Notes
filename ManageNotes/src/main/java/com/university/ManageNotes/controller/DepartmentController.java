@@ -1,6 +1,7 @@
 package com.university.ManageNotes.controller;
 
 // ... existing code ... <imports>
+import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.security.UserPrincipal;
@@ -17,9 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
-@Tag(name = "Department Navigation", description = "Endpoints for switching department context")
+@Tag(name = "Department Navigation", description = "Endpoints for switching department context and viewing details")
 public class DepartmentController {
-
     private final DepartmentService service;
 
     @GetMapping
@@ -33,5 +33,12 @@ public class DepartmentController {
     @PreAuthorize("hasRole('ADMIN')")
     public MessageResponse switchDept(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long deptId) {
         return service.switchDepartment(principal.getId(), deptId);
+    }
+
+    @GetMapping("/{deptId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get department details including subjects")
+    public DepartmentResponse getDepartmentDetails(@PathVariable Long deptId) {
+        return service.getDepartmentDetails(deptId);
     }
 }

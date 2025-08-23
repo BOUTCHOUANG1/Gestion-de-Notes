@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Represents an academic department.  We expose only an id & name because the current
- * user-story merely requires a list of departments so an admin can choose one after login.
- * Additional fields (code, description …) can be added later without impacting the login flow.
+ * Represents an academic department. Currently exposes only id & name to support
+ * department listing for admin selection after login. Additional fields can be
+ * added later without impacting the login flow.
  */
 @Getter
 @Setter
@@ -15,11 +15,15 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "departments")
-public class Department {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@ToString(onlyExplicitlyIncluded = true)
+public class Department extends AbstractEntity {
 
     @Column(nullable = false, unique = true, length = 100)
+    @ToString.Include
     private String name;
+
+    // Inherited from AbstractEntity:
+    // - id
+    // - createdDate
+    // - lastModifiedDate
 }
