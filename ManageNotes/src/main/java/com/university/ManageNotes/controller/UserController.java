@@ -239,6 +239,79 @@ public class UserController {
                 .orElse(MessageResponse.error("Student not found"));
     }
 
+    @PutMapping("/teachers/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update teacher information (Admin only)")
+    @org.springframework.transaction.annotation.Transactional
+    public org.springframework.http.ResponseEntity<UserProfileResponse> updateTeacher(
+            @PathVariable Long id, 
+            @RequestBody com.university.ManageNotes.dto.Request.TeacherUpdateRequest request) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.TEACHER)
+                .map(teacher -> {
+                    teacher.setFirstName(request.getFirstName());
+                    teacher.setLastName(request.getLastName());
+                    teacher.setEmail(request.getEmail());
+                    teacher.setPhone(request.getPhone());
+                    teacher.setDepartment(request.getDepartment());
+                    teacher.setLevels(request.getLevels());
+                    userRepository.save(teacher);
+                    
+                    return org.springframework.http.ResponseEntity.ok(UserProfileResponse.builder()
+                            .id(teacher.getId())
+                            .username(teacher.getUsername())
+                            .firstName(teacher.getFirstName())
+                            .lastName(teacher.getLastName())
+                            .email(teacher.getEmail())
+                            .role(teacher.getRole())
+                            .build());
+                })
+                .orElse(org.springframework.http.ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/students/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update student information (Admin only)")
+    @org.springframework.transaction.annotation.Transactional
+    public org.springframework.http.ResponseEntity<UserProfileResponse> updateStudent(
+            @PathVariable Long id, 
+            @RequestBody com.university.ManageNotes.dto.Request.StudentUpdateRequest request) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.STUDENT)
+                .map(user -> {
+                    // Update Users entity
+                    user.setFirstName(request.getFirstName());
+                    user.setLastName(request.getLastName());
+                    user.setEmail(request.getEmail());
+                    userRepository.save(user);
+                    
+                    // Update Students entity
+                    studentRepository.findByEmail(user.getEmail())
+                            .ifPresent(student -> {
+                                student.setFirstName(request.getFirstName());
+                                student.setLastName(request.getLastName());
+                                student.setEmail(request.getEmail());
+                                student.setMatricule(request.getMatricule());
+                                student.setLevel(com.university.ManageNotes.model.StudentLevel.valueOf(request.getLevel().toUpperCase()));
+                                student.setSpeciality(request.getSpeciality());
+                                if (request.getCycle() != null) {
+                                    student.setCycle(com.university.ManageNotes.model.StudentCycle.valueOf(request.getCycle().toUpperCase()));
+                                }
+                                studentRepository.save(student);
+                            });
+                    
+                    return org.springframework.http.ResponseEntity.ok(UserProfileResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .email(user.getEmail())
+                            .role(Role.STUDENT)
+                            .build());
+                })
+                .orElse(org.springframework.http.ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a user by ID (Admin only)")
