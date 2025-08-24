@@ -64,11 +64,16 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setActive(true);
 
-        // Handle teacher-specific fields
+        // Handle role-specific fields
         if (requestedRole == Role.TEACHER) {
             user.setLevels(signupRequest.getLevels());
             user.setDepartment(signupRequest.getDepartment());
             user.setPhone(signupRequest.getPhone());
+        } else {
+            // Clear teacher fields for non-teacher roles
+            user.setLevels(null);
+            user.setDepartment(null);
+            user.setPhone(null);
         }
 
         Users saved = userRepository.save(user);

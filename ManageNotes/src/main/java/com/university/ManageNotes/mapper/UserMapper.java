@@ -24,9 +24,10 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "gradesEntered", ignore = true)
     @Mapping(target = "mustChangePassword", ignore = true)
-    @Mapping(source = "levels", target = "levels")
-    @Mapping(source = "department", target = "department")
-    @Mapping(source = "phone", target = "phone")
+    @Mapping(target = "levels", ignore = true)  // Handle manually in service
+    @Mapping(target = "department", ignore = true)  // Handle manually in service
+    @Mapping(target = "phone", ignore = true)  // Handle manually in service
+    @Mapping(target = "level", ignore = true)  // Student level should not map to Users entity
     Users toEntity(SignupRequest signupRequest);
 
     @Override
