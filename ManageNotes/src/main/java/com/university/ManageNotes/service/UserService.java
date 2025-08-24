@@ -68,7 +68,15 @@ public class UserService {
             studentRepository.save(student);
         }
 
-        return userMapper.toResponse(saved);
+        // Create role-specific response
+        UserResponse response = userMapper.toResponse(saved);
+        if (saved.getRole() == Role.STUDENT) {
+            // Clear teacher fields for student response
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+        }
+        return response;
     }
 
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
@@ -102,7 +110,13 @@ public class UserService {
         }
 
         Users updated = userRepository.save(user);
-        return userMapper.toResponse(updated);
+        UserResponse response = userMapper.toResponse(updated);
+        if (updated.getRole() == Role.STUDENT) {
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+        }
+        return response;
     }
 
     @Transactional
@@ -124,14 +138,28 @@ public class UserService {
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(userMapper::toResponse)
+                .map(user -> {
+                    UserResponse response = userMapper.toResponse(user);
+                    if (user.getRole() == Role.STUDENT) {
+                        response.setLevels(null);
+                        response.setDepartment(null);
+                        response.setPhone(null);
+                    }
+                    return response;
+                })
                 .toList();
     }
 
     public UserResponse getUserById(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toResponse(user);
+        UserResponse response = userMapper.toResponse(user);
+        if (user.getRole() == Role.STUDENT) {
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+        }
+        return response;
     }
 
     // ---------------------- Teacher Creation (US N6) ----------------------
@@ -172,7 +200,8 @@ public class UserService {
             });
         }
 
-        return new com.university.ManageNotes.dto.Response.MessageResponse("Teacher created", "SUCCESS", userMapper.toResponse(saved));
+        UserResponse response = userMapper.toResponse(saved);
+        return new com.university.ManageNotes.dto.Response.MessageResponse("Teacher created", "SUCCESS", response);
     }
 
     public void activateUser(Long userId) {
@@ -209,12 +238,26 @@ public class UserService {
         }
         String username = auth.getName();
         var user = userRepository.findByUsername(username).orElseThrow();
-        return userMapper.toResponse(user);
+        UserResponse response = userMapper.toResponse(user);
+        if (user.getRole() == Role.STUDENT) {
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+        }
+        return response;
     }
 
     public List<UserResponse> getUsersByRole(Role role) {
         return userRepository.findByRole(role).stream()
-                .map(userMapper::toResponse)
+                .map(user -> {
+                    UserResponse response = userMapper.toResponse(user);
+                    if (user.getRole() == Role.STUDENT) {
+                        response.setLevels(null);
+                        response.setDepartment(null);
+                        response.setPhone(null);
+                    }
+                    return response;
+                })
                 .toList();
     }
 }

@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.LoginRequest;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Students;
@@ -108,10 +109,19 @@ public class AuthService {
                             "Please change these credentials after your first login.\n\nRegards");
         } catch (Exception ignored) {}
 
+        // Create role-specific response
+        UserResponse response = userMapper.toResponse(saved);
+        if (saved.getRole() == Role.STUDENT) {
+            // Clear teacher fields for student response
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+        }
+
         return new MessageResponse(
                 "User registered successfully!",
                 "SUCCESS",
-                userMapper.toResponse(saved)
+                response
         );
     }
 
