@@ -1,5 +1,8 @@
 package com.university.ManageNotes.model;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * Enumeration of printable "procès-verbal" types requested in User-Story N10.
  */
@@ -11,8 +14,8 @@ public enum ProcessVerbalType {
     GRADE_SN2,
     YEAR_SUMMARY;
 
-    public static java.util.Optional<ProcessVerbalType> fromLabel(String label) {
-        return java.util.Arrays.stream(values())
+    public static Optional<ProcessVerbalType> fromLabel(String label) {
+        return Arrays.stream(values())
                 .filter(t -> t.name().equalsIgnoreCase(label.replace(" ", "_")))
                 .findFirst();
     }

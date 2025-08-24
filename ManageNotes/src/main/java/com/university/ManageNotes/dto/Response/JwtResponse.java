@@ -29,15 +29,7 @@ public class JwtResponse {
     private boolean mustChooseDepartment;
 
     /** List of departments available to the admin */
-    private java.util.List<String> departments;
+    private List<String> departments;
 
-    // Additional constructor for convenience
-    public JwtResponse(String token, String type, String username, String email, Role role) {
-        this.token = token;
-        this.type = type;
-        this.username = username;
-        this.email = email;
-        this.role = role;
-    }
 
 }

@@ -22,7 +22,7 @@ public class ReportResponse extends AbstractEntity {
     public static class SubjectResult {
         private String subjectName;
         private double average;
-        private java.math.BigDecimal credits;
+        private BigDecimal credits;
         private boolean passed;
     }
     
@@ -58,31 +58,8 @@ public class ReportResponse extends AbstractEntity {
     private Boolean success;
     private String message;
 
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
-
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
-
     public void setSuccess(boolean success) {
         this.success = success;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
-    }
-    
-    public List<SubjectResult> getSubjectResults() {
-        return subjectResults;
-    }
-    
-    public void setSubjectResults(List<SubjectResult> subjectResults) {
-        this.subjectResults = subjectResults;
-    }
 }

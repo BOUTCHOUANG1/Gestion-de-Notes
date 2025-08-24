@@ -13,10 +13,6 @@ public class MessageResponse {
     private String status; // "SUCCESS", "ERROR", "WARNING", "INFO"
     private Object data;
 
-
-
-
-
     public MessageResponse(String message, String status) {
         this.message = message;
         this.status = status;
@@ -31,9 +27,6 @@ public class MessageResponse {
        return new MessageResponse(message, "ERROR");
    }
 
-    public static MessageResponse warning(String message) {
-        return new MessageResponse(message, "WARNING");
-    }
 
 
 }
