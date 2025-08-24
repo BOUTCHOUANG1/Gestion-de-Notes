@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.math.BigDecimal;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface SubjectMapper extends BaseMapper<Subject, SubjectRequest, SubjectResponse> {
 
@@ -27,7 +29,7 @@ public interface SubjectMapper extends BaseMapper<Subject, SubjectRequest, Subje
         entity.setName(request.getName());
         entity.setCode(request.getCode());
         entity.setDescription(request.getDescription());
-        entity.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
+        entity.setCredits(BigDecimal.valueOf(request.getCredits()));
         entity.setIdTeacher(request.getTeacherId());
         entity.setActive(request.getActive());
         entity.setLevel(request.getLevel());

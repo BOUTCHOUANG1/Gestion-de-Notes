@@ -14,12 +14,19 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Override
+    @Mapping(source = "levels", target = "levels")
+    @Mapping(source = "department", target = "department")
+    @Mapping(source = "phone", target = "phone")
     UserResponse toResponse(Users user);
 
     @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "gradesEntered", ignore = true)
+    @Mapping(target = "mustChangePassword", ignore = true)
+    @Mapping(source = "levels", target = "levels")
+    @Mapping(source = "department", target = "department")
+    @Mapping(source = "phone", target = "phone")
     Users toEntity(SignupRequest signupRequest);
 
     @Override
