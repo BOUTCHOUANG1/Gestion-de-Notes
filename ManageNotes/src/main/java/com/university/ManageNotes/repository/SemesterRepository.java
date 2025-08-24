@@ -13,21 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface SemesterRepository extends JpaRepository<Semesters, Long> {
-
-    List<Semesters> findByActiveTrue();
-
-    Optional<Semesters> findByName(String name);
-
     boolean existsByName(String name);
-
-    @Query("SELECT s FROM Semesters s WHERE s.startDate <= :date AND s.endDate >= :date")
-    Optional<Semesters> findCurrentSemester(LocalDate date);
-
-    @Query("SELECT s FROM Semesters s ORDER BY s.startDate DESC")
-    List<Semesters> findAllOrderByStartDateDesc();
-
-    @Query("SELECT s FROM Semesters s WHERE s.active = true ORDER BY s.startDate DESC")
-    List<Semesters> findActiveSemestersOrderByStartDate();
 
     @Modifying
     @Transactional

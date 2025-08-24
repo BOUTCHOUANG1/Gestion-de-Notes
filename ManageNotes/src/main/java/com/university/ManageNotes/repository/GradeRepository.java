@@ -18,8 +18,6 @@ public interface GradeRepository extends JpaRepository<Grades, Long> {
 
     List<Grades> findByEnteredById(Long teacherId);
 
-    List<Grades> findBySubjectIdAndSemesterId(Long subjectId, Long semesterId);
-
     List<Grades> findByStudentIdAndSemesterId(Long studentId, Long semesterId);
 
     List<Grades> findByStudentIdAndSubjectId(Long studentId, Long subjectId);

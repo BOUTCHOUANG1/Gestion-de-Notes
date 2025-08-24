@@ -41,6 +41,4 @@ public class Semesters extends AbstractEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
     private List<Grades> grades;
-
-
 }
