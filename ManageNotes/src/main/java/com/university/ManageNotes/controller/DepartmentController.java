@@ -33,6 +33,12 @@ public class DepartmentController extends BaseCrudController<Long, DepartmentReq
         return departmentService.switchDepartment(principal.getId(), deptId);
     }
 
+    @Override
+    public MessageResponse create(@RequestBody DepartmentRequest request) {
+        DepartmentResponse response = departmentService.createDepartmentWithSubjects(request);
+        return new MessageResponse("Department created successfully", "SUCCESS", response);
+    }
+
     @GetMapping("/{deptId}/details")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get department details with subjects")

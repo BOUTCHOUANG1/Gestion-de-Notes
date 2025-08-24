@@ -1,5 +1,6 @@
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.dto.Request.GradeByCodeRequest;
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
@@ -8,17 +9,21 @@ import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,13 +31,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/grades")
 @Tag(name = "Grade Management", description = "Grade management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
+@AllArgsConstructor
 public class GradeController {
 
-    @Autowired
-    private GradeService gradeService;
 
-    @Autowired
-    private com.university.ManageNotes.repository.StudentRepository studentRepository;
+    private final GradeService gradeService;
+
+
+    private final StudentRepository studentRepository;
 
     @PostMapping
     @Operation(summary = "Create new grade", description = "Create a new grade entry (Teacher/Admin only)")
@@ -45,16 +51,16 @@ public class GradeController {
         }
     }
 
-    @PostMapping("/by-code")
-    @Operation(summary = "Create grade by matricule & subject code", description = "Teacher enters grade using student matricule and subject code")
-    public ResponseEntity<?> createGradeByCode(@Valid @RequestBody com.university.ManageNotes.dto.Request.GradeByCodeRequest request) {
-        try {
-            GradeResponse resp = gradeService.createGradeByCode(request);
-            return ResponseEntity.ok(resp);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
-        }
-    }
+//    @PostMapping("/by-code")
+//    @Operation(summary = "Create grade by matricule & subject code", description = "Teacher enters grade using student matricule and subject code")
+//    public ResponseEntity<?> createGradeByCode(@Valid @RequestBody GradeByCodeRequest request) {
+//        try {
+//            GradeResponse resp = gradeService.createGradeByCode(request);
+//            return ResponseEntity.ok(resp);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
+//        }
+//    }
 
     @PutMapping("/{gradeId}")
     @Operation(summary = "Update grade", description = "Update an existing grade (Teacher/Admin only)")
@@ -135,7 +141,7 @@ public class GradeController {
 
     @GetMapping("/sheet/self")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<?> getMySheet(@AuthenticationPrincipal com.university.ManageNotes.security.UserPrincipal principal,
+    public ResponseEntity<?> getMySheet(@AuthenticationPrincipal UserPrincipal principal,
                                         @RequestParam Long semesterId) {
         var studentOpt = studentRepository.findByMatricule(principal.getUsername());
         if (studentOpt.isEmpty()) {
@@ -152,7 +158,7 @@ public class GradeController {
     @Operation(summary = "Get grades for all students in a level (Admin only)")
     public ResponseEntity<?> getGradesByLevel(@PathVariable String level) {
         try {
-            var lvlOpt = java.util.Arrays.stream(StudentLevel.values())
+            var lvlOpt = Arrays.stream(StudentLevel.values())
                     .filter(l -> l.name().equals("LEVEL" + level.replace("L", "")))
                     .findFirst();
             if (lvlOpt.isEmpty()) {
