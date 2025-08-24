@@ -3,6 +3,7 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.mapper.DepartmentMapper;
 import com.university.ManageNotes.mapper.BaseMapper;
 import com.university.ManageNotes.model.Department;
@@ -43,9 +44,8 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                 .orElse(MessageResponse.error("Department not found"));
     }
 
-    @Override
     @Transactional
-    public DepartmentResponse create(DepartmentRequest request) {
+    public DepartmentResponse createDepartmentWithSubjects(DepartmentRequest request) {
         // Create department
         Department department = departmentMapper.toEntity(request);
         Department savedDept = departmentRepository.save(department);
@@ -68,16 +68,22 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                     response.setSubjects(subjectRepository.findByDepartmentId(deptId)
                         .stream()
                         .map(subject -> {
-                            var subjectResponse = new com.university.ManageNotes.dto.Response.SubjectResponse();
+                            var subjectResponse = new SubjectResponse();
                             subjectResponse.setId(subject.getId());
                             subjectResponse.setName(subject.getName());
                             subjectResponse.setCode(subject.getCode());
                             subjectResponse.setCredits(subject.getCredits());
                             subjectResponse.setDescription(subject.getDescription());
-                            subjectResponse.setLevel(subject.getLevel() != null ? subject.getLevel().name() : null);
-                            subjectResponse.setCycle(subject.getCycle() != null ? subject.getCycle().name() : null);
-                            subjectResponse.setIdTeacher(subject.getIdTeacher());
-                            subjectResponse.setIdSemester(subject.getSemester() != null ? subject.getSemester().getId() : null);
+                            subjectResponse.setLevel(subject.getLevel());
+                            subjectResponse.setCycle(subject.getCycle());
+                            subjectResponse.setTeacherId(subject.getIdTeacher());
+                            if (subject.getIdTeacher() != null) {
+                                userRepository.findById(subject.getIdTeacher()).ifPresent(teacher -> 
+                                    subjectResponse.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName())
+                                );
+                            }
+                            subjectResponse.setSemesterId(subject.getSemester() != null ? subject.getSemester().getId() : null);
+                            subjectResponse.setSemesterName(subject.getSemester() != null ? subject.getSemester().getName() : null);
                             subjectResponse.setDepartmentId(subject.getDepartment().getId());
                             subjectResponse.setDepartmentName(subject.getDepartment().getName());
                             subjectResponse.setActive(subject.getActive());

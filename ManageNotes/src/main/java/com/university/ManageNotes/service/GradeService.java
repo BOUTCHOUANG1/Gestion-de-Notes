@@ -1,23 +1,22 @@
 package com.university.ManageNotes.service;
 
+import com.university.ManageNotes.dto.Request.GradeByCodeRequest;
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
-import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.dto.Response.ReportResponse;
-import com.university.ManageNotes.dto.Response.StudentGradesResponse;
+import com.university.ManageNotes.dto.Response.*;
+import com.university.ManageNotes.model.GradeType;
 import com.university.ManageNotes.model.Subject;
 import java.math.BigDecimal;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.repository.*;
+import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradingWindowService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +30,12 @@ public class GradeService {
     private final GradingWindowService gradingWindowService;
 
     @Autowired
-    public GradeService(GradeRepository gradeRepository, StudentRepository studentRepository, SubjectRepository subjectRepository, UserRepository userRepository, SemesterRepository semesterRepository, GradingWindowService gradingWindowService) {
+    public GradeService(GradeRepository gradeRepository,
+                        StudentRepository studentRepository,
+                        SubjectRepository subjectRepository,
+                        UserRepository userRepository,
+                        SemesterRepository semesterRepository,
+                        GradingWindowService gradingWindowService) {
         this.gradeRepository = gradeRepository;
         this.studentRepository = studentRepository;
         this.subjectRepository = subjectRepository;
@@ -249,7 +253,7 @@ public class GradeService {
         return convertToResponse(saved);
     }
 
-    public GradeResponse createGradeByCode(com.university.ManageNotes.dto.Request.GradeByCodeRequest req) {
+    public GradeResponse createGradeByCode(GradeByCodeRequest req) {
         // window validation for teacher (current auth is the caller)
         var auth2 = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         boolean isTeacher2 = auth2!=null && auth2.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
@@ -267,8 +271,8 @@ public class GradeService {
 
         // Ensure current logged-in teacher is owner of the subject
         Long teacherId = null;
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal up) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
             teacherId = up.getId();
         }
         if (teacherId == null || !teacherId.equals(subject.getIdTeacher())) {
@@ -322,14 +326,14 @@ public class GradeService {
         }
 
         // Build TopicDto list expected by frontend
-        java.util.Map<String, com.university.ManageNotes.dto.Response.TopicDto> topicMap = new java.util.HashMap<>();
+        Map<String, TopicDto> topicMap = new HashMap<>();
         for (var gr : gradeResponses) {
             var topic = topicMap.computeIfAbsent(gr.getSubjectCode(), k -> {
                 var subj = subjectRepository.findById(gr.getSubjectId()).orElse(null);
-                return com.university.ManageNotes.dto.Response.TopicDto.builder()
+                return TopicDto.builder()
                         .code(gr.getSubjectCode())
                         .title(gr.getSubjectName())
-                        .credit(subj != null ? subj.getCredits() : java.math.BigDecimal.ZERO)
+                        .credit(subj != null ? subj.getCredits() : BigDecimal.ZERO)
                         .semester(gr.getSemesterName() != null && gr.getSemesterName().toLowerCase().contains("2") ? "s2" : "s1")
                         .build();
             });
@@ -342,7 +346,7 @@ public class GradeService {
             }
         }
 
-        java.util.List<com.university.ManageNotes.dto.Response.TopicDto> topicList = new java.util.ArrayList<>(topicMap.values());
+        List<TopicDto> topicList = new ArrayList<>(topicMap.values());
 
         response.setTopics(topicList);
         studentOpt.ifPresent(s -> {
@@ -360,8 +364,8 @@ public class GradeService {
     public List<GradeResponse> getTeacherGrades() {
         Long teacherId = null;
         try {
-            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal up) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
                 teacherId = up.getId();
             }
         } catch (Exception ignored) {}
@@ -371,7 +375,9 @@ public class GradeService {
         }
 
         List<Grades> grades = gradeRepository.findByEnteredById(teacherId);
-        return grades.stream().map(this::convertToResponse).collect(java.util.stream.Collectors.toList());
+        return grades.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     public com.university.ManageNotes.dto.Response.GradeSheetResponse getGradeSheet(String subjectCode, Long semesterId, String period) {
@@ -379,8 +385,8 @@ public class GradeService {
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
 
         // Ensure that, if a teacher is requesting, they own the subject
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal up) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
             boolean isAdmin = up.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
             if (!isAdmin && !up.getId().equals(subject.getIdTeacher())) {
@@ -389,31 +395,37 @@ public class GradeService {
         }
 
         // Prepare response
-        var resp = new com.university.ManageNotes.dto.Response.GradeSheetResponse();
+        var resp = new GradeSheetResponse();
         resp.setSubjectCode(subject.getCode());
         resp.setSubjectName(subject.getName());
         if (subject.getLevel() != null) resp.setLevel(subject.getLevel().name());
         if (subject.getCycle() != null) resp.setCycle(subject.getCycle().name());
         resp.setPeriod(period);
 
-        java.util.List<com.university.ManageNotes.model.Students> students;
+        List<Students> students;
         if (semesterId != null) {
             students = getStudentsBySemester(semesterId);
         } else {
             // Fallback: all students who have grades for this subject
             var grades = gradeRepository.findBySubjectId(subject.getId());
-            students = grades.stream().map(com.university.ManageNotes.model.Grades::getStudent).distinct().collect(java.util.stream.Collectors.toList());
+            students = grades.stream()
+                    .map(Grades::getStudent)
+                    .distinct()
+                    .collect(Collectors.toList());
         }
 
         resp.setTotalStudents(students.size());
 
         // Collect distinct (type,label) pairs
-        java.util.Set<String> colKeys = new java.util.LinkedHashSet<>();
-        java.util.Map<String, String> keyToLabel = new java.util.LinkedHashMap<>();
+        Set<String> colKeys = new LinkedHashSet<>();
+        Map<String, String> keyToLabel = new LinkedHashMap<>();
 
-        java.util.List<com.university.ManageNotes.model.Grades> allGradesForSubject = gradeRepository.findBySubjectId(subject.getId());
+        List<Grades> allGradesForSubject = gradeRepository.findBySubjectId(subject.getId());
         if (semesterId != null) {
-            allGradesForSubject = allGradesForSubject.stream().filter(g -> g.getSemesters() != null && g.getSemesters().getId().equals(semesterId)).toList();
+            allGradesForSubject = allGradesForSubject.stream()
+                    .filter(g -> g.getSemesters() != null && g.getSemesters().getId()
+                            .equals(semesterId))
+                    .toList();
         }
         for (var g : allGradesForSubject) {
             String key = g.getType().name() + "::" + (g.getPeriodLabel() == null ? "" : g.getPeriodLabel());
@@ -422,18 +434,18 @@ public class GradeService {
             keyToLabel.put(key, label);
         }
 
-        java.util.List<com.university.ManageNotes.dto.Response.GradeSheetColumn> cols = new java.util.ArrayList<>();
+        List<GradeSheetColumn> cols = new ArrayList<>();
         for (String k : colKeys) {
             String[] parts = k.split("::",2);
-            com.university.ManageNotes.model.GradeType t = com.university.ManageNotes.model.GradeType.valueOf(parts[0]);
-            cols.add(new com.university.ManageNotes.dto.Response.GradeSheetColumn(t, keyToLabel.get(k)));
+            GradeType t = GradeType.valueOf(parts[0]);
+            cols.add(new GradeSheetColumn(t, keyToLabel.get(k)));
         }
         resp.setColumns(cols);
         // Build rows
-        java.util.List<com.university.ManageNotes.dto.Response.GradeSheetRow> rows = new java.util.ArrayList<>();
+        List<GradeSheetRow> rows = new ArrayList<>();
         int conflicts = 0;
         for (var student : students) {
-            var row = new com.university.ManageNotes.dto.Response.GradeSheetRow();
+            var row = new GradeSheetRow();
             row.setStudentId(student.getId());
             row.setMatricule(student.getMatricule());
             row.setFullName(student.getFirstName()+" "+student.getLastName());
@@ -441,7 +453,7 @@ public class GradeService {
             java.util.Map<String, Double> gradeMap = new java.util.HashMap<>();
             for (String k : colKeys) gradeMap.put(k, null);
 
-            java.util.List<com.university.ManageNotes.model.Grades> sg;
+            List<Grades> sg;
             if (semesterId!=null) {
                 sg = gradeRepository.findByStudentIdAndSemesterId(student.getId(), semesterId);
             } else sg = gradeRepository.findByStudentIdAndSubjectId(student.getId(), subject.getId());
@@ -453,14 +465,18 @@ public class GradeService {
                 gradeMap.put(k, g.getValue());
             }
 
-            long missing = gradeMap.values().stream().filter(java.util.Objects::isNull).count();
+            long missing = gradeMap.values().stream()
+                    .filter(Objects::isNull).count();
             conflicts += missing;
 
-            double avg = gradeMap.values().stream().filter(java.util.Objects::nonNull).mapToDouble(Double::doubleValue).average().orElse(0);
+            double avg = gradeMap.values().stream()
+                    .filter(Objects::nonNull)
+                    .mapToDouble(Double::doubleValue)
+                    .average().orElse(0);
             row.setPassed(avg>=10);
 
             // convert map keys to label for dto
-            java.util.Map<String, Double> labelMap = new java.util.HashMap<>();
+            Map<String, Double> labelMap = new HashMap<>();
             for (String k: gradeMap.keySet()) labelMap.put(keyToLabel.get(k), gradeMap.get(k));
             row.setGrades(labelMap);
             rows.add(row);

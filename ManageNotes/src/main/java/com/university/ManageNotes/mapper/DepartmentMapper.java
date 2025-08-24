@@ -9,6 +9,14 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface DepartmentMapper extends BaseMapper<Department, DepartmentRequest, DepartmentResponse> {
     
+    /**
+     * Converts a {@link Department} entity into a {@link DepartmentResponse} dto.
+     * <p>
+     * Note that the {@code subjects} field is explicitly ignored in this mapping,
+     * as it is not directly provided by the {@code Department} entity.
+     * @param entity the department entity to convert
+     * @return the converted department response
+     */
     @Mapping(target = "subjects", ignore = true)
     DepartmentResponse toResponse(Department entity);
     

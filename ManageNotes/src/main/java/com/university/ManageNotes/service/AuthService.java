@@ -37,7 +37,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final StudentRepository studentRepository;
-    private final InviteService inviteService;
     private final EmailService emailService;
     private final DepartmentRepository departmentRepository;
     private final UserDetailsService userDetailsService;

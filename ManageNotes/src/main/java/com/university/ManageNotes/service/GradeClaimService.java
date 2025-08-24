@@ -10,6 +10,7 @@ import com.university.ManageNotes.repository.GradeClaimRepository;
 import com.university.ManageNotes.repository.GradeRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
+import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradingWindowService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,9 +55,9 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
             throw new RuntimeException("Claim period is closed");
         }
 
-        String period = req.getPeriod();
-        if(period==null || (!period.equals("CC") && !period.equals("SN"))){
-            throw new RuntimeException("period must be CC or SN");
+        String period = String.valueOf(req.getPeriod());
+        if(period==null || (!period.equals("CC_1") && !period.equals("CC_2") && !period.equals("SN_1") && !period.equals("SN_2"))){
+            throw new RuntimeException("period must be CC_1, CC_2, SN_1 or SN_2");
         }
 
         GradeClaim claim = new GradeClaim();
@@ -104,8 +105,8 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
 
     private Users getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal) {
-            var userPrincipal = (com.university.ManageNotes.security.UserPrincipal) auth.getPrincipal();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            var userPrincipal = (UserPrincipal) auth.getPrincipal();
             return userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
         }

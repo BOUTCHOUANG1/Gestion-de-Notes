@@ -33,22 +33,38 @@ public class GradeCalculator {
         double weightedSum = 0.0;
         double totalPossible = 0.0;
         
-        // Process CC grades (always out of 30)
-        if (gradesByType.containsKey(GradeType.CC)) {
-            double ccSum = gradesByType.get(GradeType.CC).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
-                    .sum();
+        // Process CC grades (CC_1 and CC_2, each out of 30)
+        if (gradesByType.containsKey(GradeType.CC_1) || gradesByType.containsKey(GradeType.CC_2)) {
+            double ccSum = 0.0;
+            if (gradesByType.containsKey(GradeType.CC_1)) {
+                ccSum += gradesByType.get(GradeType.CC_1).stream()
+                        .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+                        .sum();
+            }
+            if (gradesByType.containsKey(GradeType.CC_2)) {
+                ccSum += gradesByType.get(GradeType.CC_2).stream()
+                        .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+                        .sum();
+            }
             weightedSum += ccSum;
             totalPossible += DEFAULT_CC_MAX;
         }
         
-        // Process SN grade (70 or 50 depending on practical)
-        if (gradesByType.containsKey(GradeType.SN)) {
+        // Process SN grades (SN_1 and SN_2, 70 or 50 depending on practical)
+        if (gradesByType.containsKey(GradeType.SN_1) || gradesByType.containsKey(GradeType.SN_2)) {
             double snMax = hasPractical ? DEFAULT_SN_WITH_PRACTICAL_MAX : DEFAULT_SN_MAX;
-            double snValue = gradesByType.get(GradeType.SN).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
-                    .sum();
-            weightedSum += snValue;
+            double snSum = 0.0;
+            if (gradesByType.containsKey(GradeType.SN_1)) {
+                snSum += gradesByType.get(GradeType.SN_1).stream()
+                        .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+                        .sum();
+            }
+            if (gradesByType.containsKey(GradeType.SN_2)) {
+                snSum += gradesByType.get(GradeType.SN_2).stream()
+                        .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+                        .sum();
+            }
+            weightedSum += snSum;
             totalPossible += snMax;
         }
         
