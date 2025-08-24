@@ -43,6 +43,24 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                 .orElse(MessageResponse.error("Department not found"));
     }
 
+    @Override
+    @Transactional
+    public DepartmentResponse create(DepartmentRequest request) {
+        // Create department
+        Department department = departmentMapper.toEntity(request);
+        Department savedDept = departmentRepository.save(department);
+        
+        // Assign existing subjects to department if provided
+        if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
+            subjectRepository.findAllById(request.getSubjectIds()).forEach(subject -> {
+                subject.setDepartment(savedDept);
+                subjectRepository.save(subject);
+            });
+        }
+        
+        return getDepartmentDetails(savedDept.getId());
+    }
+
     public DepartmentResponse getDepartmentDetails(Long deptId) {
         return departmentRepository.findById(deptId)
                 .map(dept -> {
@@ -54,8 +72,15 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                             subjectResponse.setId(subject.getId());
                             subjectResponse.setName(subject.getName());
                             subjectResponse.setCode(subject.getCode());
+                            subjectResponse.setCredits(subject.getCredits());
+                            subjectResponse.setDescription(subject.getDescription());
+                            subjectResponse.setLevel(subject.getLevel() != null ? subject.getLevel().name() : null);
+                            subjectResponse.setCycle(subject.getCycle() != null ? subject.getCycle().name() : null);
+                            subjectResponse.setIdTeacher(subject.getIdTeacher());
+                            subjectResponse.setIdSemester(subject.getSemester() != null ? subject.getSemester().getId() : null);
                             subjectResponse.setDepartmentId(subject.getDepartment().getId());
                             subjectResponse.setDepartmentName(subject.getDepartment().getName());
+                            subjectResponse.setActive(subject.getActive());
                             return subjectResponse;
                         })
                         .toList());
