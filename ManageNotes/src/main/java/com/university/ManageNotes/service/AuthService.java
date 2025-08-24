@@ -112,10 +112,18 @@ public class AuthService {
         // Create role-specific response
         UserResponse response = userMapper.toResponse(saved);
         if (saved.getRole() == Role.STUDENT) {
-            // Clear teacher fields for student response
+            // Clear teacher fields and populate student fields
             response.setLevels(null);
             response.setDepartment(null);
             response.setPhone(null);
+            
+            // Populate student fields from SignupRequest
+            response.setLevel(signupRequest.getLevel() != null ? signupRequest.getLevel().name() : null);
+            response.setMatricule(signupRequest.getMatricule());
+            response.setSpeciality(signupRequest.getSpeciality());
+            response.setCycle(signupRequest.getCycle() != null ? signupRequest.getCycle().name() : null);
+            response.setDateOfBirth(signupRequest.getDateOfBirth());
+            response.setPlaceOfBirth(signupRequest.getPlaceOfBirth());
         }
 
         return new MessageResponse(

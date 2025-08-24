@@ -68,15 +68,7 @@ public class UserService {
             studentRepository.save(student);
         }
 
-        // Create role-specific response
-        UserResponse response = userMapper.toResponse(saved);
-        if (saved.getRole() == Role.STUDENT) {
-            // Clear teacher fields for student response
-            response.setLevels(null);
-            response.setDepartment(null);
-            response.setPhone(null);
-        }
-        return response;
+        return createRoleSpecificResponse(saved);
     }
 
     public UserResponse updateUser(Long userId, UserRequest userRequest) {
@@ -110,13 +102,7 @@ public class UserService {
         }
 
         Users updated = userRepository.save(user);
-        UserResponse response = userMapper.toResponse(updated);
-        if (updated.getRole() == Role.STUDENT) {
-            response.setLevels(null);
-            response.setDepartment(null);
-            response.setPhone(null);
-        }
-        return response;
+        return createRoleSpecificResponse(updated);
     }
 
     @Transactional
@@ -138,28 +124,14 @@ public class UserService {
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> {
-                    UserResponse response = userMapper.toResponse(user);
-                    if (user.getRole() == Role.STUDENT) {
-                        response.setLevels(null);
-                        response.setDepartment(null);
-                        response.setPhone(null);
-                    }
-                    return response;
-                })
+                .map(this::createRoleSpecificResponse)
                 .toList();
     }
 
     public UserResponse getUserById(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        UserResponse response = userMapper.toResponse(user);
-        if (user.getRole() == Role.STUDENT) {
-            response.setLevels(null);
-            response.setDepartment(null);
-            response.setPhone(null);
-        }
-        return response;
+        return createRoleSpecificResponse(user);
     }
 
     // ---------------------- Teacher Creation (US N6) ----------------------
@@ -238,26 +210,33 @@ public class UserService {
         }
         String username = auth.getName();
         var user = userRepository.findByUsername(username).orElseThrow();
-        UserResponse response = userMapper.toResponse(user);
-        if (user.getRole() == Role.STUDENT) {
-            response.setLevels(null);
-            response.setDepartment(null);
-            response.setPhone(null);
-        }
-        return response;
+        return createRoleSpecificResponse(user);
     }
 
     public List<UserResponse> getUsersByRole(Role role) {
         return userRepository.findByRole(role).stream()
-                .map(user -> {
-                    UserResponse response = userMapper.toResponse(user);
-                    if (user.getRole() == Role.STUDENT) {
-                        response.setLevels(null);
-                        response.setDepartment(null);
-                        response.setPhone(null);
-                    }
-                    return response;
-                })
+                .map(this::createRoleSpecificResponse)
                 .toList();
+    }
+
+    private UserResponse createRoleSpecificResponse(Users user) {
+        UserResponse response = userMapper.toResponse(user);
+        if (user.getRole() == Role.STUDENT) {
+            // Clear teacher fields and populate student fields
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+            
+            // Populate student fields from Students entity
+            studentRepository.findByEmail(user.getEmail()).ifPresent(student -> {
+                response.setLevel(student.getLevel() != null ? student.getLevel().name() : null);
+                response.setMatricule(student.getMatricule());
+                response.setSpeciality(student.getSpeciality());
+                response.setCycle(student.getCycle() != null ? student.getCycle().name() : null);
+                response.setDateOfBirth(student.getDateOfBirth());
+                response.setPlaceOfBirth(student.getPlaceOfBirth());
+            });
+        }
+        return response;
     }
 }

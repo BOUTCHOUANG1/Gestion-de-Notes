@@ -34,6 +34,14 @@ public class UserResponse extends AbstractEntity {
     private String department;
     private String phone;
 
+    // Student fields
+    private String level;  // Single level for students
+    private String matricule;
+    private String speciality;
+    private String cycle;
+    private java.time.LocalDate dateOfBirth;
+    private String placeOfBirth;
+
     public void setId(Long id) {
         super.setId(id);
     }
