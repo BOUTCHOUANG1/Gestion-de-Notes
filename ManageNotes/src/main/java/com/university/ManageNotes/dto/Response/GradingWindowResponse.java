@@ -1,6 +1,7 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.model.GradingWindow;
+import com.university.ManageNotes.model.PeriodType;
 import lombok.Data;
 
 import java.time.Instant;
@@ -11,7 +12,7 @@ public class GradingWindowResponse {
     private Long id;
     private String name;
     private String shortName;
-    private GradingWindow.PeriodType type;
+    private PeriodType type;
     private Integer semester;
     private LocalDate startDate;
     private LocalDate endDate;

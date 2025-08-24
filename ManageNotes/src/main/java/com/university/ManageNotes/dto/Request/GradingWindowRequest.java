@@ -1,6 +1,7 @@
 package com.university.ManageNotes.dto.Request;
 
 import com.university.ManageNotes.model.GradingWindow;
+import com.university.ManageNotes.model.PeriodType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class GradingWindowRequest {
     private String shortName;
 
     @NotNull
-    private GradingWindow.PeriodType type;
+    private PeriodType type;
 
     @NotNull
     private LocalDate startDate;

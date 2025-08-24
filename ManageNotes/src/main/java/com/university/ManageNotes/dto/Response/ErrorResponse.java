@@ -10,19 +10,6 @@ public class ErrorResponse {
     private LocalDateTime timestamp;
     private List<FieldError> fieldErrors;
 
-    public ErrorResponse() {
-    }
-
-    public ErrorResponse(String message) {
-        this.message = message;
-        this.timestamp = LocalDateTime.now();
-    }
-
-    public ErrorResponse(String message, String errorCode) {
-        this.message = message;
-        this.errorCode = errorCode;
-        this.timestamp = LocalDateTime.now();
-    }
 
     public ErrorResponse(String message, String errorCode, int status) {
         this.message = message;
@@ -55,17 +42,11 @@ public class ErrorResponse {
         this.status = status;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
-    public List<FieldError> getFieldErrors() {
-        return fieldErrors;
-    }
 
     public void setFieldErrors(List<FieldError> fieldErrors) {
         this.fieldErrors = fieldErrors;
@@ -76,8 +57,6 @@ public class ErrorResponse {
         private String message;
         private Object rejectedValue;
 
-        public FieldError() {
-        }
 
         public FieldError(String field, String message, Object rejectedValue) {
             this.field = field;

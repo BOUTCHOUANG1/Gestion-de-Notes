@@ -1,5 +1,6 @@
 package com.university.ManageNotes.dto.Request;
 
+import com.university.ManageNotes.model.PeriodType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -15,8 +16,8 @@ public class GradeClaimRequest {
     private String cause;
 
     @NotBlank
-    @Pattern(regexp = "CC|SN", message = "period must be CC or SN")
-    private String period;
+    @Pattern(regexp = "CC_1|CC_2|SN_1|SN_2", message = "period must be CC_1, CC_2, SN_1 or SN_2")
+    private PeriodType period;
 
     @NotBlank
     private String description;
