@@ -47,20 +47,10 @@ public class GradeController {
             GradeResponse response = gradeService.createGrade(gradeRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
         }
     }
-
-//    @PostMapping("/by-code")
-//    @Operation(summary = "Create grade by matricule & subject code", description = "Teacher enters grade using student matricule and subject code")
-//    public ResponseEntity<?> createGradeByCode(@Valid @RequestBody GradeByCodeRequest request) {
-//        try {
-//            GradeResponse resp = gradeService.createGradeByCode(request);
-//            return ResponseEntity.ok(resp);
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
-//        }
-//    }
 
     @PutMapping("/{gradeId}")
     @Operation(summary = "Update grade", description = "Update an existing grade (Teacher/Admin only)")
@@ -107,7 +97,8 @@ public class GradeController {
             List<GradeResponse> response = gradeService.getTeacherGrades();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error fetching grades: " + e.getMessage(), "ERROR"));
         }
     }
 
@@ -121,7 +112,8 @@ public class GradeController {
             GradeSheetResponse resp = gradeService.getGradeSheet(subjectCode, semesterId, period);
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
         }
     }
 
@@ -170,7 +162,8 @@ public class GradeController {
                     .toList();
             return ResponseEntity.ok(results);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + ex.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error fetching grades: " + ex.getMessage(), "ERROR"));
         }
     }
 }

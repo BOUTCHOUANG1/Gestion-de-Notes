@@ -1,12 +1,15 @@
 package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.ReportRequest;
+import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.ReportResponse;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.ReportRecord;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,23 +19,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ReportService {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private SemesterRepository semesterRepository;
+    private final SubjectRepository subjectRepository;
+    private final SemesterRepository semesterRepository;
 
     @Autowired
     private GradeRepository gradeRepository;
@@ -40,11 +42,10 @@ public class ReportService {
     @Autowired
     private ReportRecordRepository reportRecordRepository;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
-    private com.university.ManageNotes.dto.Response.GradeResponse mapGrade(Grades grade) {
-        com.university.ManageNotes.dto.Response.GradeResponse resp = new com.university.ManageNotes.dto.Response.GradeResponse();
+    private GradeResponse mapGrade(Grades grade) {
+        GradeResponse resp = new GradeResponse();
         resp.setId(grade.getId());
         resp.setStudentId(grade.getStudent().getId());
         resp.setStudentName(grade.getStudent().getFirstName() + " " + grade.getStudent().getLastName());
@@ -73,7 +74,7 @@ public class ReportService {
             document.addPage(page);
 
             var font = org.apache.pdfbox.pdmodel.font.PDType1Font.HELVETICA;
-            try (var content = new org.apache.pdfbox.pdmodel.PDPageContentStream(document, page)) {
+            try (var content = new PDPageContentStream(document, page)) {
                 content.beginText();
                 content.setFont(font, 14);
                 content.newLineAtOffset(50, 750);
@@ -137,25 +138,37 @@ public class ReportService {
             List<Grades> grades = gradeRepository.findByStudentIdAndSemesterId(studentId, reportRequest.getSemesterId());
 
             // map detailed grades
-            java.util.List<com.university.ManageNotes.dto.Response.GradeResponse> gradeDtos = grades.stream().map(this::mapGrade).toList();
+            List<GradeResponse> gradeDtos = grades.stream()
+                    .map(this::mapGrade)
+                    .toList();
             response.setGrades(gradeDtos);
 
             // compute semester average based on distinct subjects (one score per subject)
-            java.util.Map<Long, java.util.DoubleSummaryStatistics> subjectStats = grades.stream()
-                    .collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(),
-                            java.util.stream.Collectors.summarizingDouble(com.university.ManageNotes.model.Grades::getValue)));
+            Map<Long, DoubleSummaryStatistics> subjectStats = grades.stream()
+                    .collect(Collectors.groupingBy(g -> g.getSubject().getId(),
+                            Collectors.summarizingDouble(Grades::getValue)));
             double semesterAvg = 0;
             if (!subjectStats.isEmpty()) {
-                double totalSubjectScores = subjectStats.values().stream().mapToDouble(java.util.DoubleSummaryStatistics::getAverage).sum();
+                double totalSubjectScores = subjectStats.values()
+                        .stream()
+                        .mapToDouble(DoubleSummaryStatistics::getAverage)
+                        .sum();
                 semesterAvg = Math.round((totalSubjectScores / subjectStats.size()) * 100.0) / 100.0;
             }
             double gpa = semesterAvg;
             response.setGpa(gpa);
 
             // compute credits earned (validated) for the semester based on distinct subjects >=10
-            int creditsEarned = subjectStats.entrySet().stream()
+            int creditsEarned = subjectStats.entrySet()
+                    .stream()
                     .filter(e -> e.getValue().getAverage() >= 10)
-                    .map(e -> grades.stream().filter(g -> g.getSubject().getId().equals(e.getKey())).findFirst().get().getSubject().getCredits().intValue())
+                    .map(e -> grades.stream()
+                            .filter(g -> g.getSubject().getId().equals(e.getKey()))
+                            .findFirst()
+                            .get()
+                            .getSubject()
+                            .getCredits()
+                            .intValue())
                     .reduce(0, Integer::sum);
             response.setCreditsEarned(creditsEarned);
 
@@ -175,10 +188,13 @@ public class ReportService {
                 var gradesS2 = gradeRepository.findByStudentIdAndSemesterId(studentId, sem2.getId());
 
                 // compute averages per semester using distinct subjects
-                java.util.function.Function<java.util.List<com.university.ManageNotes.model.Grades>, java.lang.Double> calcAvg = list -> {
+                Function<List<Grades>, Double> calcAvg = list -> {
                     if (list.isEmpty()) return 0.0;
-                    java.util.Map<Long, java.util.DoubleSummaryStatistics> stats = list.stream().collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(), java.util.stream.Collectors.summarizingDouble(com.university.ManageNotes.model.Grades::getValue)));
-                    double tot = stats.values().stream().mapToDouble(java.util.DoubleSummaryStatistics::getAverage).sum();
+                    Map<Long, DoubleSummaryStatistics> stats = list.stream()
+                            .collect(Collectors.groupingBy(g -> g.getSubject().getId(), Collectors.summarizingDouble(Grades::getValue)));
+                    double tot = stats.values()
+                            .stream()
+                            .mapToDouble(DoubleSummaryStatistics::getAverage).sum();
                     return tot / stats.size();
                 };
                 double avgS1 = calcAvg.apply(gradesS1);
@@ -188,13 +204,19 @@ public class ReportService {
                 response.setAnnualAverage(Math.round(annualAvg * 100.0)/100.0);
 
                 // compute academic-year credits validated (>=10 per subject)
-                java.util.Map<Long,Integer> subjectCreditsMap = new java.util.HashMap<>();
-                java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
+                Map<Long,Integer> subjectCreditsMap = new HashMap<>();
+                Stream.concat(gradesS1.stream(), gradesS2.stream())
                         .forEach(g -> subjectCreditsMap.putIfAbsent(g.getSubject().getId(), g.getSubject().getCredits().intValue()));
-                java.util.Set<Long> validatedSubjects = java.util.stream.Stream.concat(gradesS1.stream(), gradesS2.stream())
-                        .collect(java.util.stream.Collectors.groupingBy(g -> g.getSubject().getId(), java.util.stream.Collectors.averagingDouble(com.university.ManageNotes.model.Grades::getValue)))
-                        .entrySet().stream().filter(e -> e.getValue() >= 10).map(java.util.Map.Entry::getKey).collect(java.util.stream.Collectors.toSet());
-                int creditsYear = validatedSubjects.stream().map(subjectCreditsMap::get).reduce(0, Integer::sum);
+                Set<Long> validatedSubjects = Stream.concat(gradesS1.stream(), gradesS2.stream())
+                        .collect(Collectors.groupingBy(g -> g.getSubject().getId(), Collectors.averagingDouble(Grades::getValue)))
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getValue() >= 10)
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toSet());
+                int creditsYear = validatedSubjects.stream()
+                        .map(subjectCreditsMap::get)
+                        .reduce(0, Integer::sum);
                 response.setCreditsEarned(creditsYear);
 
                 // promotion rule: at least 55 credits out of 60 and annual average >=10
@@ -261,22 +283,6 @@ public class ReportService {
         }
     }
 
-    public ReportResponse generateClassReport(Long classId, ReportRequest reportRequest) {
-        try {
-            // Logic to generate class report
-            ReportResponse response = new ReportResponse();
-            response.setReportType("CLASS_GRADES");
-            response.setSuccess(true);
-            response.setMessage("Class report generated successfully");
-
-            return response;
-        } catch (Exception e) {
-            ReportResponse response = new ReportResponse();
-            response.setSuccess(false);
-            response.setMessage("Failed to generate class report: " + e.getMessage());
-            return response;
-        }
-    }
 
     public ReportResponse generateSubjectReport(Long subjectId, ReportRequest reportRequest) {
         ReportResponse response = new ReportResponse();
@@ -302,7 +308,9 @@ public class ReportService {
             }
 
             // map grades
-            java.util.List<com.university.ManageNotes.dto.Response.GradeResponse> gradeDtos = grades.stream().map(this::mapGrade).toList();
+            List<GradeResponse> gradeDtos = grades.stream()
+                    .map(this::mapGrade)
+                    .toList();
             response.setGrades(gradeDtos);
 
             int creditsEarned = grades.stream()

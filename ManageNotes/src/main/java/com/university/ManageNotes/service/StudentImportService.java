@@ -5,6 +5,8 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.StudentCycle;
+import com.university.ManageNotes.model.StudentLevel;
 import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -51,11 +53,17 @@ public class StudentImportService {
         req.setFirstName(r.getCell(3).getStringCellValue());
         req.setLastName(r.getCell(4).getStringCellValue());
         req.setMatricule(r.getCell(5).getStringCellValue());
-        req.setLevel(com.university.ManageNotes.model.StudentLevel.valueOf("LEVEL" + (int) r.getCell(6).getNumericCellValue()));
-        req.setCycle(com.university.ManageNotes.model.StudentCycle.valueOf(r.getCell(7).getStringCellValue().toUpperCase()));
+        req.setLevel(StudentLevel.valueOf("LEVEL" + (int) r.getCell(6)
+                .getNumericCellValue()));
+        req.setCycle(StudentCycle.valueOf(r.getCell(7)
+                .getStringCellValue()
+                .toUpperCase()));
         req.setSpeciality(r.getCell(8).getStringCellValue());
-        req.setDateOfBirth(r.getCell(9) != null ? r.getCell(9).getLocalDateTimeCellValue().toLocalDate() : null);
-        req.setPlaceOfBirth(r.getCell(10) != null ? r.getCell(10).getStringCellValue() : null);
+        req.setDateOfBirth(r.getCell(9) != null ? r.getCell(9)
+                .getLocalDateTimeCellValue()
+                .toLocalDate() : null);
+        req.setPlaceOfBirth(r.getCell(10) != null ? r.getCell(10)
+                .getStringCellValue() : null);
         req.setRole(Role.STUDENT);
         return req;
     }
@@ -74,8 +82,8 @@ public class StudentImportService {
                 req.setFirstName(row[3]);
                 req.setLastName(row[4]);
                 req.setMatricule(row[5]);
-                req.setLevel(com.university.ManageNotes.model.StudentLevel.valueOf("LEVEL" + row[6]));
-                req.setCycle(com.university.ManageNotes.model.StudentCycle.valueOf(row[7].toUpperCase()));
+                req.setLevel(StudentLevel.valueOf("LEVEL" + row[6]));
+                req.setCycle(StudentCycle.valueOf(row[7].toUpperCase()));
                 req.setSpeciality(row[8]);
                 req.setDateOfBirth(LocalDate.parse(row[9]));
                 req.setPlaceOfBirth(row[10]);
@@ -100,8 +108,8 @@ public class StudentImportService {
                 req.setFirstName(rs.getString("first_name"));
                 req.setLastName(rs.getString("last_name"));
                 req.setMatricule(rs.getString("matricule"));
-                req.setLevel(com.university.ManageNotes.model.StudentLevel.valueOf("LEVEL" + rs.getInt("level")));
-                req.setCycle(com.university.ManageNotes.model.StudentCycle.valueOf(rs.getString("cycle").toUpperCase()));
+                req.setLevel(StudentLevel.valueOf("LEVEL" + rs.getInt("level")));
+                req.setCycle(StudentCycle.valueOf(rs.getString("cycle").toUpperCase()));
                 req.setSpeciality(rs.getString("speciality"));
                 req.setDateOfBirth(rs.getDate("date_of_birth") != null ? rs.getDate("date_of_birth").toLocalDate() : null);
                 req.setPlaceOfBirth(rs.getString("place_of_birth"));

@@ -54,7 +54,6 @@ public class AuthController {
         try {
             MessageResponse response = authService.changePassword(
                     userPrincipal.getUsername(),
-                   // passwordChangeRequest.getOldPassword(),
                     passwordChangeRequest.getNewPassword()
             );
             return ResponseEntity.ok(response);

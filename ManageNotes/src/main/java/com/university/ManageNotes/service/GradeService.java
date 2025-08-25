@@ -5,17 +5,16 @@ import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.model.GradeType;
-import com.university.ManageNotes.model.Subject;
-import java.math.BigDecimal;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Students;
+import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.security.UserPrincipal;
-import com.university.ManageNotes.service.GradingWindowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -337,7 +336,9 @@ public class GradeService {
                         .code(gr.getSubjectCode())
                         .title(gr.getSubjectName())
                         .credit(subj != null ? subj.getCredits() : BigDecimal.ZERO)
-                        .semester(gr.getSemesterName() != null && gr.getSemesterName().toLowerCase().contains("2") ? "s2" : "s1")
+                        .semester(gr.getSemesterName() != null && gr.getSemesterName()
+                                .toLowerCase()
+                                .contains("2") ? "s2" : "s1")
                         .build();
             });
             if (gr.getPeriodLabel() != null) {
@@ -401,8 +402,10 @@ public class GradeService {
         var resp = new GradeSheetResponse();
         resp.setSubjectCode(subject.getCode());
         resp.setSubjectName(subject.getName());
-        if (subject.getLevel() != null) resp.setLevel(subject.getLevel().name());
-        if (subject.getCycle() != null) resp.setCycle(subject.getCycle().name());
+        if (subject.getLevel() != null) resp
+                .setLevel(subject.getLevel().name());
+        if (subject.getCycle() != null) resp
+                .setCycle(subject.getCycle().name());
         resp.setPeriod(period);
 
         List<Students> students;

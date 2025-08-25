@@ -52,7 +52,7 @@ public class GradingWindowService {
             return "Grading window '" + label + "' not found. Available windows: " + String.join(", ", openWindows);
         }
         
-        var window = windows.get(0);
+        var window = windows.getFirst();
         LocalDate today = LocalDate.now();
         
         if (!Boolean.TRUE.equals(window.getIsActive())) {

@@ -1,13 +1,19 @@
 package com.university.ManageNotes.service;
 
+import com.university.ManageNotes.dto.Request.TeacherCreateRequest;
 import com.university.ManageNotes.dto.Request.UserRequest;
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.repository.GradeRepository;
 import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +27,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
-    private final com.university.ManageNotes.repository.GradeRepository gradeRepository;
+    private final GradeRepository gradeRepository;
     private final UserMapper userMapper;
-    private final com.university.ManageNotes.repository.SubjectRepository subjectRepository;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final SubjectRepository subjectRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponse createUser(UserRequest userRequest) {
         if (userRepository.existsByUsername(userRequest.getUsername())) {
@@ -139,7 +145,7 @@ public class UserService {
      * Creates a teacher user and assigns optional subjects.
      * Functional style: 1) map request -> entity, 2) save, 3) side-effect assignment & email.
      */
-    public com.university.ManageNotes.dto.Response.MessageResponse createTeacher(com.university.ManageNotes.dto.Request.TeacherCreateRequest req) {
+    public MessageResponse createTeacher(TeacherCreateRequest req) {
         // Validate uniqueness via Optional pipeline
         java.util.Optional<String> duplicationError = java.util.stream.Stream.of(
                         userRepository.existsByUsername(req.getPhone()) ? "Username already exists" : null,
@@ -147,7 +153,7 @@ public class UserService {
                 .filter(java.util.Objects::nonNull)
                 .findFirst();
         if (duplicationError.isPresent()) {
-            return com.university.ManageNotes.dto.Response.MessageResponse.error(duplicationError.get());
+            return MessageResponse.error(duplicationError.get());
         }
 
         Users teacher = new Users();
@@ -173,7 +179,7 @@ public class UserService {
         }
 
         UserResponse response = userMapper.toResponse(saved);
-        return new com.university.ManageNotes.dto.Response.MessageResponse("Teacher created", "SUCCESS", response);
+        return new MessageResponse("Teacher created", "SUCCESS", response);
     }
 
     public void activateUser(Long userId) {
@@ -204,7 +210,7 @@ public class UserService {
     }
 
     public UserResponse getCurrentUserResponse() {
-        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             throw new RuntimeException("No authenticated user");
         }
