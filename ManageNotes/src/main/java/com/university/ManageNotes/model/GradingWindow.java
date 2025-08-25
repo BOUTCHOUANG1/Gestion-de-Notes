@@ -39,7 +39,5 @@ public class GradingWindow extends AbstractEntity {
     @Column(name = "order_index")
     private Integer order;
 
-    public enum PeriodType {
-        CC, SN
-    }
+    private PeriodType periodType;
 }

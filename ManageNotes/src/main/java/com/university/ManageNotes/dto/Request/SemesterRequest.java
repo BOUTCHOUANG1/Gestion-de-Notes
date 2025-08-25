@@ -24,10 +24,5 @@ public class SemesterRequest {
 
     private Boolean active = false;
 
-    // Validation method
-    @AssertTrue(message = "End date must be after start date")
-    public boolean isEndDateAfterStartDate() {
-        return endDate == null || startDate == null || endDate.isAfter(startDate);
-    }
 
 }

@@ -11,6 +11,7 @@ import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                 .orElseThrow(() -> new RuntimeException("Department not found")));
 
         subjectRepository.save(subject);
-        return com.university.ManageNotes.dto.Response.MessageResponse.success("Subject created");
+        return MessageResponse.success("Subject created");
     }
 
     @Override
@@ -67,7 +68,7 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                     existing.setName(request.getName());
                     existing.setCode(request.getCode());
                     existing.setDescription(request.getDescription());
-                    existing.setCredits(java.math.BigDecimal.valueOf(request.getCredits()));
+                    existing.setCredits(BigDecimal.valueOf(request.getCredits()));
                     existing.setIdTeacher(request.getTeacherId());
                     existing.setActive(request.getActive());
                     existing.setLevel(request.getLevel());
@@ -88,17 +89,7 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                 .toList();
     }
 
-    public List<SubjectResponse> getSubjectsByDepartment(Long deptId) {
-        return subjectRepository.findByDepartmentId(deptId).stream()
-                .map(this::enrichSubjectResponse)
-                .collect(Collectors.toList());
-    }
 
-    public List<SubjectResponse> searchSubjects(String term) {
-        return subjectRepository.findByNameContainingIgnoreCase(term).stream()
-                .map(this::enrichSubjectResponse)
-                .toList();
-    }
 
     // Adapter methods for existing controllers
     public SubjectResponse getSubjectById(Long id) {
@@ -130,8 +121,8 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         return subjectRepository.findById(id)
                 .map(entity -> {
                     subjectRepository.delete(entity);
-                    return com.university.ManageNotes.dto.Response.MessageResponse.success("Deleted successfully");
+                    return MessageResponse.success("Deleted successfully");
                 })
-                .orElseGet(() -> com.university.ManageNotes.dto.Response.MessageResponse.error("Subject not found"));
+                .orElseGet(() -> MessageResponse.error("Subject not found"));
     }
 }

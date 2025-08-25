@@ -44,14 +44,6 @@ public class Grades extends AbstractEntity{
     @Column(name = "grade_type")
     private GradeType type;
 
-    // Backward compatibility methods
-    public GradeType getGradeType() {
-        return this.type;
-    }
-
-    public void setGradeType(GradeType gradeType) {
-        this.type = gradeType;
-    }
 
     public Semesters getSemesters() {
         return this.semester;
@@ -65,27 +57,4 @@ public class Grades extends AbstractEntity{
         this.periodLabel = PeriodLabelUtil.normalize(periodLabel);
     }
 
-    public Students getStudent() {
-        return student;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public Double getValue() {
-        return value;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public Users getEnteredBy() {
-        return enteredBy;
-    }
-
-    public GradeType getType() {
-        return type;
-    }
 }

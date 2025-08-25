@@ -2,37 +2,36 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
-import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.GradeSheetResponse;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.dto.Response.ReportResponse;
-import com.university.ManageNotes.dto.Response.StudentGradesResponse;
+import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/grades")
 @Tag(name = "Grade Management", description = "Grade management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
+@AllArgsConstructor
 public class GradeController {
 
-    @Autowired
-    private GradeService gradeService;
 
-    @Autowired
-    private com.university.ManageNotes.repository.StudentRepository studentRepository;
+    private final GradeService gradeService;
+
+
+    private final StudentRepository studentRepository;
 
     @PostMapping
     @Operation(summary = "Create new grade", description = "Create a new grade entry (Teacher/Admin only)")
@@ -41,18 +40,8 @@ public class GradeController {
             GradeResponse response = gradeService.createGrade(gradeRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
-        }
-    }
-
-    @PostMapping("/by-code")
-    @Operation(summary = "Create grade by matricule & subject code", description = "Teacher enters grade using student matricule and subject code")
-    public ResponseEntity<?> createGradeByCode(@Valid @RequestBody com.university.ManageNotes.dto.Request.GradeByCodeRequest request) {
-        try {
-            GradeResponse resp = gradeService.createGradeByCode(request);
-            return ResponseEntity.ok(resp);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
         }
     }
 
@@ -101,7 +90,8 @@ public class GradeController {
             List<GradeResponse> response = gradeService.getTeacherGrades();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error fetching grades: " + e.getMessage(), "ERROR"));
         }
     }
 
@@ -115,7 +105,8 @@ public class GradeController {
             GradeSheetResponse resp = gradeService.getGradeSheet(subjectCode, semesterId, period);
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error generating grade sheet: " + e.getMessage(), "ERROR"));
         }
     }
 
@@ -132,10 +123,25 @@ public class GradeController {
                     .body(new MessageResponse("Error calculating semester summary: " + e.getMessage(), "ERROR"));
         }
     }
+    
+    @GetMapping("/year-summary")
+    @Operation(summary = "Get year summary", description = "Get promotion status based on both semesters (>= 55 credits, GPA > 2.0)")
+    public ResponseEntity<?> getYearSummary(
+            @RequestParam Long studentId,
+            @RequestParam Long semester1Id,
+            @RequestParam Long semester2Id) {
+        try {
+            ReportResponse response = gradeService.calculateYearSummary(studentId, semester1Id, semester2Id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error calculating year summary: " + e.getMessage(), "ERROR"));
+        }
+    }
 
     @GetMapping("/sheet/self")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<?> getMySheet(@AuthenticationPrincipal com.university.ManageNotes.security.UserPrincipal principal,
+    public ResponseEntity<?> getMySheet(@AuthenticationPrincipal UserPrincipal principal,
                                         @RequestParam Long semesterId) {
         var studentOpt = studentRepository.findByMatricule(principal.getUsername());
         if (studentOpt.isEmpty()) {
@@ -152,7 +158,7 @@ public class GradeController {
     @Operation(summary = "Get grades for all students in a level (Admin only)")
     public ResponseEntity<?> getGradesByLevel(@PathVariable String level) {
         try {
-            var lvlOpt = java.util.Arrays.stream(StudentLevel.values())
+            var lvlOpt = Arrays.stream(StudentLevel.values())
                     .filter(l -> l.name().equals("LEVEL" + level.replace("L", "")))
                     .findFirst();
             if (lvlOpt.isEmpty()) {
@@ -164,7 +170,8 @@ public class GradeController {
                     .toList();
             return ResponseEntity.ok(results);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error fetching grades: " + ex.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error fetching grades: " + ex.getMessage(), "ERROR"));
         }
     }
 }

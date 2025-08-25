@@ -22,7 +22,7 @@ public class ReportResponse extends AbstractEntity {
     public static class SubjectResult {
         private String subjectName;
         private double average;
-        private java.math.BigDecimal credits;
+        private BigDecimal credits;
         private boolean passed;
     }
     
@@ -35,9 +35,18 @@ public class ReportResponse extends AbstractEntity {
     private String semesterName;
     private Double gpa;
     private Double annualAverage;
-    private String status; // "PASS", "FAIL", "INCOMPLETE"
+    private String status; // "PASS", "FAIL", "PROMOTED", "NOT_PROMOTED"
     private String pdfPath;
     private Integer creditsEarned;
+    
+    // University promotion fields
+    private Integer totalCreditsRequired; // 60 for academic year
+    private Integer semester1Credits;
+    private Integer semester2Credits;
+    private Double semester1Average;
+    private Double semester2Average;
+    private Boolean promotionEligible;
+    private String promotionReason; // Why promoted/not promoted
 
     // new fields for header info
     private String faculty;
@@ -58,31 +67,8 @@ public class ReportResponse extends AbstractEntity {
     private Boolean success;
     private String message;
 
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
-
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
-
     public void setSuccess(boolean success) {
         this.success = success;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setSubjectId(Long subjectId) {
-        this.subjectId = subjectId;
-    }
-    
-    public List<SubjectResult> getSubjectResults() {
-        return subjectResults;
-    }
-    
-    public void setSubjectResults(List<SubjectResult> subjectResults) {
-        this.subjectResults = subjectResults;
-    }
 }

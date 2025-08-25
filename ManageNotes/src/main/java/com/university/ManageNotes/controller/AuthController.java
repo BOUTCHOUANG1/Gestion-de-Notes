@@ -36,21 +36,6 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/public-change-password")
-    public ResponseEntity<?> publicChangePassword(@Valid @RequestBody PublicPasswordChangeRequest request) {
-        try {
-            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-                return ResponseEntity.badRequest()
-                        .body(MessageResponse.error("Passwords do not match"));
-            }
-            MessageResponse resp = authService.changePassword(request.getIdentifier(), request.getNewPassword());
-            return ResponseEntity.ok(resp);
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest()
-                    .body(MessageResponse.error("Password change failed: " + ex.getMessage()));
-        }
-    }
-
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> register(@Valid @RequestBody SignupRequest signupRequest) {
@@ -67,9 +52,13 @@ public class AuthController {
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                             @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
         try {
+            if (!passwordChangeRequest.isPasswordMatching()) {
+                return ResponseEntity.badRequest()
+                        .body(MessageResponse.error("Password confirmation does not match"));
+            }
+            
             MessageResponse response = authService.changePassword(
                     userPrincipal.getUsername(),
-                   // passwordChangeRequest.getOldPassword(),
                     passwordChangeRequest.getNewPassword()
             );
             return ResponseEntity.ok(response);

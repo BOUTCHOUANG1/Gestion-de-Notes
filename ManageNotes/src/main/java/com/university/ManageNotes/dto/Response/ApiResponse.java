@@ -1,14 +1,25 @@
 package com.university.ManageNotes.dto.Response;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 public class ApiResponse<T> {
+    @Getter
+    @Setter
     private boolean success;
+    @Getter
+    @Setter
     private String message;
+    @Getter
+    @Setter
     private T data;
+    @Setter
+    @Getter
     private String error;
+    @Setter
     private LocalDateTime timestamp;
-    private String path;
 
     public ApiResponse() {
     }
@@ -36,51 +47,4 @@ public class ApiResponse<T> {
         return response;
     }
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
 }

@@ -56,31 +56,4 @@ public class UserRequest {
     private String speciality;
     private String cycle;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
 }

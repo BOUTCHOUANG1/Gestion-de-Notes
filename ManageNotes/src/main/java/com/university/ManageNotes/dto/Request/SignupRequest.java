@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -39,10 +42,16 @@ public class SignupRequest {
 
     private Role role;
 
+    // Student fields
     private StudentLevel level;
     private String matricule;
     private String speciality;
     private StudentCycle cycle;
-    private java.time.LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
     private String placeOfBirth;
+
+    // Teacher fields
+    private List<String> levels;
+    private String department;
+    private String phone;
 }

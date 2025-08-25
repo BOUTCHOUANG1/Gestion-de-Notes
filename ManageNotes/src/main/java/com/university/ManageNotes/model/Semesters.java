@@ -41,16 +41,4 @@ public class Semesters extends AbstractEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
     private List<Grades> grades;
-
-    public Integer getOrderIndex() {
-        return orderIndex;
-    }
-
-    public void setOrderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

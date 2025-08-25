@@ -3,6 +3,8 @@ package com.university.ManageNotes.repository;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,13 +16,13 @@ public interface GradeRepository extends JpaRepository<Grades, Long> {
 
     List<Grades> findBySubjectId(Long subjectId);
 
-    List<Grades> findBySemesterId(Long semesterId);
+    @Query("SELECT g FROM Grades g WHERE g.semester.id = :semesterId")
+    List<Grades> findBySemesterId(@Param("semesterId") Long semesterId);
 
     List<Grades> findByEnteredById(Long teacherId);
 
-    List<Grades> findBySubjectIdAndSemesterId(Long subjectId, Long semesterId);
-
-    List<Grades> findByStudentIdAndSemesterId(Long studentId, Long semesterId);
+    @Query("SELECT g FROM Grades g WHERE g.student.id = :studentId AND g.semester.id = :semesterId")
+    List<Grades> findByStudentIdAndSemesterId(@Param("studentId") Long studentId, @Param("semesterId") Long semesterId);
 
     List<Grades> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
 

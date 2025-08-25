@@ -34,31 +34,15 @@ public class UserResponse extends AbstractEntity {
     private String department;
     private String phone;
 
+    // Student fields
+    private String level;  // Single level for students
+    private String matricule;
+    private String speciality;
+    private String cycle;
+    private java.time.LocalDate dateOfBirth;
+    private String placeOfBirth;
+
     public void setId(Long id) {
         super.setId(id);
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 }

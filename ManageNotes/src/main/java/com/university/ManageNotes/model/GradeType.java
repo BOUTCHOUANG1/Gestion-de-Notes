@@ -1,11 +1,9 @@
 package com.university.ManageNotes.model;
 
 public enum GradeType {
-    ASSIGNMENT,   // Assignment grade
-    EXAM,         // Exam grade
-    QUIZ,         // Quiz grade
-    PROJECT,      // Project grade
-    CC,           // Continuous Assessment (legacy)
-    SN,           // Final Exam (Session Normale) (legacy)
+    CC_1, // Continuous Assessment (legacy)
+    CC_2, // Continuous Assessment (legacy)
+    SN_1,           // Final Exam (Session Normale) (legacy)
+    SN_2,           // Final Exam (Session Normale) (legacy)
     PRACTICAL     // Practical Exam (legacy)
 }

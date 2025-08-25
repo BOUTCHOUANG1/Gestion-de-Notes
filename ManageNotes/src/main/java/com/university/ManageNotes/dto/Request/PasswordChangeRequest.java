@@ -2,48 +2,23 @@ package com.university.ManageNotes.dto.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 public class PasswordChangeRequest {
-    /*@NotBlank(message = "Current password is required")
-    private String currentPassword;*/
 
+    @Getter
+    @Setter
     @NotBlank(message = "New password is required")
     @Size(min = 6, max = 100, message = "New password must be between 6 and 100 characters")
     private String newPassword;
-
-    @NotBlank(message = "Confirm password is required")
+    
+    @Getter
+    @Setter
+    @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
-
-    /*public String getCurrentPassword() {
-        return currentPassword;
+    
+    public boolean isPasswordMatching() {
+        return newPassword != null && newPassword.equals(confirmPassword);
     }
-
-    public void setCurrentPassword(String currentPassword) {
-        this.currentPassword = currentPassword;
-    }*/
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
-    // Convenience methods for backward compatibility
-    /*public String getOldPassword() {
-        return this.currentPassword;
-    }
-
-    public void setOldPassword(String oldPassword) {
-        this.currentPassword = oldPassword;
-    }*/
 }

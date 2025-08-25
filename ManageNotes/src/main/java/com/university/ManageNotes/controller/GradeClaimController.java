@@ -48,7 +48,8 @@ public class GradeClaimController {
                     : claimService.listAll();
             return ResponseEntity.ok(claims);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error(ex.getMessage()));
         }
     }
 
@@ -109,7 +110,9 @@ public class GradeClaimController {
         try {
             return ResponseEntity.ok(claimService.getById(id));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse
+                            .error(ex.getMessage()));
         }
     }
 }

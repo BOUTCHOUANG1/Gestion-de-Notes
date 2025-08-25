@@ -17,4 +17,7 @@ public class SemesterResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean active;
+    private Integer orderIndex;
+    private java.time.Instant createdDate;
+    private java.time.Instant lastModifiedDate;
 }

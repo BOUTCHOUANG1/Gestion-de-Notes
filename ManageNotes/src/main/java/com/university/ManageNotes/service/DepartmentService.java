@@ -3,6 +3,7 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.mapper.DepartmentMapper;
 import com.university.ManageNotes.mapper.BaseMapper;
 import com.university.ManageNotes.model.Department;
@@ -43,6 +44,24 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                 .orElse(MessageResponse.error("Department not found"));
     }
 
+    @Transactional
+    public DepartmentResponse createDepartmentWithSubjects(DepartmentRequest request) {
+        // Create department
+        Department department = departmentMapper.toEntity(request);
+        Department savedDept = departmentRepository.save(department);
+        
+        // Assign existing subjects to department if provided
+        if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
+            subjectRepository.findAllById(request.getSubjectIds())
+                    .forEach(subject -> {
+                subject.setDepartment(savedDept);
+                subjectRepository.save(subject);
+            });
+        }
+        
+        return getDepartmentDetails(savedDept.getId());
+    }
+
     public DepartmentResponse getDepartmentDetails(Long deptId) {
         return departmentRepository.findById(deptId)
                 .map(dept -> {
@@ -50,13 +69,29 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                     response.setSubjects(subjectRepository.findByDepartmentId(deptId)
                         .stream()
                         .map(subject -> {
-                            var subjectResponse = new com.university.ManageNotes.dto.Response.SubjectResponse();
-                            subjectResponse.setId(subject.getId());
-                            subjectResponse.setName(subject.getName());
-                            subjectResponse.setCode(subject.getCode());
-                            subjectResponse.setDepartmentId(subject.getDepartment().getId());
-                            subjectResponse.setDepartmentName(subject.getDepartment().getName());
-                            return subjectResponse;
+                            String teacherName = null;
+                            if (subject.getIdTeacher() != null) {
+                                teacherName = userRepository.findById(subject.getIdTeacher())
+                                    .map(teacher -> teacher.getFirstName() + " " + teacher.getLastName())
+                                    .orElse(null);
+                            }
+                            
+                            return SubjectResponse.builder()
+                                .id(subject.getId())
+                                .name(subject.getName())
+                                .code(subject.getCode())
+                                .credits(subject.getCredits())
+                                .description(subject.getDescription())
+                                .active(subject.getActive())
+                                .level(subject.getLevel())
+                                .cycle(subject.getCycle())
+                                .semesterId(subject.getSemester() != null ? subject.getSemester().getId() : null)
+                                .semesterName(subject.getSemester() != null ? subject.getSemester().getName() : null)
+                                .departmentId(subject.getDepartment().getId())
+                                .departmentName(subject.getDepartment().getName())
+                                .teacherId(subject.getIdTeacher())
+                                .teacherName(teacherName)
+                                .build();
                         })
                         .toList());
                     return response;

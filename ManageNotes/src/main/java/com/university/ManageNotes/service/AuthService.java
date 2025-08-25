@@ -4,7 +4,9 @@ import com.university.ManageNotes.dto.Request.LoginRequest;
 import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
+import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
+import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
@@ -36,7 +38,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final StudentRepository studentRepository;
-    private final InviteService inviteService;
     private final EmailService emailService;
     private final DepartmentRepository departmentRepository;
     private final UserDetailsService userDetailsService;
@@ -63,6 +64,18 @@ public class AuthService {
         Users user = userMapper.toEntity(signupRequest);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setActive(true);
+
+        // Handle role-specific fields
+        if (requestedRole == Role.TEACHER) {
+            user.setLevels(signupRequest.getLevels());
+            user.setDepartment(signupRequest.getDepartment());
+            user.setPhone(signupRequest.getPhone());
+        } else {
+            // Clear teacher fields for non-teacher roles
+            user.setLevels(null);
+            user.setDepartment(null);
+            user.setPhone(null);
+        }
 
         Users saved = userRepository.save(user);
 
@@ -96,10 +109,27 @@ public class AuthService {
                             "Please change these credentials after your first login.\n\nRegards");
         } catch (Exception ignored) {}
 
+        // Create role-specific response
+        UserResponse response = userMapper.toResponse(saved);
+        if (saved.getRole() == Role.STUDENT) {
+            // Clear teacher fields and populate student fields
+            response.setLevels(null);
+            response.setDepartment(null);
+            response.setPhone(null);
+            
+            // Populate student fields from SignupRequest
+            response.setLevel(signupRequest.getLevel() != null ? signupRequest.getLevel().name() : null);
+            response.setMatricule(signupRequest.getMatricule());
+            response.setSpeciality(signupRequest.getSpeciality());
+            response.setCycle(signupRequest.getCycle() != null ? signupRequest.getCycle().name() : null);
+            response.setDateOfBirth(signupRequest.getDateOfBirth());
+            response.setPlaceOfBirth(signupRequest.getPlaceOfBirth());
+        }
+
         return new MessageResponse(
                 "User registered successfully!",
                 "SUCCESS",
-                userMapper.toResponse(saved)
+                response
         );
     }
 
@@ -133,7 +163,7 @@ public class AuthService {
                 jwtResponse.setMustChooseDepartment(true);
                 jwtResponse.setDepartments(departmentRepository.findAll()
                         .stream()
-                        .map(dept -> dept.getName())
+                        .map(Department::getName)
                         .toList());
             } else {
                 jwtResponse.setMustChooseDepartment(false);
@@ -145,7 +175,9 @@ public class AuthService {
     }
 
     public Users getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
             return userRepository.findByUsername(username)
@@ -158,10 +190,6 @@ public class AuthService {
     public MessageResponse changePassword(String username, String newPassword) {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Error: User is not found."));
-
-        /*if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            return MessageResponse.error("Error: Incorrect old password!");
-        }*/
 
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);

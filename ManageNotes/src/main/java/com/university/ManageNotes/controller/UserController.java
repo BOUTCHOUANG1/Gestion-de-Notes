@@ -1,13 +1,14 @@
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.dto.Request.StudentUpdateRequest;
+import com.university.ManageNotes.dto.Request.TeacherUpdateRequest;
 import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.dto.Response.UserProfileResponse;
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.model.StudentLevel;
-import com.university.ManageNotes.repository.UserRepository;
-import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.dto.Response.*;
+import com.university.ManageNotes.model.*;
 import com.university.ManageNotes.repository.GradeRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,10 +16,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,21 +34,21 @@ public class UserController {
 
     private final UserRepository userRepository;
 
-    private final com.university.ManageNotes.repository.StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
     private final AuthService authService;
 
     private final SubjectRepository subjectRepository;
 
-    private final com.university.ManageNotes.repository.GradeRepository gradeRepository;
+    private final GradeRepository gradeRepository;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
-    public com.university.ManageNotes.dto.Response.UserProfileResponse me(Authentication authentication) {
+    public UserProfileResponse me(Authentication authentication) {
         String username = authentication.getName();
         var user = userRepository.findByUsername(username).orElseThrow();
 
-        var builder = com.university.ManageNotes.dto.Response.UserProfileResponse.builder()
+        var builder = UserProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
@@ -51,39 +56,37 @@ public class UserController {
                 .email(user.getEmail())
                 .role(user.getRole());
 
-        if (user.getRole() == com.university.ManageNotes.model.Role.STUDENT) {
-            java.util.List<com.university.ManageNotes.model.Grades> grades = gradeRepository.findByStudentId(user.getId());
-            java.util.Map<Long, com.university.ManageNotes.dto.Response.TopicDto.TopicDtoBuilder> map = new java.util.HashMap<>();
+        if (user.getRole() == Role.STUDENT) {
+            List<Grades> grades = gradeRepository.findByStudentId(user.getId());
+            Map<Long, SubjectResponse> subjectMap = new HashMap<>();
             for (var g : grades) {
                 var subj = g.getSubject();
-                var b = map.computeIfAbsent(subj.getId(), k -> com.university.ManageNotes.dto.Response.TopicDto.builder()
+                subjectMap.computeIfAbsent(subj.getId(), k -> SubjectResponse.builder()
+                        .id(subj.getId())
                         .code(subj.getCode())
-                        .title(subj.getName())
-                        .semester(g.getSemesters()!=null?g.getSemesters().getName().toLowerCase():null));
-                if (g.getPeriodLabel()!=null) {
-                    String pl = g.getPeriodLabel().toUpperCase();
-                    if (pl.startsWith("CC")) b.cc(g.getValue());
-                    else if (pl.startsWith("SN")) b.sn(g.getValue());
-                }
-                if (b.build().getCredit()==null && g.getSubject().getCredits()!=null) {
-                    b.credit(g.getSubject().getCredits());
-                }
+                        .name(subj.getName())
+                        .credits(subj.getCredits())
+                        .semesterId(g.getSemesters() != null ? g.getSemesters().getId() : null)
+                        .semesterName(g.getSemesters() != null ? g.getSemesters().getName() : null)
+                        .build());
             }
-            builder.topics(map.values().stream().map(com.university.ManageNotes.dto.Response.TopicDto.TopicDtoBuilder::build).toList());
-        } else if (user.getRole() == com.university.ManageNotes.model.Role.TEACHER) {
+            builder.subjects(new ArrayList<>(subjectMap.values()));
+        } else if (user.getRole() == Role.TEACHER) {
             var subjects = subjectRepository.findByIdTeacher(user.getId());
-            java.util.Map<String, java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo>> map = new java.util.HashMap<>();
+            Map<String, List<DepartmentResponse>> map = new HashMap<>();
             for (var sub : subjects) {
-                String level = sub.getLevel()!=null?sub.getLevel().name().replace("LEVEL","L"):"";
-                map.computeIfAbsent(level, k->new java.util.ArrayList<>())
-                        .add(com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo.builder()
-                                .code(sub.getCode())
-                                .title(sub.getName())
-                                .build());
+                String level = sub.getLevel() != null ? sub.getLevel()
+                        .name().replace("LEVEL", "L") : "";
+                DepartmentResponse dept = new DepartmentResponse();
+                if (sub.getDepartment() != null) {
+                    dept.setId(sub.getDepartment().getId());
+                    dept.setName(sub.getDepartment().getName());
+                }
+                map.computeIfAbsent(level, k -> new ArrayList<>()).add(dept);
             }
-            var levels = map.entrySet().stream().map(e-> com.university.ManageNotes.dto.Response.TeacherSubjectDto.builder()
+            var levels = map.entrySet().stream().map(e -> TeacherResponse.builder()
                     .level(e.getKey())
-                    .subjects(e.getValue())
+                    .departments(e.getValue())
                     .build()).toList();
             builder.levels(levels);
         }
@@ -93,7 +96,8 @@ public class UserController {
 
     @PostMapping("/me/credentials")
     @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
-    public MessageResponse updateCredentials(@AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody UpdateCredentialsRequest request) {
+    public MessageResponse updateCredentials(@AuthenticationPrincipal UserPrincipal principal,
+                                             @Valid @RequestBody UpdateCredentialsRequest request) {
         if (request.getNewPassword() != null && !request.getNewPassword().equals(request.getConfirmPassword())) {
             return MessageResponse.error("Passwords do not match");
         }
@@ -103,9 +107,11 @@ public class UserController {
     @GetMapping("/students")
     @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @Operation(summary = "List students visible to current user")
-    public java.util.List<UserProfileResponse> students(@AuthenticationPrincipal UserPrincipal principal) {
-        java.util.List<com.university.ManageNotes.model.Students> students;
-        if (principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+    public List<UserProfileResponse> students(@AuthenticationPrincipal UserPrincipal principal) {
+        List<Students> students;
+        if (principal.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             students = studentRepository.findAll();
         } else {
             students = studentRepository.findStudentsByTeacherSubject(principal.getId());
@@ -123,14 +129,14 @@ public class UserController {
     @GetMapping("/students/level/{level}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List students by level (Admin only)")
-    public java.util.List<UserProfileResponse> studentsByLevel(@PathVariable String level) {
-        return java.util.Optional.ofNullable(level)
+    public List<UserProfileResponse> studentsByLevel(@PathVariable String level) {
+        return Optional.ofNullable(level)
                 .map(String::toUpperCase)
-                .flatMap(lv -> java.util.Arrays.stream(StudentLevel.values())
+                .flatMap(lv -> Arrays.stream(StudentLevel.values())
                         .filter(sl -> sl.name().equals("LEVEL" + lv.replace("L", "")))
                         .findFirst())
                 .map(studentRepository::findByLevel)
-                .orElseGet(java.util.Collections::emptyList)
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(s -> UserProfileResponse.builder()
                         .id(s.getId())
@@ -146,8 +152,9 @@ public class UserController {
     @GetMapping("/teachers")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List all teachers (Admin only)")
-    public org.springframework.http.ResponseEntity<java.util.List<UserProfileResponse>> teachers() {
-        java.util.List<UserProfileResponse> teachers = userRepository.findByRole(Role.TEACHER).stream()
+    public ResponseEntity<List<UserProfileResponse>> teachers() {
+        List<UserProfileResponse> teachers = userRepository.findByRole(Role.TEACHER)
+                .stream()
                 .map(u -> UserProfileResponse.builder()
                         .id(u.getId())
                         .username(u.getUsername())
@@ -161,28 +168,33 @@ public class UserController {
         // enrich each teacher with levels taught
         teachers.forEach(t -> {
             var subjects = subjectRepository.findByIdTeacher(t.getId());
-            java.util.Map<String, java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo>> map = new java.util.HashMap<>();
+            Map<String, List<DepartmentResponse>> map = new HashMap<>();
             for (var sub : subjects) {
-                String level = sub.getLevel()!=null?sub.getLevel().name().replace("LEVEL","L"):"";
-                var list = map.computeIfAbsent(level, k->new java.util.ArrayList<>());
-                list.add(com.university.ManageNotes.dto.Response.TeacherSubjectDto.SubjectInfo.builder()
-                        .code(sub.getCode())
-                        .title(sub.getName())
-                        .build());
+                String level = sub.getLevel() != null ? sub.getLevel()
+                        .name()
+                        .replace("LEVEL", "L") : "";
+                var list = map.computeIfAbsent(level, k -> new ArrayList<>());
+                DepartmentResponse dept = new DepartmentResponse();
+                if (sub.getDepartment() != null) {
+                    dept.setId(sub.getDepartment().getId());
+                    dept.setName(sub.getDepartment().getName());
+                }
+                list.add(dept);
             }
-            java.util.List<com.university.ManageNotes.dto.Response.TeacherSubjectDto> levels = map.entrySet().stream()
-                    .map(e -> com.university.ManageNotes.dto.Response.TeacherSubjectDto.builder()
+            List<TeacherResponse> levels = map.entrySet()
+                    .stream()
+                    .map(e -> TeacherResponse.builder()
                             .level(e.getKey())
-                            .subjects(e.getValue())
+                            .departments(e.getValue())
                             .build())
                     .toList();
             t.setLevels(levels);
         });
 
-        org.springframework.http.ResponseEntity<java.util.List<UserProfileResponse>> resp = java.util.Optional.of(teachers)
+        ResponseEntity<List<UserProfileResponse>> resp = Optional.of(teachers)
                 .filter(list -> !list.isEmpty())
-                .map(org.springframework.http.ResponseEntity::ok)
-                .orElseGet(() -> org.springframework.http.ResponseEntity.noContent().build());
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
 
         return resp;
     }
@@ -207,7 +219,7 @@ public class UserController {
                 .filter(u -> u.getRole() == Role.TEACHER)
                 .map(teacher -> {
                     // All subjects currently linked to this teacher.
-                    java.util.List<com.university.ManageNotes.model.Subject> orphanedSubjects = subjectRepository.findByIdTeacher(teacher.getId());
+                    List<Subject> orphanedSubjects = subjectRepository.findByIdTeacher(teacher.getId());
 
                     // Detach teacher from subjects (pure side-effect kept minimal & transactional by Spring).
                     orphanedSubjects.forEach(sub -> sub.setIdTeacher(null));
@@ -239,6 +251,80 @@ public class UserController {
                 .orElse(MessageResponse.error("Student not found"));
     }
 
+    @PutMapping("/teachers/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update teacher information (Admin only)")
+    @Transactional
+    public ResponseEntity<UserProfileResponse> updateTeacher(
+            @PathVariable Long id, 
+            @RequestBody TeacherUpdateRequest request) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.TEACHER)
+                .map(teacher -> {
+                    teacher.setFirstName(request.getFirstName());
+                    teacher.setLastName(request.getLastName());
+                    teacher.setEmail(request.getEmail());
+                    teacher.setPhone(request.getPhone());
+                    teacher.setDepartment(request.getDepartment());
+                    teacher.setLevels(request.getLevels());
+                    userRepository.save(teacher);
+                    
+                    return ResponseEntity.ok(UserProfileResponse.builder()
+                            .id(teacher.getId())
+                            .username(teacher.getUsername())
+                            .firstName(teacher.getFirstName())
+                            .lastName(teacher.getLastName())
+                            .email(teacher.getEmail())
+                            .role(teacher.getRole())
+                            .build());
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/students/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update student information (Admin only)")
+    @Transactional
+    public ResponseEntity<UserProfileResponse> updateStudent(
+            @PathVariable Long id, 
+            @RequestBody StudentUpdateRequest request) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.STUDENT)
+                .map(user -> {
+                    // Update Users entity
+                    user.setFirstName(request.getFirstName());
+                    user.setLastName(request.getLastName());
+                    user.setEmail(request.getEmail());
+                    userRepository.save(user);
+                    
+                    // Update Students entity
+                    studentRepository.findByEmail(user.getEmail())
+                            .ifPresent(student -> {
+                                student.setFirstName(request.getFirstName());
+                                student.setLastName(request.getLastName());
+                                student.setEmail(request.getEmail());
+                                student.setMatricule(request.getMatricule());
+                                student.setLevel(StudentLevel.valueOf(request.getLevel()
+                                        .toUpperCase()));
+                                student.setSpeciality(request.getSpeciality());
+                                if (request.getCycle() != null) {
+                                    student.setCycle(StudentCycle.valueOf(request.getCycle().toUpperCase()));
+                                }
+                                studentRepository.save(student);
+                            });
+                    
+                    return ResponseEntity.ok(UserProfileResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .email(user.getEmail())
+                            .role(Role.STUDENT)
+                            .build());
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a user by ID (Admin only)")
@@ -246,7 +332,8 @@ public class UserController {
         return userRepository.findById(id)
                 .map(user -> {
                     if (user.getRole() == Role.STUDENT) {
-                        studentRepository.findByEmail(user.getEmail()).ifPresent(studentRepository::delete);
+                        studentRepository.findByEmail(user.getEmail())
+                                .ifPresent(studentRepository::delete);
                     }
                     userRepository.delete(user);
                     return MessageResponse.success("User deleted successfully");

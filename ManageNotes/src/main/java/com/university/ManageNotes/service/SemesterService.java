@@ -1,5 +1,6 @@
 package com.university.ManageNotes.service;
 
+import com.university.ManageNotes.dto.Request.SemesterUpdateRequest;
 import com.university.ManageNotes.model.Semesters;
 import com.university.ManageNotes.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Provides helper operations around semesters (school periods).
@@ -54,15 +58,15 @@ public class SemesterService {
      * @param requests list of changes coming from the client
      * @return updated semesters persisted in the DB
      */
-    public List<Semesters> updateSemesters(java.util.List<com.university.ManageNotes.dto.Request.SemesterUpdateRequest> requests) {
+    public List<Semesters> updateSemesters(List<SemesterUpdateRequest> requests) {
         // 1. Pre-fetch all existing semesters referenced by the request ids.
-        java.util.Map<Long, Semesters> existingById = semesterRepository.findAllById(
-                        requests.stream().map(com.university.ManageNotes.dto.Request.SemesterUpdateRequest::getId).toList())
+        Map<Long, Semesters> existingById = semesterRepository.findAllById(
+                        requests.stream().map(SemesterUpdateRequest::getId).toList())
                 .stream()
-                .collect(java.util.stream.Collectors.toMap(Semesters::getId, java.util.function.Function.identity()));
+                .collect(Collectors.toMap(Semesters::getId, Function.identity()));
 
         // 2. Map each request -> updated entity (copy-on-write) keeping mutation localised.
-        java.util.List<Semesters> toSave = requests.stream()
+        List<Semesters> toSave = requests.stream()
                 .map(req -> {
                     Semesters src = existingById.get(req.getId());
                     if (src == null) {

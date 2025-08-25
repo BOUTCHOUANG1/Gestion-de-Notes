@@ -5,6 +5,8 @@ import com.university.ManageNotes.model.GradeType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class GradeResponse extends AbstractEntity {
@@ -22,5 +24,5 @@ public class GradeResponse extends AbstractEntity {
     private Long enteredBy;
     private String enteredByName;
     private boolean passed;
-    private java.math.BigDecimal creditsEarned;
+    private BigDecimal creditsEarned;
 }
