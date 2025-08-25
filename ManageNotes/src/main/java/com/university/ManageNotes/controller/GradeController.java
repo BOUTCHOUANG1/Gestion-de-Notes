@@ -1,13 +1,8 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.dto.Request.GradeByCodeRequest;
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
-import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.GradeSheetResponse;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.dto.Response.ReportResponse;
-import com.university.ManageNotes.dto.Response.StudentGradesResponse;
+import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.security.UserPrincipal;
@@ -17,7 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/grades")

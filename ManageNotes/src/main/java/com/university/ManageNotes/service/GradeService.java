@@ -1,6 +1,5 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.dto.Request.GradeByCodeRequest;
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.*;
@@ -170,15 +169,6 @@ public class GradeService {
         return "INCOMPLETE";
     }
 
-    public List<GradeResponse> getGradesByStudent(Long studentId) {
-        // Implementation here
-        return List.of();
-    }
-
-    public List<GradeResponse> getGradesBySubject(Long subjectId) {
-        // Implementation here
-        return List.of();
-    }
 
     private GradeResponse convertToResponse(Grades grade) {
         GradeResponse response = new GradeResponse();
@@ -206,7 +196,7 @@ public class GradeService {
         if (passed && grade.getSubject().getCredits() != null) {
             response.setCreditsEarned(grade.getSubject().getCredits());
         } else {
-            response.setCreditsEarned(java.math.BigDecimal.ZERO);
+            response.setCreditsEarned(BigDecimal.ZERO);
         }
 
         response.setType(grade.getType());
@@ -254,48 +244,6 @@ public class GradeService {
         return convertToResponse(saved);
     }
 
-    public GradeResponse createGradeByCode(GradeByCodeRequest req) {
-        // window validation for teacher (current auth is the caller)
-        var auth2 = SecurityContextHolder.getContext().getAuthentication();
-        boolean isTeacher2 = auth2!=null && auth2.getAuthorities()
-                .stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
-        if (isTeacher2) {
-            if (!gradingWindowService.isWindowOpen(req.getSemesterId(), req.getPeriodLabel())) {
-                String statusMessage = gradingWindowService.getWindowStatusMessage(req.getSemesterId(), req.getPeriodLabel());
-                throw new RuntimeException(statusMessage);
-            }
-        }
-
-        Students student = studentRepository.findByMatricule(req.getStudentMatricule())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        var subject = subjectRepository.findByCode(req.getSubjectCode())
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
-
-        // Ensure current logged-in teacher is owner of the subject
-        Long teacherId = null;
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
-            teacherId = up.getId();
-        }
-        if (teacherId == null || !teacherId.equals(subject.getIdTeacher())) {
-            throw new RuntimeException("You are not allowed to enter grades for this subject");
-        }
-
-        Grades grade = new Grades();
-        grade.setStudent(student);
-        grade.setSubject(subject);
-        grade.setSemesters(semesterRepository.findById(req.getSemesterId())
-                .orElseThrow(() -> new RuntimeException("Semester not found")));
-        grade.setValue(req.getValue());
-        grade.setType(req.getType());
-        grade.setComments(req.getComments());
-        grade.setPeriodLabel(req.getPeriodLabel());
-        grade.setEnteredBy(userRepository.findById(teacherId).orElseThrow());
-
-        Grades saved = gradeRepository.save(grade);
-        return convertToResponse(saved);
-    }
-
     public StudentGradesResponse getStudentGrades(Long studentId, Long semesterId) {
         List<Grades> grades;
         if (semesterId != null) {
@@ -323,7 +271,9 @@ public class GradeService {
 
         // simple GPA calculation
         if (!grades.isEmpty()) {
-            double avg = grades.stream().mapToDouble(Grades::getValue).average().orElse(0);
+            double avg = grades.stream()
+                    .mapToDouble(Grades::getValue)
+                    .average().orElse(0);
             response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
 

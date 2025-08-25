@@ -1,9 +1,12 @@
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.dto.Request.StudentUpdateRequest;
+import com.university.ManageNotes.dto.Request.TeacherUpdateRequest;
 import com.university.ManageNotes.dto.Request.UpdateCredentialsRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserProfileResponse;
 import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.StudentCycle;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
@@ -15,9 +18,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -242,10 +247,10 @@ public class UserController {
     @PutMapping("/teachers/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update teacher information (Admin only)")
-    @org.springframework.transaction.annotation.Transactional
-    public org.springframework.http.ResponseEntity<UserProfileResponse> updateTeacher(
+    @Transactional
+    public ResponseEntity<UserProfileResponse> updateTeacher(
             @PathVariable Long id, 
-            @RequestBody com.university.ManageNotes.dto.Request.TeacherUpdateRequest request) {
+            @RequestBody TeacherUpdateRequest request) {
         return userRepository.findById(id)
                 .filter(u -> u.getRole() == Role.TEACHER)
                 .map(teacher -> {
@@ -257,7 +262,7 @@ public class UserController {
                     teacher.setLevels(request.getLevels());
                     userRepository.save(teacher);
                     
-                    return org.springframework.http.ResponseEntity.ok(UserProfileResponse.builder()
+                    return ResponseEntity.ok(UserProfileResponse.builder()
                             .id(teacher.getId())
                             .username(teacher.getUsername())
                             .firstName(teacher.getFirstName())
@@ -266,16 +271,16 @@ public class UserController {
                             .role(teacher.getRole())
                             .build());
                 })
-                .orElse(org.springframework.http.ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/students/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update student information (Admin only)")
-    @org.springframework.transaction.annotation.Transactional
-    public org.springframework.http.ResponseEntity<UserProfileResponse> updateStudent(
+    @Transactional
+    public ResponseEntity<UserProfileResponse> updateStudent(
             @PathVariable Long id, 
-            @RequestBody com.university.ManageNotes.dto.Request.StudentUpdateRequest request) {
+            @RequestBody StudentUpdateRequest request) {
         return userRepository.findById(id)
                 .filter(u -> u.getRole() == Role.STUDENT)
                 .map(user -> {
@@ -292,15 +297,16 @@ public class UserController {
                                 student.setLastName(request.getLastName());
                                 student.setEmail(request.getEmail());
                                 student.setMatricule(request.getMatricule());
-                                student.setLevel(com.university.ManageNotes.model.StudentLevel.valueOf(request.getLevel().toUpperCase()));
+                                student.setLevel(StudentLevel.valueOf(request.getLevel()
+                                        .toUpperCase()));
                                 student.setSpeciality(request.getSpeciality());
                                 if (request.getCycle() != null) {
-                                    student.setCycle(com.university.ManageNotes.model.StudentCycle.valueOf(request.getCycle().toUpperCase()));
+                                    student.setCycle(StudentCycle.valueOf(request.getCycle().toUpperCase()));
                                 }
                                 studentRepository.save(student);
                             });
                     
-                    return org.springframework.http.ResponseEntity.ok(UserProfileResponse.builder()
+                    return ResponseEntity.ok(UserProfileResponse.builder()
                             .id(user.getId())
                             .username(user.getUsername())
                             .firstName(user.getFirstName())
@@ -309,7 +315,7 @@ public class UserController {
                             .role(Role.STUDENT)
                             .build());
                 })
-                .orElse(org.springframework.http.ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/users/{id}")

@@ -1,8 +1,6 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.dto.Request.TeacherCreateRequest;
 import com.university.ManageNotes.dto.Request.UserRequest;
-import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
 import com.university.ManageNotes.model.*;
@@ -17,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -138,48 +135,6 @@ public class UserService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return createRoleSpecificResponse(user);
-    }
-
-    // ---------------------- Teacher Creation (US N6) ----------------------
-    /**
-     * Creates a teacher user and assigns optional subjects.
-     * Functional style: 1) map request -> entity, 2) save, 3) side-effect assignment & email.
-     */
-    public MessageResponse createTeacher(TeacherCreateRequest req) {
-        // Validate uniqueness via Optional pipeline
-        java.util.Optional<String> duplicationError = java.util.stream.Stream.of(
-                        userRepository.existsByUsername(req.getPhone()) ? "Username already exists" : null,
-                        userRepository.existsByEmail(req.getEmail()) ? "Email already exists" : null)
-                .filter(java.util.Objects::nonNull)
-                .findFirst();
-        if (duplicationError.isPresent()) {
-            return MessageResponse.error(duplicationError.get());
-        }
-
-        Users teacher = new Users();
-        teacher.setUsername(req.getPhone()); // Use phone as login by default
-        teacher.setFirstName(req.getFirstName());
-        teacher.setLastName(req.getLastName());
-        teacher.setPhone(req.getPhone());
-        teacher.setDepartment(req.getDepartment());
-        teacher.setEmail(req.getEmail());
-        teacher.setPassword(passwordEncoder.encode(req.getPassword()));
-        teacher.setRole(Role.TEACHER);
-        teacher.setActive(true);
-
-        Users saved = userRepository.save(teacher);
-
-        // Assign subjects if provided
-        if (!req.getSubjectIds().isEmpty()) {
-            // Each subject gets idTeacher mapping; stream for functional style
-            subjectRepository.findAllById(req.getSubjectIds()).forEach(s -> {
-                s.setIdTeacher(saved.getId());
-                subjectRepository.save(s);
-            });
-        }
-
-        UserResponse response = userMapper.toResponse(saved);
-        return new MessageResponse("Teacher created", "SUCCESS", response);
     }
 
     public void activateUser(Long userId) {

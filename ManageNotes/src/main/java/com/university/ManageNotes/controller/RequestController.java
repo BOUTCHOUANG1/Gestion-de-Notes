@@ -1,8 +1,8 @@
 // controller/RequestController.java
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.dto.Request.GradeClaimRequest;
 import com.university.ManageNotes.service.GradeClaimService;
-import com.university.ManageNotes.service.StudentInfoRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class RequestController {
 
     private final GradeClaimService gradeClaimService;
-    private final StudentInfoRequestService studentInfoRequestService;
 
     @PostMapping("/grade-claims")
-    public ResponseEntity<?> createGradeClaim(@RequestBody com.university.ManageNotes.dto.Request.GradeClaimRequest request) {
+    public ResponseEntity<?> createGradeClaim(@RequestBody GradeClaimRequest request) {
         return ResponseEntity.ok(gradeClaimService.create(request));
     }
 
