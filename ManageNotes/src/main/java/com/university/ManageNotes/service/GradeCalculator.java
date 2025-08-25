@@ -70,7 +70,8 @@ public class GradeCalculator {
         
         // Process Practical grade (if exists)
         if (hasPractical) {
-            double practicalSum = gradesByType.get(GradeType.PRACTICAL).stream()
+            double practicalSum = gradesByType.get(GradeType.PRACTICAL)
+                    .stream()
                     .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
                     .sum();
             weightedSum += practicalSum;
@@ -111,7 +112,8 @@ public class GradeCalculator {
                 .collect(Collectors.groupingBy(g -> g.getStudent().getId()));
         
         // Calculate class average
-        double classAverage = gradesByStudent.values().stream()
+        double classAverage = gradesByStudent.values()
+                .stream()
                 .mapToDouble(GradeCalculator::calculateSubjectAverage)
                 .average()
                 .orElse(0.0);

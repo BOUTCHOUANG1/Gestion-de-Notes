@@ -6,6 +6,7 @@ import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
 import com.university.ManageNotes.mapper.UserMapper;
+import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Role;
 import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
@@ -162,7 +163,7 @@ public class AuthService {
                 jwtResponse.setMustChooseDepartment(true);
                 jwtResponse.setDepartments(departmentRepository.findAll()
                         .stream()
-                        .map(dept -> dept.getName())
+                        .map(Department::getName)
                         .toList());
             } else {
                 jwtResponse.setMustChooseDepartment(false);
@@ -174,7 +175,9 @@ public class AuthService {
     }
 
     public Users getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
             return userRepository.findByUsername(username)
@@ -187,10 +190,6 @@ public class AuthService {
     public MessageResponse changePassword(String username, String newPassword) {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Error: User is not found."));
-
-        /*if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            return MessageResponse.error("Error: Incorrect old password!");
-        }*/
 
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);

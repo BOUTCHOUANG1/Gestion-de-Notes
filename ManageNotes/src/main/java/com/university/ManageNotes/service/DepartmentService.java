@@ -52,7 +52,8 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
         
         // Assign existing subjects to department if provided
         if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
-            subjectRepository.findAllById(request.getSubjectIds()).forEach(subject -> {
+            subjectRepository.findAllById(request.getSubjectIds())
+                    .forEach(subject -> {
                 subject.setDepartment(savedDept);
                 subjectRepository.save(subject);
             });
@@ -78,8 +79,9 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                             subjectResponse.setCycle(subject.getCycle());
                             subjectResponse.setTeacherId(subject.getIdTeacher());
                             if (subject.getIdTeacher() != null) {
-                                userRepository.findById(subject.getIdTeacher()).ifPresent(teacher -> 
-                                    subjectResponse.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName())
+                                userRepository.findById(subject.getIdTeacher()).ifPresent(teacher -> {
+                                            subjectResponse.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
+                                        }
                                 );
                             }
                             subjectResponse.setSemesterId(subject.getSemester() != null ? subject.getSemester().getId() : null);

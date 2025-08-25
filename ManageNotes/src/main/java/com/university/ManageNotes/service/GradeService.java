@@ -215,7 +215,8 @@ public class GradeService {
 
         if (grade.getEnteredBy() != null) {
             response.setEnteredBy(grade.getEnteredBy().getId());
-            response.setEnteredByName(grade.getEnteredBy().getFirstName() + " " + grade.getEnteredBy().getLastName());
+            response.setEnteredByName(grade.getEnteredBy()
+                    .getFirstName() + " " + grade.getEnteredBy().getLastName());
         }
 
         response.setCreatedDate(grade.getCreatedDate());
@@ -226,8 +227,9 @@ public class GradeService {
 
     public GradeResponse createGrade(GradeRequest gradeRequest) {
         // window validation for teachers
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        boolean isTeacher = auth!=null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isTeacher = auth!=null && auth.getAuthorities()
+                .stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher) {
             if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel())) {
                 String statusMessage = gradingWindowService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel());
@@ -255,8 +257,9 @@ public class GradeService {
 
     public GradeResponse createGradeByCode(GradeByCodeRequest req) {
         // window validation for teacher (current auth is the caller)
-        var auth2 = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        boolean isTeacher2 = auth2!=null && auth2.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
+        var auth2 = SecurityContextHolder.getContext().getAuthentication();
+        boolean isTeacher2 = auth2!=null && auth2.getAuthorities()
+                .stream().anyMatch(a->a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher2) {
             if (!gradingWindowService.isWindowOpen(req.getSemesterId(), req.getPeriodLabel())) {
                 String statusMessage = gradingWindowService.getWindowStatusMessage(req.getSemesterId(), req.getPeriodLabel());

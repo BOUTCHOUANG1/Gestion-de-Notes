@@ -16,12 +16,15 @@ public abstract class BaseCrudService<E, ID, Req, Res> {
 
     @Transactional(readOnly = true)
     public List<Res> getAll() {
-        return repository.findAll().stream().map(mapper::toResponse).toList();
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public Res getById(ID id) {
-        E entity = repository.findById(id).orElseThrow(() -> new RuntimeException("Resource not found"));
+        E entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resource not found"));
         return mapper.toResponse(entity);
     }
 
@@ -34,7 +37,8 @@ public abstract class BaseCrudService<E, ID, Req, Res> {
 
     @Transactional
     public MessageResponse update(ID id, Req request) {
-        E existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Resource not found"));
+        E existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resource not found"));
         mapper.updateEntityFromRequest(request, existing);
         repository.save(existing);
         return MessageResponse.success("Updated successfully");

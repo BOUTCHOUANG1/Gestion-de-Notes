@@ -51,7 +51,8 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
         var grade = gradeRepository.findById(req.getGradeId())
                 .orElseThrow(() -> new RuntimeException("Grade not found"));
 
-        if (!windowService.isWindowOpen(grade.getSemesters().getId(), grade.getPeriodLabel())) {
+        if (!windowService.isWindowOpen(grade.getSemesters()
+                .getId(), grade.getPeriodLabel())) {
             throw new RuntimeException("Claim period is closed");
         }
 

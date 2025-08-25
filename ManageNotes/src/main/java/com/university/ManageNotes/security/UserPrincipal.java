@@ -1,6 +1,7 @@
 package com.university.ManageNotes.security;
 
 import com.university.ManageNotes.model.Users;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +11,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class UserPrincipal implements UserDetails {
+    @Getter
     private Long id;
     private String username;
+    @Getter
     private String firstName;
+    @Getter
     private String lastName;
+    @Getter
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -49,22 +54,6 @@ public class UserPrincipal implements UserDetails {
         );
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     @Override
     public String getUsername() {
         return username;
@@ -81,30 +70,11 @@ public class UserPrincipal implements UserDetails {
     }
 
     public boolean hasRole(String role) {
-        return authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
+        return authorities.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 
     public boolean isTeacher() {return hasRole("TEACHER");}
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -119,5 +89,6 @@ public class UserPrincipal implements UserDetails {
         return Objects.hash(id);
     }
 
-    public boolean isMustChangePassword() {return Boolean.TRUE.equals(mustChangePassword);}
+    public boolean isMustChangePassword() {
+        return Boolean.TRUE.equals(mustChangePassword);}
 }

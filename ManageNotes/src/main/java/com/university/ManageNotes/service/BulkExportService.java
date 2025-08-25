@@ -27,7 +27,8 @@ public class BulkExportService {
     private final UserRepository userRepository;
 
     public MessageResponse export(BulkExportRequest req, boolean publish) {
-        return switch (req.getDocumentType().toUpperCase()) {
+        return switch (req.getDocumentType()
+                .toUpperCase()) {
             case "NOTES" -> exportNotes(req, publish);
             case "STUDENTS" -> exportStudents(req, publish);
             case "TEACHERS" -> exportTeachers(publish);
@@ -36,7 +37,8 @@ public class BulkExportService {
     }
 
     private MessageResponse exportNotes(BulkExportRequest req, boolean publish) {
-        StudentLevel levelEnum = StudentLevel.valueOf("LEVEL" + req.getLevel().replace("L", ""));
+        StudentLevel levelEnum = StudentLevel.valueOf("LEVEL" + req.getLevel()
+                .replace("L", ""));
         List<Students> students = studentRepository.findByLevel(levelEnum);
         if (students.isEmpty()) return MessageResponse.error("No students found for level " + req.getLevel());
 
@@ -48,8 +50,16 @@ public class BulkExportService {
             Files.createDirectories(dir);
             for (Students s : students) {
                 List<Grades> grades = gradeRepository.findByStudentId(s.getId());
-                if (subjId != null) grades = grades.stream().filter(g -> g.getSubject().getId().equals(subjId)).toList();
-                if (period != null) grades = grades.stream().filter(g -> period.equalsIgnoreCase(g.getGradeType().name())).toList();
+                if (subjId != null) grades = grades.stream()
+                        .filter(g -> g.getSubject()
+                                .getId()
+                                .equals(subjId))
+                        .toList();
+
+                if (period != null) grades = grades.stream()
+                        .filter(g -> period.equalsIgnoreCase(g.getGradeType()
+                                .name())).toList();
+
                 if (grades.isEmpty()) continue;
                 // simple pdf per student
                 try (PDDocument doc = new PDDocument()) {
@@ -79,7 +89,8 @@ public class BulkExportService {
     }
 
     private MessageResponse exportStudents(BulkExportRequest req, boolean publish) {
-        StudentLevel levelEnum = StudentLevel.valueOf("LEVEL" + req.getLevel().replace("L", ""));
+        StudentLevel levelEnum = StudentLevel.valueOf("LEVEL" + req.getLevel()
+                .replace("L", ""));
         List<Students> students = studentRepository.findByLevel(levelEnum);
         if (students.isEmpty()) return MessageResponse.error("No students found");
         // Here we could publish or print list; we simulate by returning success.

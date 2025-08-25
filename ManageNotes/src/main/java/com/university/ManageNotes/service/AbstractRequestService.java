@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -55,8 +56,8 @@ public abstract class AbstractRequestService<T extends BaseRequest, D, C>
     @Override
     public List<D> getPending() {
         return repository.findAll().stream()
-                .filter(r -> r instanceof com.university.ManageNotes.model.BaseRequest)
-                .map(r -> (com.university.ManageNotes.model.BaseRequest) r)
+                .filter(Objects::nonNull)
+                .map(r -> (BaseRequest) r)
                 .filter(r -> r.getStatus() == RequestStatus.PENDING)
                 .map(entity -> this.toDto((T) entity))
                 .collect(Collectors.toList());
@@ -75,11 +76,4 @@ public abstract class AbstractRequestService<T extends BaseRequest, D, C>
 
     protected abstract void onApprove(T request);
 
-    protected Long getCurrentUserId() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof com.university.ManageNotes.security.UserPrincipal) {
-            return ((com.university.ManageNotes.security.UserPrincipal) auth.getPrincipal()).getId();
-        }
-        throw new RuntimeException("No authenticated user");
-    }
 }
