@@ -50,4 +50,10 @@ public class GradingWindowController {
         return ResponseEntity.ok(MessageResponse.success("Grading window deleted successfully"));
     }
 
+    @GetMapping("/active")
+    @Operation(summary = "Get all active grading windows")
+    public ResponseEntity<List<GradingWindowResponse>> getActiveWindows() {
+        return ResponseEntity.ok(gradingWindowService.getActiveWindows());
+    }
+
 }

@@ -10,4 +10,5 @@ public interface GradingWindowRepository extends JpaRepository<GradingWindow, Lo
     List<GradingWindow> findBySemesterIdAndShortNameIgnoreCase(Long idSemester, String shortName);
     List<GradingWindow> findBySemesterIdAndIsActive(Long idSemester, Boolean isActive);
     List<GradingWindow> findAllByOrderByOrderAsc();
+    List<GradingWindow> findByIsActiveTrue();
 }

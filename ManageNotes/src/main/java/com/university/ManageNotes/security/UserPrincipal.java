@@ -90,5 +90,26 @@ public class UserPrincipal implements UserDetails {
     }
 
     public boolean isMustChangePassword() {
-        return Boolean.TRUE.equals(mustChangePassword);}
+        return Boolean.TRUE.equals(mustChangePassword);
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
