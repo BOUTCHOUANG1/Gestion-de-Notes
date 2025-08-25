@@ -117,6 +117,12 @@ public class GradingWindowService {
         windowRepository.deleteById(id);
     }
 
+    public List<GradingWindowResponse> getActiveWindows() {
+        return windowRepository.findByIsActiveTrue().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     private GradingWindowResponse convertToResponse(GradingWindow window) {
         GradingWindowResponse response = new GradingWindowResponse();
         response.setId(window.getId());
@@ -124,7 +130,7 @@ public class GradingWindowService {
         response.setShortName(window.getShortName());
         response.setType(window.getType());
         response.setSemester(window.getSemester() != null ? 
-                (window.getSemester().getName().contains("1") ? 1 : 2) : null);
+                window.getSemester().getId().intValue() : null);
         response.setStartDate(window.getStartDate());
         response.setEndDate(window.getEndDate());
         response.setColor(window.getColor());
