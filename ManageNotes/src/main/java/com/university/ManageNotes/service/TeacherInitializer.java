@@ -22,26 +22,26 @@ public class TeacherInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findByUsername("teacher").isEmpty()) {
-            Users teacher = new Users();
-            teacher.setUsername("teacher");
-            teacher.setPassword(passwordEncoder.encode("teacher"));
-            teacher.setRole(Role.TEACHER);
-            teacher.setEmail("teacher@example.com");
-            teacher.setFirstName("Default");
-            teacher.setLastName("Teacher");
-            teacher.setActive(true);
-            teacher.setMustChangePassword(false);
-            teacher.setPhone("+1234567890");
-            teacher.setDepartment("Mathematics");
-            userRepository.save(teacher);
+        Users teacher = userRepository.findByUsername("teacher").orElse(new Users());
+        
+        teacher.setUsername("teacher");
+        teacher.setPassword(passwordEncoder.encode("teacher"));
+        teacher.setRole(Role.TEACHER);
+        teacher.setEmail("teacher@example.com");
+        teacher.setFirstName("Default");
+        teacher.setLastName("Teacher");
+        teacher.setActive(true);
+        teacher.setMustChangePassword(false);
+        teacher.setPhone("+1234567890");
+        teacher.setDepartment("Mathematics");
+        userRepository.save(teacher);
+        System.out.println("Teacher user created/updated with password: teacher");
 
-            // Assign teacher to existing subjects without teacher
-            var subjects = subjectRepository.findAll();
-            subjects.stream().filter(s -> s.getIdTeacher() == null).forEach(s -> {
-                s.setIdTeacher(teacher.getId());
-                subjectRepository.save(s);
-            });
-        }
+        // Assign teacher to existing subjects without teacher
+        var subjects = subjectRepository.findAll();
+        subjects.stream().filter(s -> s.getIdTeacher() == null).forEach(s -> {
+            s.setIdTeacher(teacher.getId());
+            subjectRepository.save(s);
+        });
     }
 }

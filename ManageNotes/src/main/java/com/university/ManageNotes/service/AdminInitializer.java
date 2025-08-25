@@ -19,10 +19,10 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Users admin = userRepository.findByUsername("admin").orElseGet(Users::new);
-
+        Users admin = userRepository.findByUsername("admin").orElse(new Users());
+        
         admin.setUsername("admin");
-        admin.setPassword(passwordEncoder.encode("admin")); // always re-encode to ensure hash is current
+        admin.setPassword(passwordEncoder.encode("admin"));
         admin.setRole(Role.ADMIN);
         admin.setEmail("admin@example.com");
         admin.setFirstName("System");
@@ -33,5 +33,6 @@ public class AdminInitializer implements CommandLineRunner {
         admin.setDepartment("Administration");
 
         userRepository.save(admin);
+        System.out.println("Admin user created/updated with password: admin");
     }
 }
