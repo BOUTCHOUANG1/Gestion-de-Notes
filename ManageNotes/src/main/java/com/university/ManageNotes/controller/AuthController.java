@@ -52,6 +52,11 @@ public class AuthController {
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                             @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
         try {
+            if (!passwordChangeRequest.isPasswordMatching()) {
+                return ResponseEntity.badRequest()
+                        .body(MessageResponse.error("Password confirmation does not match"));
+            }
+            
             MessageResponse response = authService.changePassword(
                     userPrincipal.getUsername(),
                     passwordChangeRequest.getNewPassword()

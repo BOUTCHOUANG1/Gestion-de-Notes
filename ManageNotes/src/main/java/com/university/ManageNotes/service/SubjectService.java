@@ -89,17 +89,7 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                 .toList();
     }
 
-    public List<SubjectResponse> getSubjectsByDepartment(Long deptId) {
-        return subjectRepository.findByDepartmentId(deptId).stream()
-                .map(this::enrichSubjectResponse)
-                .collect(Collectors.toList());
-    }
 
-    public List<SubjectResponse> searchSubjects(String term) {
-        return subjectRepository.findByNameContainingIgnoreCase(term).stream()
-                .map(this::enrichSubjectResponse)
-                .toList();
-    }
 
     // Adapter methods for existing controllers
     public SubjectResponse getSubjectById(Long id) {

@@ -35,9 +35,18 @@ public class ReportResponse extends AbstractEntity {
     private String semesterName;
     private Double gpa;
     private Double annualAverage;
-    private String status; // "PASS", "FAIL", "INCOMPLETE"
+    private String status; // "PASS", "FAIL", "PROMOTED", "NOT_PROMOTED"
     private String pdfPath;
     private Integer creditsEarned;
+    
+    // University promotion fields
+    private Integer totalCreditsRequired; // 60 for academic year
+    private Integer semester1Credits;
+    private Integer semester2Credits;
+    private Double semester1Average;
+    private Double semester2Average;
+    private Boolean promotionEligible;
+    private String promotionReason; // Why promoted/not promoted
 
     // new fields for header info
     private String faculty;

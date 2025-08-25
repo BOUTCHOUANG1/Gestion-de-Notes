@@ -27,6 +27,6 @@ public class StudentGradesResponse {
     private String username; // matricule for students
     private String level;
     private String role;
-    private List<TopicDto> topics;
+    private List<SubjectResponse> subjects;
 
 }

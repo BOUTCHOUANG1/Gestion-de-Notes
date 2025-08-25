@@ -11,16 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TeacherSubjectDto {
+public class TeacherResponse {
     private String level; // e.g., L1, L2
-    private List<SubjectInfo> subjects;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class SubjectInfo {
-        private String code;
-        private String title;
-    }
+    private List<DepartmentResponse> departments;
 }

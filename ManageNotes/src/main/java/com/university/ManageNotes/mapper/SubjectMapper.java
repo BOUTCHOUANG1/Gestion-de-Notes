@@ -22,7 +22,9 @@ public interface SubjectMapper extends BaseMapper<Subject, SubjectRequest, Subje
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "semester", ignore = true)
     @Mapping(target = "department", ignore = true)
+    @Mapping(target = "grades", ignore = true)
     @Mapping(target = "idTeacher", source = "teacherId")
+    @Mapping(target = "credits", expression = "java(java.math.BigDecimal.valueOf(request.getCredits()))")
     Subject toEntity(SubjectRequest request);
     
     default Subject updateEntityFromRequest(SubjectRequest request, Subject entity) {

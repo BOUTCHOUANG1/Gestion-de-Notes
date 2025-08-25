@@ -18,6 +18,12 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     @Mapping(source = "levels", target = "levels")
     @Mapping(source = "department", target = "department")
     @Mapping(source = "phone", target = "phone")
+    @Mapping(target = "level", ignore = true)
+    @Mapping(target = "matricule", ignore = true)
+    @Mapping(target = "speciality", ignore = true)
+    @Mapping(target = "cycle", ignore = true)
+    @Mapping(target = "dateOfBirth", ignore = true)
+    @Mapping(target = "placeOfBirth", ignore = true)
     UserResponse toResponse(Users user);
 
     @Override
@@ -31,5 +37,14 @@ public interface UserMapper extends com.university.ManageNotes.mapper.BaseMapper
     Users toEntity(SignupRequest signupRequest);
 
     @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "gradesEntered", ignore = true)
+    @Mapping(target = "mustChangePassword", ignore = true)
+    @Mapping(target = "levels", ignore = true)
+    @Mapping(target = "department", ignore = true)
+    @Mapping(target = "phone", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     Users updateEntityFromRequest(SignupRequest request, @MappingTarget Users entity);
 }

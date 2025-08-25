@@ -123,6 +123,21 @@ public class GradeController {
                     .body(new MessageResponse("Error calculating semester summary: " + e.getMessage(), "ERROR"));
         }
     }
+    
+    @GetMapping("/year-summary")
+    @Operation(summary = "Get year summary", description = "Get promotion status based on both semesters (>= 55 credits, GPA > 2.0)")
+    public ResponseEntity<?> getYearSummary(
+            @RequestParam Long studentId,
+            @RequestParam Long semester1Id,
+            @RequestParam Long semester2Id) {
+        try {
+            ReportResponse response = gradeService.calculateYearSummary(studentId, semester1Id, semester2Id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error calculating year summary: " + e.getMessage(), "ERROR"));
+        }
+    }
 
     @GetMapping("/sheet/self")
     @PreAuthorize("hasRole('STUDENT')")

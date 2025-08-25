@@ -9,7 +9,7 @@ import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.security.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class GradeService {
 
     private final GradeRepository gradeRepository;
@@ -26,44 +27,6 @@ public class GradeService {
     private final UserRepository userRepository;
     private final SemesterRepository semesterRepository;
     private final GradingWindowService gradingWindowService;
-
-    @Autowired
-    public GradeService(GradeRepository gradeRepository,
-                        StudentRepository studentRepository,
-                        SubjectRepository subjectRepository,
-                        UserRepository userRepository,
-                        SemesterRepository semesterRepository,
-                        GradingWindowService gradingWindowService) {
-        this.gradeRepository = gradeRepository;
-        this.studentRepository = studentRepository;
-        this.subjectRepository = subjectRepository;
-        this.userRepository = userRepository;
-        this.semesterRepository = semesterRepository;
-        this.gradingWindowService = gradingWindowService;
-    }
-
-    public MessageResponse addGrade(GradeRequest gradeRequest) {
-        try {
-            Grades grade = new Grades();
-            grade.setStudent(studentRepository.findById(gradeRequest.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found")));
-            grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId())
-                    .orElseThrow(() -> new RuntimeException("Subject not found")));
-            grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
-                    .orElseThrow(() -> new RuntimeException("Semester not found")));
-            grade.setValue(gradeRequest.getValue());
-            grade.setMaxValue(gradeRequest.getMaxValue() != null ? gradeRequest.getMaxValue() : 20.0);
-            grade.setType(gradeRequest.getType());
-            grade.setPeriodLabel(gradeRequest.getPeriodLabel());
-            grade.setComments(gradeRequest.getComments());
-            grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
-                    .orElseThrow(() -> new RuntimeException("User not found")));
-            gradeRepository.save(grade);
-            return MessageResponse.success("Grade added successfully!");
-        } catch (Exception e) {
-            return MessageResponse.error("Failed to add grade: " + e.getMessage());
-        }
-    }
 
     public GradeResponse updateGrade(Long gradeId, GradeUpdateRequest gradeRequest) {
         Grades grade = gradeRepository.findById(gradeId)
@@ -94,47 +57,21 @@ public class GradeService {
     }
 
     public ReportResponse calculateSemesterSummary(Long studentId, Long semesterId) {
-        // 1. Get student and semester info
         Students student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // 2. Get all grades for the student in this semester
         List<Grades> semesterGrades = gradeRepository.findByStudentIdAndSemesterId(studentId, semesterId);
-
-        // 3. Group grades by subject
         Map<Subject, List<Grades>> gradesBySubject = semesterGrades.stream()
                 .collect(Collectors.groupingBy(Grades::getSubject));
 
-        // 4. Initialize counters
-        int totalCredits = 0;
-        int creditsEarned = 0;
-        double totalGradePoints = 0;
-        int passedSubjects = 0;
         List<ReportResponse.SubjectResult> subjectResults = new ArrayList<>();
-
-        // 5. Process each subject
+        
         for (Map.Entry<Subject, List<Grades>> entry : gradesBySubject.entrySet()) {
             Subject subject = entry.getKey();
             List<Grades> subjectGrades = entry.getValue();
-
-            // Calculate subject average (0-20 scale)
             double subjectAverage = GradeCalculator.calculateSubjectAverage(subjectGrades);
             boolean passed = subjectAverage >= 10.0;
 
-            // Update totals
-            int subjectCredits = subject.getCredits().intValue();
-            totalCredits += subjectCredits;
-
-            if (passed) {
-                creditsEarned += subjectCredits;
-                passedSubjects++;
-
-                // Convert to GPA (0-4.0 scale) and weight by credits
-                double subjectGPA = GradeCalculator.calculateGPA(subjectAverage);
-                totalGradePoints += subjectGPA * subjectCredits;
-            }
-
-            // Add to subject results
             subjectResults.add(new ReportResponse.SubjectResult(
                     subject.getName(),
                     subjectAverage,
@@ -143,11 +80,11 @@ public class GradeService {
             ));
         }
 
-        // 6. Calculate semester GPA (weighted average of passed subjects)
-        double semesterGPA = creditsEarned > 0 ?
-                Math.round((totalGradePoints / creditsEarned) * 100.0) / 100.0 : 0.0;
+        // University calculations
+        double semesterAverage = GradeCalculator.calculateSemesterAverage(semesterGrades);
+        int validatedCredits = GradeCalculator.calculateValidatedCredits(semesterGrades);
+        double semesterGPA = GradeCalculator.calculateGPA(semesterAverage);
 
-        // 7. Create and return response
         ReportResponse response = new ReportResponse();
         response.setStudentId(studentId);
         response.setStudentName(student.getFirstName() + " " + student.getLastName());
@@ -156,18 +93,64 @@ public class GradeService {
                 .map(sem -> sem.getName())
                 .orElse("Semester " + semesterId));
         response.setGpa(semesterGPA);
-        response.setCreditsEarned(creditsEarned);
-        response.setStatus(calculateStatus(passedSubjects, gradesBySubject.size()));
+        response.setCreditsEarned(validatedCredits);
+        response.setStatus(validatedCredits >= 30 ? "PASS" : "FAIL");
         response.setSubjectResults(subjectResults);
 
         return response;
     }
+    
+    public ReportResponse calculateYearSummary(Long studentId, Long semester1Id, Long semester2Id) {
+        Students student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    private String calculateStatus(int passedSubjects, int totalSubjects) {
-        if (passedSubjects == 0) return "FAIL";
-        if (passedSubjects == totalSubjects) return "PASS";
-        return "INCOMPLETE";
+        // Get grades for both semesters
+        List<Grades> semester1Grades = gradeRepository.findByStudentIdAndSemesterId(studentId, semester1Id);
+        List<Grades> semester2Grades = gradeRepository.findByStudentIdAndSemesterId(studentId, semester2Id);
+
+        // Calculate semester averages and credits
+        double semester1Average = GradeCalculator.calculateSemesterAverage(semester1Grades);
+        double semester2Average = GradeCalculator.calculateSemesterAverage(semester2Grades);
+        int semester1Credits = GradeCalculator.calculateValidatedCredits(semester1Grades);
+        int semester2Credits = GradeCalculator.calculateValidatedCredits(semester2Grades);
+        int totalValidatedCredits = semester1Credits + semester2Credits;
+        
+        // Calculate year GPA and promotion status
+        double yearGPA = GradeCalculator.calculateYearGPA(semester1Average, semester2Average);
+        boolean canBePromoted = GradeCalculator.canBePromoted(totalValidatedCredits, yearGPA);
+        
+        // Determine promotion reason
+        String promotionReason = "";
+        if (!canBePromoted) {
+            if (totalValidatedCredits < 55) {
+                promotionReason = "Insufficient credits: " + totalValidatedCredits + "/60 (minimum 55 required)";
+            } else if (yearGPA <= 2.0) {
+                promotionReason = "GPA too low: " + yearGPA + "/4.0 (minimum 2.0 required)";
+            }
+        } else {
+            promotionReason = "Meets all requirements: " + totalValidatedCredits + " credits, GPA " + yearGPA;
+        }
+
+        ReportResponse response = new ReportResponse();
+        response.setStudentId(studentId);
+        response.setStudentName(student.getFirstName() + " " + student.getLastName());
+        response.setGpa(yearGPA);
+        response.setCreditsEarned(totalValidatedCredits);
+        response.setStatus(canBePromoted ? "PROMOTED" : "NOT_PROMOTED");
+        
+        // University promotion fields
+        response.setTotalCreditsRequired(60);
+        response.setSemester1Credits(semester1Credits);
+        response.setSemester2Credits(semester2Credits);
+        response.setSemester1Average(semester1Average);
+        response.setSemester2Average(semester2Average);
+        response.setPromotionEligible(canBePromoted);
+        response.setPromotionReason(promotionReason);
+        
+        return response;
     }
+
+
 
 
     private GradeResponse convertToResponse(Grades grade) {
@@ -277,32 +260,23 @@ public class GradeService {
             response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
 
-        // Build TopicDto list expected by frontend
-        Map<String, TopicDto> topicMap = new HashMap<>();
+        // Build SubjectResponse list for frontend
+        Map<String, SubjectResponse> subjectMap = new HashMap<>();
         for (var gr : gradeResponses) {
-            var topic = topicMap.computeIfAbsent(gr.getSubjectCode(), k -> {
+            subjectMap.computeIfAbsent(gr.getSubjectCode(), k -> {
                 var subj = subjectRepository.findById(gr.getSubjectId()).orElse(null);
-                return TopicDto.builder()
+                return SubjectResponse.builder()
                         .code(gr.getSubjectCode())
-                        .title(gr.getSubjectName())
-                        .credit(subj != null ? subj.getCredits() : BigDecimal.ZERO)
-                        .semester(gr.getSemesterName() != null && gr.getSemesterName()
-                                .toLowerCase()
-                                .contains("2") ? "s2" : "s1")
+                        .name(gr.getSubjectName())
+                        .credits(subj != null ? subj.getCredits() : BigDecimal.ZERO)
+                        .semesterId(gr.getSemesterId())
+                        .semesterName(gr.getSemesterName())
                         .build();
             });
-            if (gr.getPeriodLabel() != null) {
-                if (gr.getPeriodLabel().toUpperCase().startsWith("CC")) {
-                    topic.setCc(gr.getValue());
-                } else if (gr.getPeriodLabel().toUpperCase().startsWith("SN")) {
-                    topic.setSn(gr.getValue());
-                }
-            }
         }
 
-        List<TopicDto> topicList = new ArrayList<>(topicMap.values());
-
-        response.setTopics(topicList);
+        List<SubjectResponse> subjectList = new ArrayList<>(subjectMap.values());
+        response.setSubjects(subjectList);
         studentOpt.ifPresent(s -> {
             response.setFirstName(s.getFirstName());
             response.setLastName(s.getLastName());
@@ -325,7 +299,7 @@ public class GradeService {
         } catch (Exception ignored) {}
 
         if (teacherId == null) {
-            return java.util.List.of();
+            return List.of();
         }
 
         List<Grades> grades = gradeRepository.findByEnteredById(teacherId);
@@ -406,7 +380,7 @@ public class GradeService {
             row.setMatricule(student.getMatricule());
             row.setFullName(student.getFirstName()+" "+student.getLastName());
 
-            java.util.Map<String, Double> gradeMap = new java.util.HashMap<>();
+            java.util.Map<String, Double> gradeMap = new HashMap<>();
             for (String k : colKeys) gradeMap.put(k, null);
 
             List<Grades> sg;

@@ -69,27 +69,29 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                     response.setSubjects(subjectRepository.findByDepartmentId(deptId)
                         .stream()
                         .map(subject -> {
-                            var subjectResponse = new SubjectResponse();
-                            subjectResponse.setId(subject.getId());
-                            subjectResponse.setName(subject.getName());
-                            subjectResponse.setCode(subject.getCode());
-                            subjectResponse.setCredits(subject.getCredits());
-                            subjectResponse.setDescription(subject.getDescription());
-                            subjectResponse.setLevel(subject.getLevel());
-                            subjectResponse.setCycle(subject.getCycle());
-                            subjectResponse.setTeacherId(subject.getIdTeacher());
+                            String teacherName = null;
                             if (subject.getIdTeacher() != null) {
-                                userRepository.findById(subject.getIdTeacher()).ifPresent(teacher -> {
-                                            subjectResponse.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
-                                        }
-                                );
+                                teacherName = userRepository.findById(subject.getIdTeacher())
+                                    .map(teacher -> teacher.getFirstName() + " " + teacher.getLastName())
+                                    .orElse(null);
                             }
-                            subjectResponse.setSemesterId(subject.getSemester() != null ? subject.getSemester().getId() : null);
-                            subjectResponse.setSemesterName(subject.getSemester() != null ? subject.getSemester().getName() : null);
-                            subjectResponse.setDepartmentId(subject.getDepartment().getId());
-                            subjectResponse.setDepartmentName(subject.getDepartment().getName());
-                            subjectResponse.setActive(subject.getActive());
-                            return subjectResponse;
+                            
+                            return SubjectResponse.builder()
+                                .id(subject.getId())
+                                .name(subject.getName())
+                                .code(subject.getCode())
+                                .credits(subject.getCredits())
+                                .description(subject.getDescription())
+                                .active(subject.getActive())
+                                .level(subject.getLevel())
+                                .cycle(subject.getCycle())
+                                .semesterId(subject.getSemester() != null ? subject.getSemester().getId() : null)
+                                .semesterName(subject.getSemester() != null ? subject.getSemester().getName() : null)
+                                .departmentId(subject.getDepartment().getId())
+                                .departmentName(subject.getDepartment().getName())
+                                .teacherId(subject.getIdTeacher())
+                                .teacherName(teacherName)
+                                .build();
                         })
                         .toList());
                     return response;
