@@ -12,7 +12,7 @@ public class GradingWindowResponse {
     private Long id;
     private String name;
     private String shortName;
-    private PeriodType type;
+    private PeriodType periodLabel;
     private Integer semester;
     private LocalDate startDate;
     private LocalDate endDate;
