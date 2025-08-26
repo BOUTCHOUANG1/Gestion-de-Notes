@@ -84,8 +84,16 @@ public class UserController {
                             .code(sub.getCode())
                             .name(sub.getName())
                             .credits(sub.getCredits())
+                            .description(sub.getDescription())
+                            .active(sub.getActive())
+                            .level(sub.getLevel())
+                            .cycle(sub.getCycle())
+                            .departmentId(sub.getDepartment() != null ? sub.getDepartment().getId() : null)
+                            .departmentName(sub.getDepartment() != null ? sub.getDepartment().getName() : null)
+                            .teacherId(sub.getIdTeacher())
+                            .teacherName(user.getFirstName() + " " + user.getLastName())
                             .build())
-                    .toList();
+                    .collect(java.util.stream.Collectors.toList());
             builder.subjects(subjectResponses);
             
             // Add levels with departments and subjects
@@ -105,8 +113,16 @@ public class UserController {
                                     .code(s.getCode())
                                     .name(s.getName())
                                     .credits(s.getCredits())
+                                    .description(s.getDescription())
+                                    .active(s.getActive())
+                                    .level(s.getLevel())
+                                    .cycle(s.getCycle())
+                                    .departmentId(s.getDepartment().getId())
+                                    .departmentName(s.getDepartment().getName())
+                                    .teacherId(s.getIdTeacher())
+                                    .teacherName(user.getFirstName() + " " + user.getLastName())
                                     .build())
-                            .toList();
+                            .collect(java.util.stream.Collectors.toList());
                     dept.setSubjects(deptSubjects);
                 }
                 map.computeIfAbsent(level, k -> new ArrayList<>()).add(dept);
