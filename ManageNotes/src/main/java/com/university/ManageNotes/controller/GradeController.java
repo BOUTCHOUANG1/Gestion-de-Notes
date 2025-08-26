@@ -84,6 +84,7 @@ public class GradeController {
     }
 
     @GetMapping("/teacher/my-grades")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @Operation(summary = "Get teacher's grades", description = "Get all grades entered by current teacher")
     public ResponseEntity<?> getTeacherGrades() {
         try {
