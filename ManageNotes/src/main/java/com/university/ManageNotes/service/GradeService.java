@@ -169,7 +169,7 @@ public class GradeService {
         }
 
         response.setValue(grade.getValue());
-        response.setPeriodLabel(grade.getPeriodLabel());
+        response.setPeriodLabel(grade.getPeriodType() != null ? grade.getPeriodType().name() : null);
 
         // Check if student passed the subject (score ≥ 10/20)
         boolean passed = grade.getValue() != null && grade.getValue() >= 10;
@@ -203,23 +203,42 @@ public class GradeService {
         boolean isTeacher = auth!=null && auth.getAuthorities()
                 .stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher) {
-            if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel())) {
-                String statusMessage = gradingWindowService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getPeriodLabel());
+            if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodType())) {
+                String statusMessage = gradingWindowService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getPeriodType());
                 throw new RuntimeException(statusMessage);
             }
         }
 
+        // Find student - the studentId could be either user ID or student record ID
+        Students student = null;
+        
+        // First try to find by student record ID
+        var studentOpt = studentRepository.findById(gradeRequest.getStudentId());
+        if (studentOpt.isPresent()) {
+            student = studentOpt.get();
+        } else {
+            // If not found, try to find by user ID (find user first, then student by matricule)
+            var userOpt = userRepository.findById(gradeRequest.getStudentId());
+            if (userOpt.isPresent() && userOpt.get().getRole().name().equals("STUDENT")) {
+                var user = userOpt.get();
+                student = studentRepository.findByMatricule(user.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Student record not found for user: " + user.getUsername()));
+            } else {
+                throw new RuntimeException("Student not found with ID: " + gradeRequest.getStudentId());
+            }
+        }
+
         Grades grade = new Grades();
-        grade.setStudent(studentRepository.findById(gradeRequest.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found")));
+        grade.setStudent(student);
         grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId())
                 .orElseThrow(() -> new RuntimeException("Subject not found")));
         grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
         grade.setValue(gradeRequest.getValue());
+        grade.setMaxValue(gradeRequest.getMaxValue());
         grade.setType(gradeRequest.getType());
         grade.setComments(gradeRequest.getComments());
-        grade.setPeriodLabel(gradeRequest.getPeriodLabel());
+        grade.setPeriodType(gradeRequest.getPeriodType());
         grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
                 .orElseThrow(() -> new RuntimeException("User not found")));
 
@@ -358,8 +377,8 @@ public class GradeService {
                     .toList();
         }
         for (var g : allGradesForSubject) {
-            String key = g.getType().name() + "::" + (g.getPeriodLabel() == null ? "" : g.getPeriodLabel());
-            String label = g.getPeriodLabel() != null && !g.getPeriodLabel().isBlank() ? g.getPeriodLabel() : g.getType().name();
+            String key = g.getType().name() + "::" + (g.getPeriodType() == null ? "" : g.getPeriodType().name());
+            String label = g.getPeriodType() != null ? g.getPeriodType().name() : g.getType().name();
             colKeys.add(key);
             keyToLabel.put(key, label);
         }
@@ -390,7 +409,7 @@ public class GradeService {
 
             for (var g: sg) {
                 if (!g.getSubject().getId().equals(subject.getId())) continue;
-                String k = g.getType().name()+"::"+(g.getPeriodLabel()==null?"":g.getPeriodLabel());
+                String k = g.getType().name()+"::"+(g.getPeriodType()==null?"":g.getPeriodType().name());
                 if (gradeMap.get(k)!=null) conflicts++;// duplicate
                 gradeMap.put(k, g.getValue());
             }
