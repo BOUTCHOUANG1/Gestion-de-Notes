@@ -11,6 +11,7 @@ import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.AuthService;
+import com.university.ManageNotes.service.SequenceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,8 @@ public class UserController {
     private final SubjectRepository subjectRepository;
 
     private final GradeRepository gradeRepository;
+
+    private final SequenceService sequenceService;
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
@@ -73,6 +76,19 @@ public class UserController {
             builder.subjects(new ArrayList<>(subjectMap.values()));
         } else if (user.getRole() == Role.TEACHER) {
             var subjects = subjectRepository.findByIdTeacher(user.getId());
+            
+            // Add subjects to response
+            List<SubjectResponse> subjectResponses = subjects.stream()
+                    .map(sub -> SubjectResponse.builder()
+                            .id(sub.getId())
+                            .code(sub.getCode())
+                            .name(sub.getName())
+                            .credits(sub.getCredits())
+                            .build())
+                    .toList();
+            builder.subjects(subjectResponses);
+            
+            // Add levels with departments and subjects
             Map<String, List<DepartmentResponse>> map = new HashMap<>();
             for (var sub : subjects) {
                 String level = sub.getLevel() != null ? sub.getLevel()
@@ -81,6 +97,17 @@ public class UserController {
                 if (sub.getDepartment() != null) {
                     dept.setId(sub.getDepartment().getId());
                     dept.setName(sub.getDepartment().getName());
+                    // Add subjects to department
+                    List<SubjectResponse> deptSubjects = subjects.stream()
+                            .filter(s -> s.getDepartment() != null && s.getDepartment().getId().equals(sub.getDepartment().getId()))
+                            .map(s -> SubjectResponse.builder()
+                                    .id(s.getId())
+                                    .code(s.getCode())
+                                    .name(s.getName())
+                                    .credits(s.getCredits())
+                                    .build())
+                            .toList();
+                    dept.setSubjects(deptSubjects);
                 }
                 map.computeIfAbsent(level, k -> new ArrayList<>()).add(dept);
             }
@@ -116,14 +143,18 @@ public class UserController {
         } else {
             students = studentRepository.findStudentsByTeacherSubject(principal.getId());
         }
-        return students.stream().map(s -> UserProfileResponse.builder()
-                .id(s.getId())
-                .username(s.getMatricule())
-                .firstName(s.getFirstName())
-                .lastName(s.getLastName())
-                .email(s.getEmail())
-                .role(Role.STUDENT)
-                .build()).toList();
+        return students.stream().map(s -> {
+            // Find corresponding user to get proper ID
+            var user = userRepository.findByUsername(s.getMatricule()).orElse(null);
+            return UserProfileResponse.builder()
+                    .id(user != null ? user.getId() : s.getId()) // Use user ID, not student record ID
+                    .username(s.getMatricule())
+                    .firstName(s.getFirstName())
+                    .lastName(s.getLastName())
+                    .email(s.getEmail())
+                    .role(Role.STUDENT)
+                    .build();
+        }).toList();
     }
 
     @GetMapping("/students/level/{level}")
@@ -214,21 +245,39 @@ public class UserController {
     @DeleteMapping("/teachers/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a teacher by ID (Admin only)")
+    @Transactional
     public MessageResponse deleteTeacher(@PathVariable Long id) {
         return userRepository.findById(id)
                 .filter(u -> u.getRole() == Role.TEACHER)
                 .map(teacher -> {
-                    // All subjects currently linked to this teacher.
-                    List<Subject> orphanedSubjects = subjectRepository.findByIdTeacher(teacher.getId());
+                    // Prevent deleting default system users
+                    if (("admin".equals(teacher.getUsername()) && teacher.getRole() == Role.ADMIN) ||
+                        ("teacher".equals(teacher.getUsername()) && teacher.getRole() == Role.TEACHER)) {
+                        return MessageResponse.error("Cannot delete default system users (admin/teacher)");
+                    }
 
-                    // Detach teacher from subjects (pure side-effect kept minimal & transactional by Spring).
-                    orphanedSubjects.forEach(sub -> sub.setIdTeacher(null));
-                    subjectRepository.saveAll(orphanedSubjects);
+                    // Preserve grades by setting enteredBy to null (can be reassigned)
+                    List<Grades> teacherGrades = gradeRepository.findByEnteredById(teacher.getId());
+                    teacherGrades.forEach(grade -> grade.setEnteredBy(null));
+                    gradeRepository.saveAll(teacherGrades);
 
+                    // Preserve subjects by removing teacher assignment (can be reassigned)
+                    List<Subject> teacherSubjects = subjectRepository.findByIdTeacher(teacher.getId());
+                    teacherSubjects.forEach(subject -> subject.setIdTeacher(null));
+                    subjectRepository.saveAll(teacherSubjects);
+
+                    // Delete user levels
+                    if (teacher.getLevels() != null) {
+                        teacher.getLevels().clear();
+                    }
+
+                    // Delete the teacher
                     userRepository.delete(teacher);
+                    userRepository.flush();
+                    sequenceService.resetUserSequence();
 
-                    String msgSuffix = orphanedSubjects.isEmpty() ? "" : " Note: there are now " + orphanedSubjects.size() + " subject(s) without an assigned teacher.";
-                    return MessageResponse.success("Teacher deleted successfully." + msgSuffix);
+                    return MessageResponse.success("Teacher deleted successfully. " + 
+                            teacherGrades.size() + " grades and " + teacherSubjects.size() + " subjects are now unassigned and can be reassigned to other teachers.");
                 })
                 .orElse(MessageResponse.error("Teacher not found or not a teacher"));
     }
@@ -328,15 +377,67 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a user by ID (Admin only)")
+    @Transactional
     public MessageResponse deleteUser(@PathVariable Long id) {
         return userRepository.findById(id)
                 .map(user -> {
-                    if (user.getRole() == Role.STUDENT) {
-                        studentRepository.findByEmail(user.getEmail())
-                                .ifPresent(studentRepository::delete);
+                    // Prevent deleting default system users
+                    if (("admin".equals(user.getUsername()) && user.getRole() == Role.ADMIN) ||
+                        ("teacher".equals(user.getUsername()) && user.getRole() == Role.TEACHER)) {
+                        return MessageResponse.error("Cannot delete default system users (admin/teacher)");
                     }
+
+                    int deletedItems = 0;
+                    StringBuilder details = new StringBuilder();
+
+                    if (user.getRole() == Role.STUDENT) {
+                        // Delete student grades
+                        List<Grades> studentGrades = gradeRepository.findByStudentId(user.getId());
+                        gradeRepository.deleteAll(studentGrades);
+                        deletedItems += studentGrades.size();
+                        details.append(studentGrades.size()).append(" grades, ");
+
+                        // Delete student record
+                        studentRepository.findByEmail(user.getEmail())
+                                .ifPresent(student -> {
+                                    studentRepository.delete(student);
+                                    sequenceService.resetStudentSequence();
+                                });
+                        details.append("student record, ");
+                    } else if (user.getRole() == Role.TEACHER) {
+                        // Preserve grades by removing teacher assignment (can be reassigned)
+                        List<Grades> teacherGrades = gradeRepository.findByEnteredById(user.getId());
+                        teacherGrades.forEach(grade -> grade.setEnteredBy(null));
+                        gradeRepository.saveAll(teacherGrades);
+                        deletedItems += teacherGrades.size();
+                        details.append(teacherGrades.size()).append(" grades unassigned, ");
+
+                        // Preserve subjects by removing teacher assignment (can be reassigned)
+                        List<Subject> teacherSubjects = subjectRepository.findByIdTeacher(user.getId());
+                        teacherSubjects.forEach(subject -> subject.setIdTeacher(null));
+                        subjectRepository.saveAll(teacherSubjects);
+                        deletedItems += teacherSubjects.size();
+                        details.append(teacherSubjects.size()).append(" subjects unassigned, ");
+
+                        // Clear user levels
+                        if (user.getLevels() != null) {
+                            user.getLevels().clear();
+                        }
+                    }
+
+                    // Delete the user
                     userRepository.delete(user);
-                    return MessageResponse.success("User deleted successfully");
+                    userRepository.flush();
+                    sequenceService.resetUserSequence();
+
+                    String message = user.getRole() == Role.STUDENT ? 
+                        "Student and all related data deleted successfully." : 
+                        "User deleted successfully.";
+                    if (deletedItems > 0) {
+                        String action = user.getRole() == Role.STUDENT ? "Removed: " : "Unassigned: ";
+                        message += " " + action + details.toString().replaceAll(", $", "");
+                    }
+                    return MessageResponse.success(message);
                 })
                 .orElse(MessageResponse.error("User not found"));
     }
