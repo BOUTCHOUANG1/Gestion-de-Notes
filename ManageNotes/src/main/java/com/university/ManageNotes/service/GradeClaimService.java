@@ -52,7 +52,7 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
                 .orElseThrow(() -> new RuntimeException("Grade not found"));
 
         if (!windowService.isWindowOpen(grade.getSemesters()
-                .getId(), grade.getPeriodLabel())) {
+                .getId(), grade.getPeriodType())) {
             throw new RuntimeException("Claim period is closed");
         }
 
