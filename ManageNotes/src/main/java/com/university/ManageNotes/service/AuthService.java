@@ -61,10 +61,17 @@ public class AuthService {
             signupRequest.setRole(requestedRole);
         }
 
+        // Generate default password if not provided (admin creating users)
+        String password = signupRequest.getPassword();
+        if (password == null || password.isBlank()) {
+            password = "password123"; // Default password
+            signupRequest.setPassword(password);
+        }
+
         // No registrationKey handling; admins directly register any role
 
         Users user = userMapper.toEntity(signupRequest);
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setActive(true);
 
         // Handle role-specific fields
@@ -173,6 +180,7 @@ public class AuthService {
                         .toList());
             } else if (userDetails.getRole() == Role.TEACHER) {
                 jwtResponse.setMustChooseDepartment(false);
+                jwtResponse.setDepartments(null); // Remove this field
                 // Add teacher-specific data
                 jwtResponse.setDepartment(userDetails.getDepartment());
                 jwtResponse.setLevels(userDetails.getLevels());
@@ -185,6 +193,7 @@ public class AuthService {
                         .toList());
             } else {
                 jwtResponse.setMustChooseDepartment(false);
+                jwtResponse.setDepartments(null);
             }
             return jwtResponse;
         } else {

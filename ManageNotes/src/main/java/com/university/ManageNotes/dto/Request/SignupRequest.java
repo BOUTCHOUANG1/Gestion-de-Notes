@@ -28,9 +28,8 @@ public class SignupRequest {
     @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
 
-    @NotBlank(message = "Password is required")
     @Size(min = 5, max = 100, message = "Password must be between 5 and 100 characters")
-    private String password;
+    private String password; // Optional - will be auto-generated if not provided
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
