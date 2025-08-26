@@ -1,6 +1,7 @@
 package com.university.ManageNotes.dto.Request;
 
 import com.university.ManageNotes.model.GradeType;
+import com.university.ManageNotes.model.PeriodType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -41,8 +42,8 @@ public class GradeRequest {
     @NotNull(message = "Entered by user ID is required")
     private Long enteredBy;
 
-    // For cases like "CC #2", optional
-    private String periodLabel;
+    @NotNull(message = "Period type is required")
+    private PeriodType periodType; // CC_1, CC_2, SN_1, SN_2
 
     @Size(max = 500, message = "Comments must not exceed 500 characters")
     private String comments;

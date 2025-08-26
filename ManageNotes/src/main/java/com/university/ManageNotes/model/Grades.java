@@ -21,8 +21,9 @@ public class Grades extends AbstractEntity{
     @Column(name = "Comments")
     private String comments;
 
-    @Column(name = "period_label")
-    private String periodLabel; // e.g., "CC #2", "SN #1"
+    @Enumerated(EnumType.STRING)
+    @Column(name = "period_type")
+    private PeriodType periodType; // e.g., CC_1, CC_2, SN_1, SN_2
 
     @ManyToOne
     @JoinColumn(name = "id_students")
@@ -53,8 +54,8 @@ public class Grades extends AbstractEntity{
         this.semester = semesters;
     }
 
-    public void setPeriodLabel(String periodLabel){
-        this.periodLabel = PeriodLabelUtil.normalize(periodLabel);
+    public void setPeriodType(PeriodType periodType){
+        this.periodType = periodType;
     }
 
 }
