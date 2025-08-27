@@ -12,6 +12,10 @@ import java.util.List;
 @Repository
 public interface GradeRepository extends JpaRepository<Grades, Long> {
 
+    /**
+     * Find grades by student ID.
+     * Note: studentId refers to students.id (not users.id)
+     */
     List<Grades> findByStudentId(Long studentId);
 
     List<Grades> findBySubjectId(Long subjectId);

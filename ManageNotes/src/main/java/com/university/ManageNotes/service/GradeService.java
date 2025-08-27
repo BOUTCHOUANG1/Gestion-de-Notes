@@ -156,7 +156,10 @@ public class GradeService {
     private GradeResponse convertToResponse(Grades grade) {
         GradeResponse response = new GradeResponse();
         response.setId(grade.getId());
-        response.setStudentId(grade.getStudent().getId());
+        // For API consistency, return user ID but get name from student record
+        var user = userRepository.findByUsername(grade.getStudent().getMatricule())
+                .orElse(null);
+        response.setStudentId(user != null ? user.getId() : grade.getStudent().getId());
         response.setStudentName(grade.getStudent().getFirstName() + " " + grade.getStudent().getLastName());
 
         response.setSubjectId(grade.getSubject().getId());
@@ -209,24 +212,9 @@ public class GradeService {
             }
         }
 
-        // Find student - the studentId could be either user ID or student record ID
-        Students student = null;
-        
-        // First try to find by student record ID
-        var studentOpt = studentRepository.findById(gradeRequest.getStudentId());
-        if (studentOpt.isPresent()) {
-            student = studentOpt.get();
-        } else {
-            // If not found, try to find by user ID (find user first, then student by matricule)
-            var userOpt = userRepository.findById(gradeRequest.getStudentId());
-            if (userOpt.isPresent() && userOpt.get().getRole().name().equals("STUDENT")) {
-                var user = userOpt.get();
-                student = studentRepository.findByMatricule(user.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Student record not found for user: " + user.getUsername()));
-            } else {
-                throw new RuntimeException("Student not found with ID: " + gradeRequest.getStudentId());
-            }
-        }
+        // Find student by students.id (not users.id)
+        Students student = studentRepository.findById(gradeRequest.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + gradeRequest.getStudentId()));
 
         Grades grade = new Grades();
         grade.setStudent(student);
@@ -246,12 +234,23 @@ public class GradeService {
         return convertToResponse(saved);
     }
 
-    public StudentGradesResponse getStudentGrades(Long studentId, Long semesterId) {
+    public StudentGradesResponse getStudentGrades(Long userId, Long semesterId) {
+        // Convert user ID to student ID for grade lookup
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!"STUDENT".equals(user.getRole().name())) {
+            throw new RuntimeException("User is not a student");
+        }
+        
+        var student = studentRepository.findByMatricule(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("Student record not found"));
+        
         List<Grades> grades;
         if (semesterId != null) {
-            grades = gradeRepository.findByStudentIdAndSemesterId(studentId, semesterId);
+            grades = gradeRepository.findByStudentIdAndSemesterId(student.getId(), semesterId);
         } else {
-            grades = gradeRepository.findByStudentId(studentId);
+            grades = gradeRepository.findByStudentId(student.getId());
         }
 
         List<GradeResponse> gradeResponses = grades.stream()
@@ -259,15 +258,21 @@ public class GradeService {
                 .collect(Collectors.toList());
 
         StudentGradesResponse response = new StudentGradesResponse();
-        response.setStudentId(studentId);
-        var studentOpt = studentRepository.findById(studentId);
-        studentOpt.ifPresent(s -> response.setStudentName(s.getFirstName() + " " + s.getLastName()));
+        response.setStudentId(userId); // Return user ID for consistency
+        response.setStudentName(student.getFirstName() + " " + student.getLastName());
         if (semesterId != null) {
             var semOpt = semesterRepository.findById(semesterId);
             semOpt.ifPresent(se -> {
                 response.setSemesterId(se.getId());
                 response.setSemesterName(se.getName());
             });
+        } else if (!grades.isEmpty()) {
+            // Use semester from first grade if no specific semester requested
+            var firstGrade = grades.get(0);
+            if (firstGrade.getSemesters() != null) {
+                response.setSemesterId(firstGrade.getSemesters().getId());
+                response.setSemesterName(firstGrade.getSemesters().getName());
+            }
         }
         response.setGrades(gradeResponses);
 
@@ -279,31 +284,46 @@ public class GradeService {
             response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
 
-        // Build SubjectResponse list for frontend
+        // Build SubjectResponse list for frontend with complete data
         Map<String, SubjectResponse> subjectMap = new HashMap<>();
         for (var gr : gradeResponses) {
             subjectMap.computeIfAbsent(gr.getSubjectCode(), k -> {
                 var subj = subjectRepository.findById(gr.getSubjectId()).orElse(null);
+                String teacherName = null;
+                if (subj != null && subj.getIdTeacher() != null) {
+                    var teacher = userRepository.findById(subj.getIdTeacher()).orElse(null);
+                    if (teacher != null) {
+                        teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+                    }
+                }
+                
                 return SubjectResponse.builder()
+                        .id(subj != null ? subj.getId() : null)
                         .code(gr.getSubjectCode())
                         .name(gr.getSubjectName())
                         .credits(subj != null ? subj.getCredits() : BigDecimal.ZERO)
+                        .description(subj != null ? subj.getDescription() : null)
+                        .active(subj != null ? subj.getActive() : null)
+                        .level(subj != null ? subj.getLevel() : null)
+                        .cycle(subj != null ? subj.getCycle() : null)
                         .semesterId(gr.getSemesterId())
                         .semesterName(gr.getSemesterName())
+                        .departmentId(subj != null && subj.getDepartment() != null ? subj.getDepartment().getId() : null)
+                        .departmentName(subj != null && subj.getDepartment() != null ? subj.getDepartment().getName() : null)
+                        .teacherId(subj != null ? subj.getIdTeacher() : null)
+                        .teacherName(teacherName)
                         .build();
             });
         }
 
         List<SubjectResponse> subjectList = new ArrayList<>(subjectMap.values());
         response.setSubjects(subjectList);
-        studentOpt.ifPresent(s -> {
-            response.setFirstName(s.getFirstName());
-            response.setLastName(s.getLastName());
-            response.setEmail(s.getEmail());
-            response.setUsername(s.getMatricule());
-            if(s.getLevel()!=null) response.setLevel(s.getLevel().name());
-            response.setRole("STUDENT");
-        });
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setUsername(student.getMatricule());
+        if(student.getLevel()!=null) response.setLevel(student.getLevel().name());
+        response.setRole("STUDENT");
 
         return response;
     }
@@ -442,5 +462,20 @@ public class GradeService {
                 .map(Grades::getStudent)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Ensures data consistency between users and students tables for grade operations
+     */
+    private Students getStudentByUserId(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        
+        if (!"STUDENT".equals(user.getRole().name())) {
+            throw new RuntimeException("User with ID " + userId + " is not a student");
+        }
+        
+        return studentRepository.findByMatricule(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("Student record not found for user: " + user.getUsername()));
     }
 }

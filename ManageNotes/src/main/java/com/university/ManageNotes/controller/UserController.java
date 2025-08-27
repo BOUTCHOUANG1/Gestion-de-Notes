@@ -61,7 +61,10 @@ public class UserController {
                 .role(user.getRole());
 
         if (user.getRole() == Role.STUDENT) {
-            List<Grades> grades = gradeRepository.findByStudentId(user.getId());
+            // For students, find their student record and use students.id
+            var student = studentRepository.findByMatricule(user.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Student record not found"));
+            List<Grades> grades = gradeRepository.findByStudentId(student.getId());
             Map<Long, SubjectResponse> subjectMap = new HashMap<>();
             for (var g : grades) {
                 var subj = g.getSubject();
@@ -212,10 +215,10 @@ public class UserController {
             // Find corresponding user to get proper ID
             var user = userRepository.findByUsername(s.getMatricule()).orElse(null);
             
-            // Get student's grades and subjects
+            // Get student's grades and subjects using students.id
             List<SubjectResponse> studentSubjects = new ArrayList<>();
             if (user != null) {
-                List<Grades> grades = gradeRepository.findByStudentId(user.getId());
+                List<Grades> grades = gradeRepository.findByStudentId(s.getId());
                 Map<Long, SubjectResponse> subjectMap = new HashMap<>();
                 for (var g : grades) {
                     var subj = g.getSubject();
