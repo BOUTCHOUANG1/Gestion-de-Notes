@@ -65,14 +65,33 @@ public class UserController {
             Map<Long, SubjectResponse> subjectMap = new HashMap<>();
             for (var g : grades) {
                 var subj = g.getSubject();
-                subjectMap.computeIfAbsent(subj.getId(), k -> SubjectResponse.builder()
-                        .id(subj.getId())
-                        .code(subj.getCode())
-                        .name(subj.getName())
-                        .credits(subj.getCredits())
-                        .semesterId(g.getSemesters() != null ? g.getSemesters().getId() : null)
-                        .semesterName(g.getSemesters() != null ? g.getSemesters().getName() : null)
-                        .build());
+                subjectMap.computeIfAbsent(subj.getId(), k -> {
+                    // Get teacher name
+                    String teacherName = null;
+                    if (subj.getIdTeacher() != null) {
+                        var teacher = userRepository.findById(subj.getIdTeacher()).orElse(null);
+                        if (teacher != null) {
+                            teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+                        }
+                    }
+                    
+                    return SubjectResponse.builder()
+                            .id(subj.getId())
+                            .code(subj.getCode())
+                            .name(subj.getName())
+                            .credits(subj.getCredits())
+                            .description(subj.getDescription())
+                            .active(subj.getActive())
+                            .level(subj.getLevel())
+                            .cycle(subj.getCycle())
+                            .semesterId(g.getSemesters() != null ? g.getSemesters().getId() : null)
+                            .semesterName(g.getSemesters() != null ? g.getSemesters().getName() : null)
+                            .departmentId(subj.getDepartment() != null ? subj.getDepartment().getId() : null)
+                            .departmentName(subj.getDepartment() != null ? subj.getDepartment().getName() : null)
+                            .teacherId(subj.getIdTeacher())
+                            .teacherName(teacherName)
+                            .build();
+                });
             }
             builder.subjects(new ArrayList<>(subjectMap.values()));
         } else if (user.getRole() == Role.TEACHER) {
@@ -286,22 +305,38 @@ public class UserController {
         teachers.forEach(t -> {
             var subjects = subjectRepository.findByIdTeacher(t.getId());
             
-            // Add subjects to teacher
+            // Add subjects to teacher with semester info
             List<SubjectResponse> teacherSubjects = subjects.stream()
-                    .map(sub -> SubjectResponse.builder()
-                            .id(sub.getId())
-                            .code(sub.getCode())
-                            .name(sub.getName())
-                            .credits(sub.getCredits())
-                            .description(sub.getDescription())
-                            .active(sub.getActive())
-                            .level(sub.getLevel())
-                            .cycle(sub.getCycle())
-                            .departmentId(sub.getDepartment() != null ? sub.getDepartment().getId() : null)
-                            .departmentName(sub.getDepartment() != null ? sub.getDepartment().getName() : null)
-                            .teacherId(sub.getIdTeacher())
-                            .teacherName(t.getFirstName() + " " + t.getLastName())
-                            .build())
+                    .map(sub -> {
+                        // Get semester info from grades for this subject
+                        var grades = gradeRepository.findBySubjectId(sub.getId());
+                        Long semesterId = null;
+                        String semesterName = null;
+                        if (!grades.isEmpty()) {
+                            var firstGrade = grades.get(0);
+                            if (firstGrade.getSemesters() != null) {
+                                semesterId = firstGrade.getSemesters().getId();
+                                semesterName = firstGrade.getSemesters().getName();
+                            }
+                        }
+                        
+                        return SubjectResponse.builder()
+                                .id(sub.getId())
+                                .code(sub.getCode())
+                                .name(sub.getName())
+                                .credits(sub.getCredits())
+                                .description(sub.getDescription())
+                                .active(sub.getActive())
+                                .level(sub.getLevel())
+                                .cycle(sub.getCycle())
+                                .semesterId(semesterId)
+                                .semesterName(semesterName)
+                                .departmentId(sub.getDepartment() != null ? sub.getDepartment().getId() : null)
+                                .departmentName(sub.getDepartment() != null ? sub.getDepartment().getName() : null)
+                                .teacherId(sub.getIdTeacher())
+                                .teacherName(t.getFirstName() + " " + t.getLastName())
+                                .build();
+                    })
                     .collect(java.util.stream.Collectors.toList());
             t.setSubjects(teacherSubjects);
         });
