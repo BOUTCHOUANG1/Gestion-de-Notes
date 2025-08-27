@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5 (Ubuntu 17.5-1.pgdg24.04+1)
 -- Dumped by pg_dump version 17.5 (Ubuntu 17.5-1.pgdg24.04+1)
 
--- Started on 2025-08-25 14:52:49 WAT
+-- Started on 2025-08-27 09:38:32 WAT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -39,7 +39,7 @@ CREATE TABLE public.departments (
 ALTER TABLE public.departments OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 17326)
+-- TOC entry 225 (class 1259 OID 17326)
 -- Name: departments_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -81,7 +81,7 @@ CREATE TABLE public.grade_claims (
 ALTER TABLE public.grade_claims OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 17327)
+-- TOC entry 226 (class 1259 OID 17327)
 -- Name: grade_claims_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -96,7 +96,7 @@ CREATE SEQUENCE public.grade_claims_seq
 ALTER SEQUENCE public.grade_claims_seq OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 17239)
+-- TOC entry 237 (class 1259 OID 25598)
 -- Name: grade_report; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -115,7 +115,7 @@ CREATE TABLE public.grade_report (
 ALTER TABLE public.grade_report OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 17328)
+-- TOC entry 227 (class 1259 OID 17328)
 -- Name: grade_report_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -130,7 +130,7 @@ CREATE SEQUENCE public.grade_report_seq
 ALTER SEQUENCE public.grade_report_seq OWNER TO postgres;
 
 --
--- TOC entry 220 (class 1259 OID 17246)
+-- TOC entry 219 (class 1259 OID 17246)
 -- Name: grades; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -140,21 +140,20 @@ CREATE TABLE public.grades (
     last_modified_date timestamp(6) with time zone,
     comments character varying(255),
     max_value double precision,
-    period_label character varying(255),
+    period_type character varying(255),
     grade_type character varying(255),
     value double precision,
     id_users bigint,
     id_semester bigint,
     id_students bigint,
-    id_subject bigint,
-    CONSTRAINT grades_grade_type_check CHECK (((grade_type)::text = ANY ((ARRAY['ASSIGNMENT'::character varying, 'EXAM'::character varying, 'QUIZ'::character varying, 'PROJECT'::character varying, 'CC'::character varying, 'SN'::character varying, 'PRACTICAL'::character varying])::text[])))
+    id_subject bigint
 );
 
 
 ALTER TABLE public.grades OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 17329)
+-- TOC entry 228 (class 1259 OID 17329)
 -- Name: grades_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -169,7 +168,7 @@ CREATE SEQUENCE public.grades_seq
 ALTER SEQUENCE public.grades_seq OWNER TO postgres;
 
 --
--- TOC entry 221 (class 1259 OID 17254)
+-- TOC entry 220 (class 1259 OID 17254)
 -- Name: grading_window; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -184,18 +183,17 @@ CREATE TABLE public.grading_window (
     order_index integer,
     short_name character varying(255),
     start_date date,
-    type character varying(255),
+    period_label character varying(255),
     id_semester bigint,
     period_type smallint,
-    CONSTRAINT grading_window_period_type_check CHECK (((period_type >= 0) AND (period_type <= 3))),
-    CONSTRAINT grading_window_type_check CHECK (((type)::text = ANY ((ARRAY['CC'::character varying, 'SN'::character varying])::text[])))
+    CONSTRAINT grading_window_period_type_check CHECK (((period_type >= 0) AND (period_type <= 3)))
 );
 
 
 ALTER TABLE public.grading_window OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 17330)
+-- TOC entry 229 (class 1259 OID 17330)
 -- Name: grading_window_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -210,48 +208,7 @@ CREATE SEQUENCE public.grading_window_seq
 ALTER SEQUENCE public.grading_window_seq OWNER TO postgres;
 
 --
--- TOC entry 223 (class 1259 OID 17263)
--- Name: invite_token; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.invite_token (
-    id bigint NOT NULL,
-    claimed boolean NOT NULL,
-    expires_at timestamp(6) with time zone NOT NULL,
-    role character varying(255) NOT NULL,
-    token character varying(255) NOT NULL,
-    CONSTRAINT invite_token_role_check CHECK (((role)::text = ANY ((ARRAY['ADMIN'::character varying, 'STUDENT'::character varying, 'TEACHER'::character varying])::text[])))
-);
-
-
-ALTER TABLE public.invite_token OWNER TO postgres;
-
---
--- TOC entry 222 (class 1259 OID 17262)
--- Name: invite_token_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.invite_token_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.invite_token_id_seq OWNER TO postgres;
-
---
--- TOC entry 3581 (class 0 OID 0)
--- Dependencies: 222
--- Name: invite_token_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.invite_token_id_seq OWNED BY public.invite_token.id;
-
-
---
--- TOC entry 224 (class 1259 OID 17272)
+-- TOC entry 238 (class 1259 OID 25605)
 -- Name: report_record; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -278,7 +235,7 @@ CREATE TABLE public.report_record (
 ALTER TABLE public.report_record OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 17331)
+-- TOC entry 230 (class 1259 OID 17331)
 -- Name: report_record_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -293,7 +250,7 @@ CREATE SEQUENCE public.report_record_seq
 ALTER SEQUENCE public.report_record_seq OWNER TO postgres;
 
 --
--- TOC entry 225 (class 1259 OID 17279)
+-- TOC entry 221 (class 1259 OID 17279)
 -- Name: semesters; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -312,7 +269,7 @@ CREATE TABLE public.semesters (
 ALTER TABLE public.semesters OWNER TO postgres;
 
 --
--- TOC entry 236 (class 1259 OID 17332)
+-- TOC entry 231 (class 1259 OID 17332)
 -- Name: semesters_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -327,27 +284,7 @@ CREATE SEQUENCE public.semesters_seq
 ALTER SEQUENCE public.semesters_seq OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 17284)
--- Name: student_info_requests; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.student_info_requests (
-    id bigint NOT NULL,
-    creation_date timestamp(6) with time zone NOT NULL,
-    last_modified_date timestamp(6) with time zone,
-    created_at timestamp(6) without time zone,
-    rejection_reason character varying(255),
-    requested_changes_json text NOT NULL,
-    status character varying(255),
-    student_id bigint NOT NULL,
-    CONSTRAINT student_info_requests_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'APPROVED'::character varying, 'REJECTED'::character varying])::text[])))
-);
-
-
-ALTER TABLE public.student_info_requests OWNER TO postgres;
-
---
--- TOC entry 237 (class 1259 OID 17333)
+-- TOC entry 232 (class 1259 OID 17333)
 -- Name: student_info_requests_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -362,12 +299,27 @@ CREATE SEQUENCE public.student_info_requests_seq
 ALTER SEQUENCE public.student_info_requests_seq OWNER TO postgres;
 
 --
--- TOC entry 227 (class 1259 OID 17292)
+-- TOC entry 233 (class 1259 OID 17334)
+-- Name: students_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.students_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.students_seq OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 17292)
 -- Name: students; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.students (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('public.students_seq'::regclass) NOT NULL,
     creation_date timestamp(6) with time zone NOT NULL,
     last_modified_date timestamp(6) with time zone,
     cycle character varying(255),
@@ -387,11 +339,11 @@ CREATE TABLE public.students (
 ALTER TABLE public.students OWNER TO postgres;
 
 --
--- TOC entry 238 (class 1259 OID 17334)
--- Name: students_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 234 (class 1259 OID 17335)
+-- Name: subject_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.students_seq
+CREATE SEQUENCE public.subject_seq
     START WITH 1
     INCREMENT BY 50
     NO MINVALUE
@@ -399,15 +351,15 @@ CREATE SEQUENCE public.students_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.students_seq OWNER TO postgres;
+ALTER SEQUENCE public.subject_seq OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 17301)
+-- TOC entry 223 (class 1259 OID 17301)
 -- Name: subject; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.subject (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('public.subject_seq'::regclass) NOT NULL,
     creation_date timestamp(6) with time zone NOT NULL,
     last_modified_date timestamp(6) with time zone,
     active boolean,
@@ -428,22 +380,7 @@ CREATE TABLE public.subject (
 ALTER TABLE public.subject OWNER TO postgres;
 
 --
--- TOC entry 239 (class 1259 OID 17335)
--- Name: subject_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.subject_seq
-    START WITH 1
-    INCREMENT BY 50
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.subject_seq OWNER TO postgres;
-
---
--- TOC entry 241 (class 1259 OID 17398)
+-- TOC entry 236 (class 1259 OID 17398)
 -- Name: user_levels; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -456,12 +393,27 @@ CREATE TABLE public.user_levels (
 ALTER TABLE public.user_levels OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 17310)
+-- TOC entry 235 (class 1259 OID 17336)
+-- Name: users_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.users_seq OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 17310)
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.users (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('public.users_seq'::regclass) NOT NULL,
     creation_date timestamp(6) with time zone NOT NULL,
     last_modified_date timestamp(6) with time zone,
     active boolean,
@@ -481,30 +433,22 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 240 (class 1259 OID 17336)
--- Name: users_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- TOC entry 239 (class 1259 OID 33804)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.users_seq
-    START WITH 1
-    INCREMENT BY 50
+CREATE SEQUENCE public.users_id_seq
+    START WITH 62
+    INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
-ALTER SEQUENCE public.users_seq OWNER TO postgres;
+ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3349 (class 2604 OID 17266)
--- Name: invite_token id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.invite_token ALTER COLUMN id SET DEFAULT nextval('public.invite_token_id_seq'::regclass);
-
-
---
--- TOC entry 3551 (class 0 OID 17226)
+-- TOC entry 3534 (class 0 OID 17226)
 -- Dependencies: 217
 -- Data for Name: departments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -519,238 +463,236 @@ COPY public.departments (id, creation_date, last_modified_date, name) FROM stdin
 
 
 --
--- TOC entry 3552 (class 0 OID 17231)
+-- TOC entry 3535 (class 0 OID 17231)
 -- Dependencies: 218
 -- Data for Name: grade_claims; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.grade_claims (id, creation_date, last_modified_date, rejection_reason, resolved_at, status, cause, description, period_label, requested_score, teacher_comment, created_by_id, grade_id, semester_id, student_id) FROM stdin;
-1	2025-08-25 14:15:05.505976+01	2025-08-25 14:15:05.505976+01	\N	\N	REJECTED	CALCULATION_ERROR	I believe there was an error in my calculus grade calculation.	CC_1	16	After review, the grade is correct.	\N	2	1	1
-2	2025-08-25 14:15:05.505976+01	2025-08-25 14:15:05.505976+01	\N	\N	PENDING	MISSING_WORK	I submitted additional programming exercises that were not graded.	CC_1	15	\N	\N	7	1	3
+1	2025-08-26 11:07:07.1319+01	2025-08-26 11:07:07.1319+01	\N	\N	PENDING	Calculation Error	I believe there was an error in the calculation of my grade	CC #1	12	\N	13	3	1	2
+2	2025-08-26 11:07:07.1319+01	2025-08-26 11:07:07.1319+01	\N	\N	PENDING	Missing Points	Some of my answers were not graded properly	CC #2	10	\N	16	5	1	5
+3	2025-08-24 11:07:07.1319+01	2025-08-26 11:07:07.1319+01	\N	\N	APPROVED	Bonus Points	I completed the bonus question which was not counted	CC #1	17	Reviewed and approved. Bonus points added.	12	1	1	1
+4	2025-08-25 11:07:07.1319+01	2025-08-26 11:07:07.1319+01	\N	\N	REJECTED	Partial Credit	I should receive partial credit for my approach	CC #2	11	Grade is correct as per marking scheme. No partial credit applicable.	13	4	1	2
 \.
 
 
 --
--- TOC entry 3553 (class 0 OID 17239)
--- Dependencies: 219
+-- TOC entry 3554 (class 0 OID 25598)
+-- Dependencies: 237
 -- Data for Name: grade_report; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.grade_report (id, creation_date, last_modified_date, gpa, id_semesters, id_students, pdf_path, status) FROM stdin;
+1	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	16.5	1	12	/reports/STU2024001_S1_2024.pdf	PASSED
+2	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	17.2	1	15	/reports/STU2024004_S1_2024.pdf	PASSED
+3	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	11.8	1	14	/reports/STU2024003_S1_2024.pdf	PASSED
+4	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	13.5	1	27	/reports/STU2023001_S1_2024.pdf	PASSED
+5	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	8.2	1	13	/reports/STU2024002_S1_2024.pdf	FAILED
+6	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	5.8	1	16	/reports/STU2024005_S1_2024.pdf	FAILED
+7	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	15.8	1	42	/reports/STU2022001_S1_2024.pdf	PASSED
+8	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	14.2	1	43	/reports/STU2022002_S1_2024.pdf	PASSED
+9	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	16.2	1	52	/reports/STU2021001_S1_2024.pdf	PASSED
+10	2025-08-26 10:58:29.666612+01	2025-08-26 10:58:29.666612+01	14.8	1	53	/reports/STU2021002_S1_2024.pdf	PASSED
 \.
 
 
 --
--- TOC entry 3554 (class 0 OID 17246)
--- Dependencies: 220
+-- TOC entry 3536 (class 0 OID 17246)
+-- Dependencies: 219
 -- Data for Name: grades; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.grades (id, creation_date, last_modified_date, comments, max_value, period_label, grade_type, value, id_users, id_semester, id_students, id_subject) FROM stdin;
-1	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good understanding of programming basics	20	CC_1	CC	15.5	2	1	1	1
-2	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Needs improvement in calculus	20	CC_1	CC	14	3	1	1	2
-3	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Excellent physics understanding	20	CC_1	CC	16	4	1	1	3
-4	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Excellent programming skills	20	CC_1	CC	17	2	1	2	1
-5	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Outstanding mathematical ability	20	CC_1	CC	18	3	1	2	2
-6	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good physics performance	20	CC_1	CC	15.5	4	1	2	3
-7	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Basic programming understanding	20	CC_1	CC	13.5	2	1	3	1
-8	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good calculus progress	20	CC_1	CC	15	3	1	3	2
-9	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Excellent physics aptitude	20	CC_1	CC	17.5	4	1	3	3
-10	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good data structures knowledge	20	CC_1	CC	16.5	2	1	4	4
-11	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Linear algebra progress	20	CC_1	CC	15	3	1	4	5
-12	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Physics concepts understood	20	CC_1	CC	14.5	4	1	4	6
-13	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Excellent data structures work	20	CC_1	CC	17.5	2	1	5	4
-14	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Outstanding linear algebra	20	CC_1	CC	18	3	1	5	5
-15	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good physics understanding	20	CC_1	CC	16	4	1	5	6
-16	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Exceptional algorithm skills	20	CC_1	CC	18.5	2	1	7	7
-17	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good thermodynamics grasp	20	CC_1	CC	16.5	5	1	7	8
-18	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Algorithm concepts developing	20	CC_1	CC	15	2	1	8	7
-19	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Strong thermodynamics work	20	CC_1	CC	17	5	1	8	8
-20	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Excellent ML understanding	20	CC_1	CC	17	2	1	9	9
-21	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Good advanced mechanics	20	CC_1	CC	16	5	1	9	10
-22	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	ML concepts progressing	20	CC_1	CC	15.5	2	1	10	9
-23	2025-08-25 14:15:05.496981+01	2025-08-25 14:15:05.496981+01	Outstanding mechanics work	20	CC_1	CC	18	5	1	10	10
-24	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Final exam performance	20	SN_1	SN	14	2	1	1	1
-25	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Calculus final exam	20	SN_1	SN	13.5	3	1	1	2
-26	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Physics final exam	20	SN_1	SN	15.5	4	1	1	3
-27	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Excellent final exam	20	SN_1	SN	18.5	2	1	2	1
-28	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Outstanding math final	20	SN_1	SN	19	3	1	2	2
-29	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Good physics final	20	SN_1	SN	16	4	1	2	3
-30	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Needs improvement	20	SN_1	SN	12	2	1	3	1
-31	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Better calculus final	20	SN_1	SN	14.5	3	1	3	2
-32	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Excellent physics final	20	SN_1	SN	18	4	1	3	3
-33	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Good data structures final	20	SN_1	SN	15.5	2	1	4	4
-34	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Linear algebra final	20	SN_1	SN	14	3	1	4	5
-35	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Physics final exam	20	SN_1	SN	13.5	4	1	4	6
-36	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Excellent final performance	20	SN_1	SN	18	2	1	5	4
-37	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Outstanding math final	20	SN_1	SN	19.5	3	1	5	5
-38	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Very good physics final	20	SN_1	SN	17	4	1	5	6
-39	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Exceptional algorithms final	20	SN_1	SN	19	2	1	7	7
-40	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Good thermodynamics final	20	SN_1	SN	17.5	5	1	7	8
-41	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Algorithm final improving	20	SN_1	SN	14.5	2	1	8	7
-42	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Excellent thermodynamics final	20	SN_1	SN	18.5	5	1	8	8
-43	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Good ML final exam	20	SN_1	SN	17.5	2	1	9	9
-44	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Advanced mechanics final	20	SN_1	SN	16.5	5	1	9	10
-45	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	ML final exam progress	20	SN_1	SN	16	2	1	10	9
-46	2025-08-25 14:32:02.750508+01	2025-08-25 14:32:02.750508+01	Outstanding mechanics final	20	SN_1	SN	19	5	1	10	10
-47	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Good OOP understanding	20	CC_2	CC	16	2	2	1	11
-48	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Calculus II progress	20	CC_2	CC	15	3	2	1	12
-49	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Physics II improvement	20	CC_2	CC	17	4	2	1	13
-50	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Excellent OOP skills	20	CC_2	CC	18	2	2	2	11
-51	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Outstanding calculus	20	CC_2	CC	19	3	2	2	12
-52	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Good physics work	20	CC_2	CC	16.5	4	2	2	13
-53	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	OOP concepts developing	20	CC_2	CC	14	2	2	3	11
-54	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Better calculus performance	20	CC_2	CC	16	3	2	3	12
-55	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Excellent physics aptitude	20	CC_2	CC	18.5	4	2	3	13
-56	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Good database knowledge	20	CC_2	CC	17	2	2	4	14
-57	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Statistics understanding	20	CC_2	CC	15.5	3	2	4	15
-58	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Modern physics concepts	20	CC_2	CC	14	4	2	4	16
-59	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Excellent database work	20	CC_2	CC	18.5	2	2	5	14
-60	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Outstanding statistics	20	CC_2	CC	19	3	2	5	15
-61	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Very good modern physics	20	CC_2	CC	17.5	4	2	5	16
-62	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Exceptional software engineering	20	CC_2	CC	19	2	2	7	17
-63	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Good fluid mechanics	20	CC_2	CC	17	5	2	7	18
-64	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Software engineering progress	20	CC_2	CC	15.5	2	2	8	17
-65	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Strong fluid mechanics	20	CC_2	CC	18	5	2	8	18
-66	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Excellent deep learning	20	CC_2	CC	17.5	2	2	9	19
-67	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Good control systems	20	CC_2	CC	16	5	2	9	20
-68	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Deep learning improving	20	CC_2	CC	16.5	2	2	10	19
-69	2025-08-25 14:32:02.762729+01	2025-08-25 14:32:02.762729+01	Outstanding control systems	20	CC_2	CC	18.5	5	2	10	20
-70	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	OOP final exam	20	SN_2	SN	15	2	2	1	11
-71	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Calculus II final	20	SN_2	SN	14	3	2	1	12
-72	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Physics II final	20	SN_2	SN	16.5	4	2	1	13
-73	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Excellent OOP final	20	SN_2	SN	19	2	2	2	11
-74	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Outstanding calculus final	20	SN_2	SN	18.5	3	2	2	12
-75	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Good physics final	20	SN_2	SN	17	4	2	2	13
-76	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	OOP final needs work	20	SN_2	SN	13	2	2	3	11
-77	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Better calculus final	20	SN_2	SN	15.5	3	2	3	12
-78	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Excellent physics final	20	SN_2	SN	19	4	2	3	13
-79	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Good database final	20	SN_2	SN	16	2	2	4	14
-80	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Statistics final exam	20	SN_2	SN	14.5	3	2	4	15
-81	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Modern physics final	20	SN_2	SN	13	4	2	4	16
-82	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Excellent database final	20	SN_2	SN	19	2	2	5	14
-83	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Outstanding statistics final	20	SN_2	SN	18.5	3	2	5	15
-84	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Very good physics final	20	SN_2	SN	18	4	2	5	16
-85	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Exceptional software final	20	SN_2	SN	18.5	2	2	7	17
-86	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Good fluid mechanics final	20	SN_2	SN	17.5	5	2	7	18
-87	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Software engineering final	20	SN_2	SN	15	2	2	8	17
-88	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Outstanding fluid final	20	SN_2	SN	19	5	2	8	18
-89	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Excellent deep learning final	20	SN_2	SN	18	2	2	9	19
-90	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Good control systems final	20	SN_2	SN	16.5	5	2	9	20
-91	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Deep learning final progress	20	SN_2	SN	17	2	2	10	19
-92	2025-08-25 14:32:02.768061+01	2025-08-25 14:32:02.768061+01	Outstanding control final	20	SN_2	SN	19.5	5	2	10	20
+COPY public.grades (id, creation_date, last_modified_date, comments, max_value, period_type, grade_type, value, id_users, id_semester, id_students, id_subject) FROM stdin;
+1	2025-08-26 10:18:59.769387+01	2025-08-26 10:18:59.769387+01	Excellent work	20	CC_1	CC_1	16.5	2	1	12	1
+3	2025-08-26 10:18:59.769387+01	2025-08-26 10:18:59.769387+01	Needs improvement	20	CC_1	CC_1	8.5	2	1	13	1
+5	2025-08-26 10:18:59.769387+01	2025-08-26 10:18:59.769387+01	Average work	20	CC_1	CC_1	12	4	1	14	3
+2	2025-08-26 10:18:59.769387+01	2025-08-26 10:18:59.769387+01	Good understanding	20	CC_2	CC_1	15	2	1	12	1
+4	2025-08-26 10:18:59.769387+01	2025-08-26 10:18:59.769387+01	Slight progress	20	CC_2	CC_1	9	2	1	13	1
+6	2025-08-26 16:56:18.342055+01	2025-08-26 16:56:18.342055+01	Good work	20	CC_1	CC_1	14.5	3	1	12	2
+7	2025-08-26 16:56:18.342055+01	2025-08-26 16:56:18.342055+01	Needs improvement	20	CC_1	CC_1	11	3	1	13	2
+8	2025-08-26 16:56:18.342055+01	2025-08-26 16:56:18.342055+01	Excellent	20	CC_1	CC_1	16	3	1	14	15
+9	2025-08-26 16:56:18.342055+01	2025-08-26 16:56:18.342055+01	Average	20	CC_1	CC_1	13.5	3	1	12	5
+10	2025-08-26 17:18:47.197828+01	2025-08-26 17:18:47.197828+01	Good	20	CC_1	CC_1	13	2	1	22	1
+11	2025-08-26 17:18:47.197828+01	2025-08-26 17:18:47.197828+01	Very good	20	CC_1	CC_1	15.5	2	1	21	1
+12	2025-08-26 17:18:47.197828+01	2025-08-26 17:18:47.197828+01	Average	20	CC_1	CC_1	12	3	1	32	2
+13	2025-08-26 17:18:47.197828+01	2025-08-26 17:18:47.197828+01	Good work	20	CC_1	CC_1	14	3	1	36	15
+14	2025-08-27 08:31:32.207163+01	2025-08-27 08:31:32.207163+01	Good work	20	CC_1	CC_1	15	2	1	20	1
+15	2025-08-27 08:31:32.207163+01	2025-08-27 08:31:32.207163+01	Average	20	CC_1	CC_1	12.5	2	1	20	4
+16	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Good progress	20	CC_1	CC_1	14	2	1	12	4
+17	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Excellent	20	CC_1	CC_1	16.5	2	1	12	11
+18	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Average	20	CC_1	CC_1	13	3	1	12	2
+19	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Very good	20	CC_1	CC_1	15.5	2	1	13	7
+20	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Needs improvement	20	CC_1	CC_1	12	3	1	13	15
+21	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Outstanding	20	CC_1	CC_1	17	4	1	13	18
+22	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Good effort	20	CC_1	CC_1	13.5	2	1	14	9
+23	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Well done	20	CC_1	CC_1	14.5	3	1	14	5
+24	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Below average	20	CC_1	CC_1	11	4	1	14	16
+25	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Excellent work	20	CC_1	CC_1	16	2	1	15	17
+26	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Satisfactory	20	CC_1	CC_1	12.5	4	1	15	3
+27	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Good performance	20	CC_1	CC_1	15	5	1	15	6
+28	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Exceptional	20	CC_1	CC_1	18	2	1	16	19
+29	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Average work	20	CC_1	CC_1	13	4	1	16	8
+30	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Good understanding	20	CC_1	CC_1	14	6	1	16	12
+31	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Very good	20	CC_1	CC_1	15.5	7	1	17	20
+32	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Needs practice	20	CC_1	CC_1	12	2	1	17	1
+33	2025-08-27 08:34:11.49584+01	2025-08-27 08:34:11.49584+01	Excellent grasp	20	CC_1	CC_1	16.5	8	1	17	10
+34	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Good work	20	CC_1	CC_1	14.5	2	1	18	4
+35	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Satisfactory	20	CC_1	CC_1	13	3	1	18	15
+36	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Excellent	20	CC_1	CC_1	16	2	1	19	11
+37	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Average	20	CC_1	CC_1	12.5	3	1	19	5
+38	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Very good	20	CC_1	CC_1	15	2	1	22	7
+39	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Good progress	20	CC_1	CC_1	13.5	3	1	22	2
+40	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Well done	20	CC_1	CC_1	14	2	1	21	9
+41	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Needs improvement	20	CC_1	CC_1	11.5	4	1	21	16
+42	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Outstanding	20	CC_1	CC_1	17.5	2	1	23	17
+43	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Average work	20	CC_1	CC_1	13	4	1	23	3
+44	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Very good	20	CC_1	CC_1	15.5	2	1	24	19
+45	2025-08-27 08:34:53.72684+01	2025-08-27 08:34:53.72684+01	Satisfactory	20	CC_1	CC_1	12	4	1	24	8
+46	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Good work	20	CC_1	CC_1	14	2	1	37	1
+47	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Excellent	20	CC_1	CC_1	16.5	3	1	37	15
+48	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Average	20	CC_1	CC_1	13	4	1	37	18
+49	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Very good	20	CC_1	CC_1	15	2	1	25	4
+50	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Satisfactory	20	CC_1	CC_1	12.5	3	1	25	2
+51	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Outstanding	20	CC_1	CC_1	17	2	1	26	11
+52	2025-08-27 08:45:59.025952+01	2025-08-27 08:45:59.025952+01	Good progress	20	CC_1	CC_1	14	3	1	26	5
 \.
 
 
 --
--- TOC entry 3555 (class 0 OID 17254)
--- Dependencies: 221
+-- TOC entry 3537 (class 0 OID 17254)
+-- Dependencies: 220
 -- Data for Name: grading_window; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.grading_window (id, creation_date, last_modified_date, color, end_date, is_active, name, order_index, short_name, start_date, type, id_semester, period_type) FROM stdin;
-1	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#FF6B6B	2024-02-15	t	Continuous Assessment 1	1	CC_1	2024-02-01	CC	1	0
-2	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#45B7D1	2024-06-15	f	Session Normale 1	2	SN_1	2024-05-15	SN	1	2
-3	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#4ECDC4	2024-08-15	f	Continuous Assessment 2	3	CC_2	2024-08-01	CC	2	1
-4	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#96CEB4	2024-12-15	f	Session Normale 2	4	SN_2	2024-11-15	SN	2	3
+COPY public.grading_window (id, creation_date, last_modified_date, color, end_date, is_active, name, order_index, short_name, start_date, period_label, id_semester, period_type) FROM stdin;
+1	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#FF6B6B	2024-02-15	t	Continuous Assessment 1	1	CC_1	2024-02-01	CC_1	1	0
+3	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#4ECDC4	2024-08-15	f	Continuous Assessment 2	3	CC_2	2024-08-01	CC_2	2	1
+2	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#45B7D1	2024-06-15	f	Session Normale 1	2	SN_1	2024-05-15	SN_1	1	2
+4	2025-08-25 14:15:05.491655+01	2025-08-25 14:15:05.491655+01	#96CEB4	2024-12-15	f	Session Normale 2	4	SN_2	2024-11-15	SN_2	2	3
 \.
 
 
 --
--- TOC entry 3557 (class 0 OID 17263)
--- Dependencies: 223
--- Data for Name: invite_token; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.invite_token (id, claimed, expires_at, role, token) FROM stdin;
-\.
-
-
---
--- TOC entry 3558 (class 0 OID 17272)
--- Dependencies: 224
+-- TOC entry 3555 (class 0 OID 25605)
+-- Dependencies: 238
 -- Data for Name: report_record; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.report_record (id, creation_date, last_modified_date, academic_year, class_id, download_url, faculty, generated_by, gpa, pdf_path, report_type, semester_id, status, student_id, subject_id, university_name) FROM stdin;
+1	2025-08-26 10:58:29.680502+01	2025-08-26 10:58:29.680502+01	2024-2025	\N	/api/reports/download/1	Faculty of Science	1	16.5	/transcripts/STU2024001_transcript.pdf	SEMESTER_TRANSCRIPT	1	COMPLETED	12	1	University of Excellence
+2	2025-08-26 10:58:29.680502+01	2025-08-26 10:58:29.680502+01	2024-2025	\N	/api/reports/download/2	Faculty of Science	1	8.2	/transcripts/STU2024002_transcript.pdf	SEMESTER_TRANSCRIPT	1	COMPLETED	13	1	University of Excellence
+3	2025-08-26 10:58:29.680502+01	2025-08-26 10:58:29.680502+01	2024-2025	\N	/api/reports/download/3	Faculty of Science	1	17.2	/transcripts/STU2024004_transcript.pdf	SEMESTER_TRANSCRIPT	1	COMPLETED	15	1	University of Excellence
+4	2025-08-26 10:58:29.680502+01	2025-08-26 10:58:29.680502+01	2024-2025	\N	/api/reports/download/4	Faculty of Engineering	1	15.8	/transcripts/STU2022001_annual.pdf	ANNUAL_TRANSCRIPT	1	COMPLETED	42	9	University of Excellence
+5	2025-08-26 10:58:29.680502+01	2025-08-26 10:58:29.680502+01	2024-2025	\N	/api/reports/download/5	Faculty of Computer Science	1	16.2	/transcripts/STU2021001_annual.pdf	ANNUAL_TRANSCRIPT	1	COMPLETED	52	13	University of Excellence
 \.
 
 
 --
--- TOC entry 3559 (class 0 OID 17279)
--- Dependencies: 225
+-- TOC entry 3538 (class 0 OID 17279)
+-- Dependencies: 221
 -- Data for Name: semesters; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.semesters (id, creation_date, last_modified_date, active, end_date, name, order_index, start_date) FROM stdin;
-1	2025-08-25 14:15:05.490253+01	2025-08-25 14:15:05.490253+01	t	2024-06-30	S1 2024	1	2024-01-01
-2	2025-08-25 14:15:05.490253+01	2025-08-25 14:15:05.490253+01	f	2024-12-31	S2 2024	2	2024-07-01
+1	2025-08-25 14:15:05.490253+01	2025-08-25 14:15:05.490253+01	t	2024-06-30	1	1	2024-01-01
+2	2025-08-25 14:15:05.490253+01	2025-08-25 14:15:05.490253+01	f	2024-12-31	2	2	2024-07-01
 \.
 
 
 --
--- TOC entry 3560 (class 0 OID 17284)
--- Dependencies: 226
--- Data for Name: student_info_requests; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.student_info_requests (id, creation_date, last_modified_date, created_at, rejection_reason, requested_changes_json, status, student_id) FROM stdin;
-\.
-
-
---
--- TOC entry 3561 (class 0 OID 17292)
--- Dependencies: 227
+-- TOC entry 3539 (class 0 OID 17292)
+-- Dependencies: 222
 -- Data for Name: students; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.students (id, creation_date, last_modified_date, cycle, date_of_birth, email, first_name, last_name, level, matricule, place_of_birth, speciality) FROM stdin;
-1	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2005-03-15	alice.cooper@student.university.edu	Alice	Cooper	LEVEL1	STU2024001	Yaoundé	Computer Science
-2	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2005-07-22	bob.martin@student.university.edu	Bob	Martin	LEVEL1	STU2024002	Douala	Mathematics
-3	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2005-01-10	carol.white@student.university.edu	Carol	White	LEVEL1	STU2024003	Bamenda	Physics
-4	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2004-04-12	daniel.green@student.university.edu	Daniel	Green	LEVEL2	STU2023001	Yaoundé	Computer Science
-5	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2004-08-30	eva.black@student.university.edu	Eva	Black	LEVEL2	STU2023002	Douala	Mathematics
-6	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2004-02-14	frank.blue@student.university.edu	Frank	Blue	LEVEL2	STU2023003	Bamenda	Physics
-7	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2003-05-20	grace.red@student.university.edu	Grace	Red	LEVEL3	STU2022001	Yaoundé	Computer Science
-8	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	BACHELOR	2003-09-15	henry.yellow@student.university.edu	Henry	Yellow	LEVEL3	STU2022002	Douala	Engineering
-9	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	MASTER	2002-01-15	iris.purple@student.university.edu	Iris	Purple	LEVEL4	STU2021001	Yaoundé	Computer Science
-10	2025-08-25 14:15:05.487861+01	2025-08-25 14:15:05.487861+01	MASTER	2002-05-22	jack.orange@student.university.edu	Jack	Orange	LEVEL4	STU2021002	Douala	Engineering
+1	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-03-15	alice.cooper@student.university.edu	Alice	Cooper	LEVEL1	STU2024001	Yaoundé	Computer Science
+2	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-07-22	bob.martin@student.university.edu	Bob	Martin	LEVEL1	STU2024002	Douala	Mathematics
+3	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-01-10	carol.white@student.university.edu	Carol	White	LEVEL1	STU2024003	Bamenda	Physics
+4	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-04-12	david.green@student.university.edu	David	Green	LEVEL1	STU2024004	Yaoundé	Computer Science
+5	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-08-30	eva.black@student.university.edu	Eva	Black	LEVEL1	STU2024005	Douala	Mathematics
+6	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-02-14	frank.blue@student.university.edu	Frank	Blue	LEVEL1	STU2024006	Bamenda	Physics
+7	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-05-20	grace.red@student.university.edu	Grace	Red	LEVEL1	STU2024007	Yaoundé	Business Administration
+8	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-09-15	henry.yellow@student.university.edu	Henry	Yellow	LEVEL1	STU2024008	Douala	Computer Science
+9	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-01-15	iris.purple@student.university.edu	Iris	Purple	LEVEL1	STU2024009	Yaoundé	Mathematics
+10	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-05-22	jack.orange@student.university.edu	Jack	Orange	LEVEL1	STU2024010	Douala	Physics
+11	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-03-08	kate.brown@student.university.edu	Kate	Brown	LEVEL1	STU2024011	Bamenda	Business Administration
+12	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-06-18	leo.gray@student.university.edu	Leo	Gray	LEVEL1	STU2024012	Yaoundé	Computer Science
+13	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-10-25	mia.silver@student.university.edu	Mia	Silver	LEVEL1	STU2024013	Douala	Mathematics
+14	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-04-03	noah.gold@student.university.edu	Noah	Gold	LEVEL1	STU2024014	Bamenda	Physics
+15	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2005-07-11	olivia.pink@student.university.edu	Olivia	Pink	LEVEL1	STU2024015	Yaoundé	Business Administration
+16	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-03-15	paul.cyan@student.university.edu	Paul	Cyan	LEVEL2	STU2023001	Yaoundé	Computer Science
+17	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-07-22	quinn.magenta@student.university.edu	Quinn	Magenta	LEVEL2	STU2023002	Douala	Mathematics
+18	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-01-10	ruby.lime@student.university.edu	Ruby	Lime	LEVEL2	STU2023003	Bamenda	Physics
+19	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-04-12	sam.teal@student.university.edu	Sam	Teal	LEVEL2	STU2023004	Yaoundé	Computer Science
+20	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-08-30	tina.coral@student.university.edu	Tina	Coral	LEVEL2	STU2023005	Douala	Mathematics
+21	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-02-14	uma.ivory@student.university.edu	Uma	Ivory	LEVEL2	STU2023006	Bamenda	Physics
+22	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-05-20	victor.jade@student.university.edu	Victor	Jade	LEVEL2	STU2023007	Yaoundé	Business Administration
+23	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-09-15	wendy.ruby@student.university.edu	Wendy	Ruby	LEVEL2	STU2023008	Douala	Computer Science
+24	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-01-15	xander.amber@student.university.edu	Xander	Amber	LEVEL2	STU2023009	Yaoundé	Mathematics
+25	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-05-22	yara.pearl@student.university.edu	Yara	Pearl	LEVEL2	STU2023010	Douala	Physics
+26	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-03-08	zoe.onyx@student.university.edu	Zoe	Onyx	LEVEL2	STU2023011	Bamenda	Business Administration
+27	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-06-18	adam.copper@student.university.edu	Adam	Copper	LEVEL2	STU2023012	Yaoundé	Computer Science
+28	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-10-25	bella.bronze@student.university.edu	Bella	Bronze	LEVEL2	STU2023013	Douala	Mathematics
+29	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-04-03	chris.steel@student.university.edu	Chris	Steel	LEVEL2	STU2023014	Bamenda	Physics
+30	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2004-07-11	diana.platinum@student.university.edu	Diana	Platinum	LEVEL2	STU2023015	Yaoundé	Business Administration
+31	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-03-15	ethan.diamond@student.university.edu	Ethan	Diamond	LEVEL3	STU2022001	Yaoundé	Computer Science
+32	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-07-22	fiona.emerald@student.university.edu	Fiona	Emerald	LEVEL3	STU2022002	Douala	Mathematics
+33	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-01-10	george.sapphire@student.university.edu	George	Sapphire	LEVEL3	STU2022003	Bamenda	Physics
+34	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-04-12	hannah.topaz@student.university.edu	Hannah	Topaz	LEVEL3	STU2022004	Yaoundé	Engineering
+35	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-08-30	ian.garnet@student.university.edu	Ian	Garnet	LEVEL3	STU2022005	Douala	Computer Science
+36	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-02-14	julia.opal@student.university.edu	Julia	Opal	LEVEL3	STU2022006	Bamenda	Mathematics
+37	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-05-20	kevin.quartz@student.university.edu	Kevin	Quartz	LEVEL3	STU2022007	Yaoundé	Physics
+38	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-09-15	luna.agate@student.university.edu	Luna	Agate	LEVEL3	STU2022008	Douala	Engineering
+39	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-01-15	max.jasper@student.university.edu	Max	Jasper	LEVEL3	STU2022009	Yaoundé	Computer Science
+40	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	BACHELOR	2003-05-22	nina.turquoise@student.university.edu	Nina	Turquoise	LEVEL3	STU2022010	Douala	Business Administration
+41	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-03-15	oscar.obsidian@student.university.edu	Oscar	Obsidian	LEVEL4	STU2021001	Yaoundé	Computer Science
+42	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-07-22	penny.peridot@student.university.edu	Penny	Peridot	LEVEL4	STU2021002	Douala	Engineering
+43	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-01-10	quinn.citrine@student.university.edu	Quinn	Citrine	LEVEL4	STU2021003	Bamenda	Computer Science
+44	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-04-12	rose.amethyst@student.university.edu	Rose	Amethyst	LEVEL4	STU2021004	Yaoundé	Engineering
+45	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-08-30	steve.beryl@student.university.edu	Steve	Beryl	LEVEL4	STU2021005	Douala	Computer Science
+46	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-02-14	tara.carnelian@student.university.edu	Tara	Carnelian	LEVEL4	STU2021006	Bamenda	Engineering
+47	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-05-20	ulrich.fluorite@student.university.edu	Ulrich	Fluorite	LEVEL4	STU2021007	Yaoundé	Computer Science
+48	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-09-15	vera.hematite@student.university.edu	Vera	Hematite	LEVEL4	STU2021008	Douala	Engineering
+49	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-01-15	will.labradorite@student.university.edu	Will	Labradorite	LEVEL4	STU2021009	Yaoundé	Computer Science
+50	2025-08-26 10:16:28.18294+01	2025-08-26 10:16:28.18294+01	MASTER	2002-05-22	zara.malachite@student.university.edu	Zara	Malachite	LEVEL4	STU2021010	Douala	Engineering
+51	2025-08-27 08:50:06.061835+01	2025-08-27 08:50:06.061835+01	BACHELOR	2002-08-27	kemitnsure@gmail.com	kemit	sure	LEVEL1	20H4289	Bamenda	BIOCHEMISTRY
 \.
 
 
 --
--- TOC entry 3562 (class 0 OID 17301)
--- Dependencies: 228
+-- TOC entry 3540 (class 0 OID 17301)
+-- Dependencies: 223
 -- Data for Name: subject; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.subject (id, creation_date, last_modified_date, active, code, credits, cycle, description, id_teacher, level, name, department_id, id_semester) FROM stdin;
-1	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS101	4.00	BACHELOR	Basic programming concepts using Python	2	LEVEL1	Introduction to Programming	1	1
-2	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	MATH101	3.00	BACHELOR	Differential and integral calculus	3	LEVEL1	Calculus I	2	1
-3	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	PHYS101	3.00	BACHELOR	Mechanics and thermodynamics	4	LEVEL1	Physics I	3	1
-4	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS201	4.00	BACHELOR	Arrays, linked lists, trees, and graphs	2	LEVEL2	Data Structures	1	1
-5	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	MATH201	3.00	BACHELOR	Vectors, matrices, and linear transformations	3	LEVEL2	Linear Algebra	2	1
-6	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	PHYS201	3.00	BACHELOR	Electric fields, magnetic fields, and circuits	4	LEVEL2	Electricity and Magnetism	3	1
-7	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS301	4.00	BACHELOR	Algorithm design and analysis	2	LEVEL3	Algorithms	1	1
-8	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	ENG301	3.00	BACHELOR	Heat transfer and energy systems	5	LEVEL3	Thermodynamics	4	1
-9	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS401	4.00	MASTER	Supervised and unsupervised learning algorithms	2	LEVEL4	Machine Learning	1	1
-10	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	ENG401	3.00	MASTER	Advanced topics in mechanical engineering	5	LEVEL4	Advanced Mechanics	4	1
 11	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	CS102	4.00	BACHELOR	OOP concepts using Java	2	LEVEL1	Object-Oriented Programming	1	2
-12	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	MATH102	3.00	BACHELOR	Advanced calculus and series	3	LEVEL1	Calculus II	2	2
 13	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	PHYS102	3.00	BACHELOR	Waves and optics	4	LEVEL1	Physics II	3	2
-14	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	CS202	4.00	BACHELOR	Database design and SQL	2	LEVEL2	Database Systems	1	2
 15	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	MATH202	3.00	BACHELOR	Probability and statistics	3	LEVEL2	Statistics	2	2
-16	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	PHYS202	3.00	BACHELOR	Quantum and relativity basics	4	LEVEL2	Modern Physics	3	2
 17	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	CS302	4.00	BACHELOR	Software development lifecycle	2	LEVEL3	Software Engineering	1	2
-18	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	ENG302	3.00	BACHELOR	Fluid flow and dynamics	5	LEVEL3	Fluid Mechanics	4	2
 19	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	CS402	4.00	MASTER	Neural networks and AI	2	LEVEL4	Deep Learning	1	2
 20	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	ENG402	3.00	MASTER	Automatic control theory	5	LEVEL4	Control Systems	4	2
+1	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS101	4.00	BACHELOR	Basic programming concepts using Python	2	LEVEL1	Introduction to Programming	1	1
+4	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS201	4.00	BACHELOR	Arrays, linked lists, trees, and graphs	2	LEVEL2	Data Structures	1	1
+7	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS301	4.00	BACHELOR	Algorithm design and analysis	2	LEVEL3	Algorithms	1	1
+9	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	CS401	4.00	MASTER	Supervised and unsupervised learning algorithms	2	LEVEL4	Machine Learning	1	1
+2	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	MATH101	3.00	BACHELOR	Differential and integral calculus	3	LEVEL1	Calculus I	2	1
+5	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	MATH201	3.00	BACHELOR	Vectors, matrices, and linear transformations	3	LEVEL2	Linear Algebra	2	1
+3	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	PHYS101	3.00	BACHELOR	Mechanics and thermodynamics	4	LEVEL1	Physics I	3	1
+6	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	PHYS201	3.00	BACHELOR	Electric fields, magnetic fields, and circuits	4	LEVEL2	Electricity and Magnetism	3	1
+8	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	ENG301	3.00	BACHELOR	Heat transfer and energy systems	5	LEVEL3	Thermodynamics	4	1
+10	2025-08-25 14:15:05.493697+01	2025-08-25 14:15:05.493697+01	t	ENG401	3.00	MASTER	Advanced topics in mechanical engineering	5	LEVEL4	Advanced Mechanics	4	1
+14	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	CS202	4.00	BACHELOR	Database design and SQL	7	LEVEL2	Database Systems	1	2
+12	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	MATH102	3.00	BACHELOR	Advanced calculus and series	8	LEVEL1	Calculus II	2	2
+16	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	PHYS202	3.00	BACHELOR	Quantum and relativity basics	9	LEVEL2	Modern Physics	3	2
+18	2025-08-25 14:32:02.759507+01	2025-08-25 14:32:02.759507+01	t	ENG302	3.00	BACHELOR	Fluid flow and dynamics	10	LEVEL3	Fluid Mechanics	4	2
 \.
 
 
 --
--- TOC entry 3575 (class 0 OID 17398)
--- Dependencies: 241
+-- TOC entry 3553 (class 0 OID 17398)
+-- Dependencies: 236
 -- Data for Name: user_levels; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -765,37 +707,103 @@ COPY public.user_levels (user_id, level) FROM stdin;
 4	LEVEL2
 5	LEVEL3
 5	LEVEL4
+6	LEVEL1
+6	LEVEL2
+7	LEVEL2
+7	LEVEL3
+7	LEVEL4
+8	LEVEL1
+8	LEVEL2
+9	LEVEL2
+9	LEVEL3
+10	LEVEL3
+10	LEVEL4
+11	LEVEL1
+11	LEVEL2
+11	LEVEL3
+113	LEVEL1
+113	LEVEL2
+113	LEVEL3
 \.
 
 
 --
--- TOC entry 3563 (class 0 OID 17310)
--- Dependencies: 229
+-- TOC entry 3541 (class 0 OID 17310)
+-- Dependencies: 224
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.users (id, creation_date, last_modified_date, active, department, email, first_name, last_name, must_change_password, password, phone, role, username) FROM stdin;
-1	2025-08-25 14:15:05.478869+01	2025-08-25 14:15:05.478869+01	t	Administration	admin@university.edu	System	Administrator	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	+237123456789	ADMIN	admin
-2	2025-08-25 14:15:05.481011+01	2025-08-25 14:15:05.481011+01	t	Computer Science	mjohnson@university.edu	Michael	Johnson	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	+237123456791	TEACHER	prof.johnson
-3	2025-08-25 14:15:05.481011+01	2025-08-25 14:15:05.481011+01	t	Mathematics	swilliams@university.edu	Sarah	Williams	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	+237123456792	TEACHER	prof.williams
-4	2025-08-25 14:15:05.481011+01	2025-08-25 14:15:05.481011+01	t	Physics	dbrown@university.edu	David	Brown	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	+237123456793	TEACHER	prof.brown
-5	2025-08-25 14:15:05.481011+01	2025-08-25 14:15:05.481011+01	t	Engineering	edavis@university.edu	Emily	Davis	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	+237123456794	TEACHER	prof.davis
-6	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	alice.cooper@student.university.edu	Alice	Cooper	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	alice.cooper
-7	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	bob.martin@student.university.edu	Bob	Martin	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	bob.martin
-8	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	carol.white@student.university.edu	Carol	White	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	carol.white
-9	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	daniel.green@student.university.edu	Daniel	Green	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	daniel.green
-10	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	eva.black@student.university.edu	Eva	Black	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	eva.black
-11	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	frank.blue@student.university.edu	Frank	Blue	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	frank.blue
-12	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	grace.red@student.university.edu	Grace	Red	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	grace.red
-13	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	henry.yellow@student.university.edu	Henry	Yellow	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	henry.yellow
-14	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	iris.purple@student.university.edu	Iris	Purple	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	iris.purple
-15	2025-08-25 14:33:45.933515+01	2025-08-25 14:33:45.933515+01	t	\N	jack.orange@student.university.edu	Jack	Orange	f	$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.	\N	STUDENT	jack.orange
+11	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.698248+01	t	Business Administration	jthomas@university.edu	Jennifer	Thomas	f	$2a$10$kbq2EAXpcyYFB4Z5FxAp1OQuf1gH5kLlV6.0M1HZVfTjDBvpVKoQW	+237123456789	TEACHER	prof.thomas
+12	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:37.875202+01	t	\N	alice.cooper@student.university.edu	Alice	Cooper	f	$2a$10$m1yNiLvTZXLFDWGI3YY0aOeroO744IIc9CsRWF5gOESAZpeor8i5m	\N	STUDENT	STU2024001
+14	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.193241+01	t	\N	carol.white@student.university.edu	Carol	White	f	$2a$10$6QOSgtWRsHlO/k4.vS.dSOmu59.cwLxV4Hrootfj74bJxqwu.2IvG	\N	STUDENT	STU2024003
+15	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.342208+01	t	\N	david.green@student.university.edu	David	Green	f	$2a$10$J74HdusRqu33dHgw7yjzQOF9/Re01sXG8XVb21f8C1FZljRv3GJ3y	\N	STUDENT	STU2024004
+16	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.505948+01	t	\N	eva.black@student.university.edu	Eva	Black	f	$2a$10$oOmKR.v6KhpqqBP5sGAcMO4V4IDIIXQhao8R06w8F1QUv7Ohrr1sC	\N	STUDENT	STU2024005
+17	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.65767+01	t	\N	frank.blue@student.university.edu	Frank	Blue	f	$2a$10$7nXo6VfGbjAnv.6L24B6BusxbQFmCwnhw01S7W4W86YmjV7qqVeH2	\N	STUDENT	STU2024006
+18	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.819708+01	t	\N	grace.red@student.university.edu	Grace	Red	f	$2a$10$O9ZzcY4d1MyiFd9xWzOQ9uG1uy.nd5yQwSBid9IbC7ZZgg3hCHQwC	\N	STUDENT	STU2024007
+19	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.967771+01	t	\N	henry.yellow@student.university.edu	Henry	Yellow	f	$2a$10$r1aZNMddo9SwLWAUSV0Hg.r9lqF29CCYa6ku7N.Hg7/QDpis7TgM2	\N	STUDENT	STU2024008
+20	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.134874+01	t	\N	iris.purple@student.university.edu	Iris	Purple	f	$2a$10$Ctg4FFLBqdVb28c.AXGQyOd6Lj5M.zbCViXX9dgRwlbBYMoxXTmF6	\N	STUDENT	STU2024009
+21	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.282732+01	t	\N	jack.orange@student.university.edu	Jack	Orange	f	$2a$10$x4/xV3797ioWNg52o896jeRltenFB4I8B0bNfF9E7htunqWUmUjhq	\N	STUDENT	STU2024010
+22	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.442528+01	t	\N	kate.brown@student.university.edu	Kate	Brown	f	$2a$10$YGjSnfc6M7OlKz4xP35KuO9Xpd5CwpkFjodZTZb6zVjpe5C4CSbFC	\N	STUDENT	STU2024011
+23	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.59076+01	t	\N	leo.gray@student.university.edu	Leo	Gray	f	$2a$10$OjnO5SsLT4TqWnXTHaK2reFT.EAFo4I6DlTtWdUdWMXa.ob72P4h.	\N	STUDENT	STU2024012
+24	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.760299+01	t	\N	mia.silver@student.university.edu	Mia	Silver	f	$2a$10$j8InGP9gP46GtIwzqIE7/O7crKvsco3R5NpnjM3k7STFdF3hlqdy6	\N	STUDENT	STU2024013
+25	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:39.911133+01	t	\N	noah.gold@student.university.edu	Noah	Gold	f	$2a$10$e8GwZPv6AULrAvfgiVhkDesvo8vl.F8KWXhGVaolfo7kbYm/gXO02	\N	STUDENT	STU2024014
+26	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.089907+01	t	\N	olivia.pink@student.university.edu	Olivia	Pink	f	$2a$10$i.UQH5wL4RUD95pabpUhIuGNmx4dGxO/prBF3jaJzqMug7Ro32q7G	\N	STUDENT	STU2024015
+27	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.26004+01	t	\N	paul.cyan@student.university.edu	Paul	Cyan	f	$2a$10$75rn6OvXFzw9rG0y5tMh9uXeoiKqsojnHlBWZiJBFgQhLcJnmnACm	\N	STUDENT	STU2023001
+31	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.884736+01	t	\N	tina.coral@student.university.edu	Tina	Coral	f	$2a$10$WBDEaHMP9duj2pR9XZJ7eOoCKDJM4EY/qnFkep4MIT12o5AofcwLO	\N	STUDENT	STU2023005
+32	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.066558+01	t	\N	uma.ivory@student.university.edu	Uma	Ivory	f	$2a$10$1UpiFIjTnMhhZoncpiLLWuoy2FBK4g7/2xHnWRFLyZ7YNE95gipDy	\N	STUDENT	STU2023006
+33	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.211932+01	t	\N	victor.jade@student.university.edu	Victor	Jade	f	$2a$10$co1.xSkprwr7PABwXCtP5Oi3xPkGmcP7HfPsUCKskO489pIey4ffi	\N	STUDENT	STU2023007
+34	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.376308+01	t	\N	wendy.ruby@student.university.edu	Wendy	Ruby	f	$2a$10$g0u0823oXk/wdoHm/jEhtu.hcG93fPpq1Lnwa60WFofnSub2Hr4PW	\N	STUDENT	STU2023008
+35	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.523714+01	t	\N	xander.amber@student.university.edu	Xander	Amber	f	$2a$10$MaI1xqMmvJknaIhWVpKgbuOZgggPxkn/SjWZQ2yH4Y45.lEMgsge2	\N	STUDENT	STU2023009
+36	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.680139+01	t	\N	yara.pearl@student.university.edu	Yara	Pearl	f	$2a$10$aR7DMq0IyzrAFy3yVLhVTO5cu69DXAsdaX5C7pkHt6x2zeLXF67YW	\N	STUDENT	STU2023010
+37	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:41.827006+01	t	\N	zoe.onyx@student.university.edu	Zoe	Onyx	f	$2a$10$6JXWakkovseKY8N2fIM/JORweRJj4m/z4SSAmihCVAQdyj6mHpdU6	\N	STUDENT	STU2023011
+38	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.003795+01	t	\N	adam.copper@student.university.edu	Adam	Copper	f	$2a$10$gCieyt01oRC1NChXmXxkues8M9ijQ4pA9nNiOAWNP6VdGL7tZajv6	\N	STUDENT	STU2023012
+39	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.149389+01	t	\N	bella.bronze@student.university.edu	Bella	Bronze	f	$2a$10$d4HXem1IAKK9Ur7iGi1FMOynQ1cMAEWYGO2JSoAW9ng4CyDk8m7/G	\N	STUDENT	STU2023013
+40	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.307738+01	t	\N	chris.steel@student.university.edu	Chris	Steel	f	$2a$10$iRPOYRNDEsJBp2X7sls2mOLw.IgkyDXRg4bGEF3LaIgx18pgUnzxO	\N	STUDENT	STU2023014
+41	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.453943+01	t	\N	diana.platinum@student.university.edu	Diana	Platinum	f	$2a$10$bp0XPsm.qRSaT4qB4DR0EuNM61U9uA17fOCs4r63HZTquQMRlPI9e	\N	STUDENT	STU2023015
+42	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.615447+01	t	\N	ethan.diamond@student.university.edu	Ethan	Diamond	f	$2a$10$H/C.vLdeTnEUQ0Td07mg4eYuI9vNc0mqCOESKkxROhInVllo6g6XS	\N	STUDENT	STU2022001
+43	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.763043+01	t	\N	fiona.emerald@student.university.edu	Fiona	Emerald	f	$2a$10$kR1IjETGkLr1Ik40tM6t.unfaEG1W/TlmOEb4sCPEpZUBb9lfrri6	\N	STUDENT	STU2022002
+44	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:42.928324+01	t	\N	george.sapphire@student.university.edu	George	Sapphire	f	$2a$10$nu03qPGX5CUhNACvuDFV/OBfATFFPj.9mwvw0j3i15E5VToBJ9uYG	\N	STUDENT	STU2022003
+45	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.074443+01	t	\N	hannah.topaz@student.university.edu	Hannah	Topaz	f	$2a$10$TMx.hmzaed7AOulKDEWxb.HCWNOnycc4zH7AuY9LHex917R.XsSBG	\N	STUDENT	STU2022004
+46	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.241301+01	t	\N	ian.garnet@student.university.edu	Ian	Garnet	f	$2a$10$hcWqgC0XkEgzjxqXARJs7uw2HZIQrqBKZz2QC2ZmNo/laMrn8E3Lm	\N	STUDENT	STU2022005
+47	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.390085+01	t	\N	julia.opal@student.university.edu	Julia	Opal	f	$2a$10$YGUmNlJaOVUnJSuKpnt5pejszeh0p/dfMOXuzBahrxXmJY7sMZ8KC	\N	STUDENT	STU2022006
+48	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.556932+01	t	\N	kevin.quartz@student.university.edu	Kevin	Quartz	f	$2a$10$BFVJfg2ve65xRaXFppw0Z.lrOUwxvE2v.Qj4qo3OQp.jDoQeorGEG	\N	STUDENT	STU2022007
+49	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.703067+01	t	\N	luna.agate@student.university.edu	Luna	Agate	f	$2a$10$DkvUQnDX3x1tYFxfbKuD5eYHaH6y2.gInchMD4w5Wuu60s2rnDauS	\N	STUDENT	STU2022008
+50	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:43.864996+01	t	\N	max.jasper@student.university.edu	Max	Jasper	f	$2a$10$czmQZdCxcuEImM81W5eqoOOeOEpVO2SGEA4qFoSSFx/w03FcLCZfm	\N	STUDENT	STU2022009
+51	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.01289+01	t	\N	nina.turquoise@student.university.edu	Nina	Turquoise	f	$2a$10$ma5v.iPEIMlk8/2TvizoYuofSZ79rkQDCGO7WE7qkZSPP.SZeUFMu	\N	STUDENT	STU2022010
+1	2025-08-26 10:16:28.141099+01	2025-08-27 08:41:36.442656+01	t	Administration	admin@university.edu	System	Administrator	f	$2a$10$vMOJ9p67VhVnz7h6tdDIMe0S2yvexwGU4pW7zoiUluNtjaudPj9ma	+237123456789	ADMIN	admin
+2	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:36.182184+01	t	Computer Science	mjohnson@university.edu	Michael	Johnson	f	$2a$10$ZI.J0amX9OVa2wjcMgkuYuLFqCNL8Q6cwdutLPDOxwuX7fKpDwnfu	+237123456789	TEACHER	prof.johnson
+3	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:36.365114+01	t	Mathematics	swilliams@university.edu	Sarah	Williams	f	$2a$10$ouRVzp.tsiGd1KKpSOe8Uevlm9d35ohCrMl/sUPLWLJlMZjrO54PW	+237123456789	TEACHER	prof.williams
+4	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:36.554628+01	t	Physics	dbrown@university.edu	David	Brown	f	$2a$10$M/iFd2Um1K3fqGrjOEhS9OQl4nfxVNXiioJafRzqIrFeF5HdAuQr6	+237123456789	TEACHER	prof.brown
+5	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:36.705666+01	t	Engineering	edavis@university.edu	Emily	Davis	f	$2a$10$QcKF/esjhIGgOkKqKPitEeRFcrbqB1SNEOPHCvzu9xPWp7NgX.38u	+237123456789	TEACHER	prof.davis
+6	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:36.87563+01	t	Business Administration	rwilson@university.edu	Robert	Wilson	f	$2a$10$F/AW9maGUo5BOGZvlo0lOeDIMqbXCdEhu8enhAchx1PC5Viml2pwy	+237123456789	TEACHER	prof.wilson
+7	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.029458+01	t	Computer Science	mgarcia@university.edu	Maria	Garcia	f	$2a$10$LtbPP0rGMdE0yZPOrWzHweh2Bw4c8YDy6bkNy/P5UUDqtHpG3vZtq	+237123456789	TEACHER	prof.garcia
+8	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.203055+01	t	Mathematics	cmartinez@university.edu	Carlos	Martinez	f	$2a$10$AhXMVKeGMPdynh9DvmjAyOHwz0/DBgRwtNTHTmzXCO6KgjGbABfCS	+237123456789	TEACHER	prof.martinez
+9	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.351813+01	t	Physics	landerson@university.edu	Lisa	Anderson	f	$2a$10$Osac0raxRjxXspDDXOGQ4OPaBtrmmQOsl6JpRyJCvnXdrhaXvygZK	+237123456789	TEACHER	prof.anderson
+10	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.519863+01	t	Engineering	jtaylor@university.edu	James	Taylor	f	$2a$10$w1gKkuOK/dib.PX0EOTIg.pThEQCNJofyQRt7tJ.Ka2zaFKnnISli	+237123456789	TEACHER	prof.taylor
+13	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.030197+01	t	\N	bob.martin@student.university.edu	Bob	Martin	f	$2a$10$mXBxBjauNOS.0X60TcI1suiZNTOs.gLKGAm.3171ZpO7xuj3aBTRi	\N	STUDENT	STU2024002
+113	2025-08-27 09:09:56.870027+01	2025-08-27 09:09:56.870027+01	t	Biochemistry	etoundiMaphose@gmail.com	Etoundi	Maphose	t	$2a$10$M2LQgw1BgxpiUh8o598OTua7yaxFcsUgihLGKw3XOILWT2wHQnFXu	+237123456789	TEACHER	Prof.Etoundi
+52	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.184021+01	t	\N	oscar.obsidian@student.university.edu	Oscar	Obsidian	f	$2a$10$ZmXbOTnq87saSA5xV70HhOeTmVjBLrLnx/FwmDx/2UHkN0kVJYIr.	\N	STUDENT	STU2021001
+53	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.331984+01	t	\N	penny.peridot@student.university.edu	Penny	Peridot	f	$2a$10$XAJoLSPQeAg1y.RviMim.uITxsQFYbfRnH.PhWrMRDjFNNPJghWIG	\N	STUDENT	STU2021002
+54	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.503208+01	t	\N	quinn.citrine@student.university.edu	Quinn	Citrine	f	$2a$10$LaZQET6BxaLCvMu10pZeWuTMJJv8ad8I/zujnnEW/Qbw4oyz5Albe	\N	STUDENT	STU2021003
+55	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.650666+01	t	\N	rose.amethyst@student.university.edu	Rose	Amethyst	f	$2a$10$hrfVCJ7UpofsYVRaqhYFhugaSgBE7l.bTIhK6PoZqWQ8M49QDWDS6	\N	STUDENT	STU2021004
+56	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.82348+01	t	\N	steve.beryl@student.university.edu	Steve	Beryl	f	$2a$10$HwS.LNDhXj3oI8UaWT1xOeNfN7n3g6HceSimeBEzCGYU0Q3E7hDhm	\N	STUDENT	STU2021005
+57	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:44.977716+01	t	\N	tara.carnelian@student.university.edu	Tara	Carnelian	f	$2a$10$xJmi5r4/HBjVnjVhfLWqAuZgF2VCgXyaYOR5soAaQZ11uaPaxafRe	\N	STUDENT	STU2021006
+58	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:45.147038+01	t	\N	ulrich.fluorite@student.university.edu	Ulrich	Fluorite	f	$2a$10$nMR8Yprjwm5JFasDNnYuF.nLTMnk6JKRu0iP.Dob2xtmU.10w0kEy	\N	STUDENT	STU2021007
+59	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:45.292289+01	t	\N	vera.hematite@student.university.edu	Vera	Hematite	f	$2a$10$rIKaE8VdlbtmS.TCfLYhSOPM9A2YvYiEROP.MPRn.oFQ2xw0EMhZC	\N	STUDENT	STU2021008
+60	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:45.456598+01	t	\N	will.labradorite@student.university.edu	Will	Labradorite	f	$2a$10$zZnSBUkelYLoLfvL.5CZ5ubNym8PkqqRQgRGOzGzNt28CcubyR5cq	\N	STUDENT	STU2021009
+61	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:45.636121+01	t	\N	zara.malachite@student.university.edu	Zara	Malachite	f	$2a$10$nt6IERlisWcOTSYUhCv6vOfutFkuk3yI8Uv54MjhAwxv2quk7Bk.C	\N	STUDENT	STU2021010
+28	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.412861+01	t	\N	quinn.magenta@student.university.edu	Quinn	Magenta	f	$2a$10$krjQy/aOW62jUm38RbHid.4ItBr0HhSQ39palcxuhV7RUSdt5bWlW	\N	STUDENT	STU2023002
+29	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.558394+01	t	\N	ruby.lime@student.university.edu	Ruby	Lime	f	$2a$10$P8fO82JqpL.OOWSUO7XBMOrls22bhcn28sJq5nYsYX3XUuHqQcIkO	\N	STUDENT	STU2023003
+30	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:40.720438+01	t	\N	sam.teal@student.university.edu	Sam	Teal	f	$2a$10$gUZ6gVPuQRtWx49EzjW28ujaA6kXHQAEd1kxz9TftG.BM7h9F/LSy	\N	STUDENT	STU2023004
+62	2025-08-26 23:12:45.660795+01	2025-08-26 23:12:45.660795+01	t	\N	jinidi6226@mobilesm.com	Kemit	Sure	t	$2a$10$9VbrK65IrxpHf5eoiyc7yuzi6eMNLjuJg0eQvZkQ8UAW2qdUpR//e	\N	STUDENT	sonia
+63	2025-08-27 08:50:05.995633+01	2025-08-27 08:50:06.089609+01	t	\N	kemitnsure@gmail.com	kemit	sure	t	$2a$10$ATg5Nfhi.CF4C2IaLV6rauftJ8p0bglHiTA3k2ucFthzxI2XXrgd.	\N	STUDENT	20H4289
 \.
 
 
 --
--- TOC entry 3582 (class 0 OID 0)
--- Dependencies: 230
+-- TOC entry 3562 (class 0 OID 0)
+-- Dependencies: 225
 -- Name: departments_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -803,35 +811,35 @@ SELECT pg_catalog.setval('public.departments_seq', 1, false);
 
 
 --
--- TOC entry 3583 (class 0 OID 0)
--- Dependencies: 231
+-- TOC entry 3563 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: grade_claims_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.grade_claims_seq', 1, false);
+SELECT pg_catalog.setval('public.grade_claims_seq', 4, true);
 
 
 --
--- TOC entry 3584 (class 0 OID 0)
--- Dependencies: 232
+-- TOC entry 3564 (class 0 OID 0)
+-- Dependencies: 227
 -- Name: grade_report_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.grade_report_seq', 1, false);
+SELECT pg_catalog.setval('public.grade_report_seq', 10, true);
 
 
 --
--- TOC entry 3585 (class 0 OID 0)
--- Dependencies: 233
+-- TOC entry 3565 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: grades_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.grades_seq', 1, false);
+SELECT pg_catalog.setval('public.grades_seq', 100, true);
 
 
 --
--- TOC entry 3586 (class 0 OID 0)
--- Dependencies: 234
+-- TOC entry 3566 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: grading_window_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -839,26 +847,17 @@ SELECT pg_catalog.setval('public.grading_window_seq', 1, false);
 
 
 --
--- TOC entry 3587 (class 0 OID 0)
--- Dependencies: 222
--- Name: invite_token_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.invite_token_id_seq', 1, false);
-
-
---
--- TOC entry 3588 (class 0 OID 0)
--- Dependencies: 235
+-- TOC entry 3567 (class 0 OID 0)
+-- Dependencies: 230
 -- Name: report_record_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.report_record_seq', 1, false);
+SELECT pg_catalog.setval('public.report_record_seq', 5, true);
 
 
 --
--- TOC entry 3589 (class 0 OID 0)
--- Dependencies: 236
+-- TOC entry 3568 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: semesters_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -866,8 +865,8 @@ SELECT pg_catalog.setval('public.semesters_seq', 1, false);
 
 
 --
--- TOC entry 3590 (class 0 OID 0)
--- Dependencies: 237
+-- TOC entry 3569 (class 0 OID 0)
+-- Dependencies: 232
 -- Name: student_info_requests_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -875,34 +874,43 @@ SELECT pg_catalog.setval('public.student_info_requests_seq', 1, false);
 
 
 --
--- TOC entry 3591 (class 0 OID 0)
--- Dependencies: 238
+-- TOC entry 3570 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: students_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.students_seq', 651, true);
+SELECT pg_catalog.setval('public.students_seq', 51, true);
 
 
 --
--- TOC entry 3592 (class 0 OID 0)
--- Dependencies: 239
+-- TOC entry 3571 (class 0 OID 0)
+-- Dependencies: 234
 -- Name: subject_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.subject_seq', 1, false);
+SELECT pg_catalog.setval('public.subject_seq', 21, false);
 
 
 --
--- TOC entry 3593 (class 0 OID 0)
--- Dependencies: 240
+-- TOC entry 3572 (class 0 OID 0)
+-- Dependencies: 239
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 62, false);
+
+
+--
+-- TOC entry 3573 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: users_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_seq', 151, true);
+SELECT pg_catalog.setval('public.users_seq', 113, true);
 
 
 --
--- TOC entry 3362 (class 2606 OID 17230)
+-- TOC entry 3352 (class 2606 OID 17230)
 -- Name: departments departments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -911,7 +919,7 @@ ALTER TABLE ONLY public.departments
 
 
 --
--- TOC entry 3366 (class 2606 OID 17238)
+-- TOC entry 3356 (class 2606 OID 17238)
 -- Name: grade_claims grade_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -920,7 +928,7 @@ ALTER TABLE ONLY public.grade_claims
 
 
 --
--- TOC entry 3368 (class 2606 OID 17245)
+-- TOC entry 3374 (class 2606 OID 25604)
 -- Name: grade_report grade_report_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -929,7 +937,7 @@ ALTER TABLE ONLY public.grade_report
 
 
 --
--- TOC entry 3370 (class 2606 OID 17253)
+-- TOC entry 3358 (class 2606 OID 17253)
 -- Name: grades grades_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -938,7 +946,7 @@ ALTER TABLE ONLY public.grades
 
 
 --
--- TOC entry 3372 (class 2606 OID 17261)
+-- TOC entry 3360 (class 2606 OID 17261)
 -- Name: grading_window grading_window_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -947,16 +955,7 @@ ALTER TABLE ONLY public.grading_window
 
 
 --
--- TOC entry 3374 (class 2606 OID 17271)
--- Name: invite_token invite_token_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.invite_token
-    ADD CONSTRAINT invite_token_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 3378 (class 2606 OID 17278)
+-- TOC entry 3376 (class 2606 OID 25611)
 -- Name: report_record report_record_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -965,7 +964,7 @@ ALTER TABLE ONLY public.report_record
 
 
 --
--- TOC entry 3380 (class 2606 OID 17283)
+-- TOC entry 3362 (class 2606 OID 17283)
 -- Name: semesters semesters_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -974,16 +973,7 @@ ALTER TABLE ONLY public.semesters
 
 
 --
--- TOC entry 3382 (class 2606 OID 17291)
--- Name: student_info_requests student_info_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.student_info_requests
-    ADD CONSTRAINT student_info_requests_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 3384 (class 2606 OID 17300)
+-- TOC entry 3364 (class 2606 OID 17300)
 -- Name: students students_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -992,7 +982,7 @@ ALTER TABLE ONLY public.students
 
 
 --
--- TOC entry 3388 (class 2606 OID 17309)
+-- TOC entry 3368 (class 2606 OID 17309)
 -- Name: subject subject_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1001,7 +991,7 @@ ALTER TABLE ONLY public.subject
 
 
 --
--- TOC entry 3386 (class 2606 OID 17323)
+-- TOC entry 3366 (class 2606 OID 17323)
 -- Name: students uk_1psraxut9bwn2why6ex4xf1en; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1010,16 +1000,7 @@ ALTER TABLE ONLY public.students
 
 
 --
--- TOC entry 3376 (class 2606 OID 17321)
--- Name: invite_token uk_60k2cybcnd18p0cnf0e5sssb6; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.invite_token
-    ADD CONSTRAINT uk_60k2cybcnd18p0cnf0e5sssb6 UNIQUE (token);
-
-
---
--- TOC entry 3364 (class 2606 OID 17319)
+-- TOC entry 3354 (class 2606 OID 17319)
 -- Name: departments uk_j6cwks7xecs5jov19ro8ge3qk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1028,7 +1009,7 @@ ALTER TABLE ONLY public.departments
 
 
 --
--- TOC entry 3390 (class 2606 OID 17325)
+-- TOC entry 3370 (class 2606 OID 17325)
 -- Name: users uk_r43af9ap4edm43mmtq01oddj6; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1037,7 +1018,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3392 (class 2606 OID 17317)
+-- TOC entry 3372 (class 2606 OID 17317)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1046,7 +1027,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3393 (class 2606 OID 17342)
+-- TOC entry 3377 (class 2606 OID 17342)
 -- Name: grade_claims fk2kbul9dstw4uo15gc5tomfkni; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1055,7 +1036,7 @@ ALTER TABLE ONLY public.grade_claims
 
 
 --
--- TOC entry 3397 (class 2606 OID 17367)
+-- TOC entry 3381 (class 2606 OID 17367)
 -- Name: grades fk384e8h2qimc9qlnh970ytgdr5; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1064,7 +1045,7 @@ ALTER TABLE ONLY public.grades
 
 
 --
--- TOC entry 3403 (class 2606 OID 17392)
+-- TOC entry 3386 (class 2606 OID 17392)
 -- Name: subject fk4b66tj7yip7jmo922vvy6bw4y; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1073,7 +1054,7 @@ ALTER TABLE ONLY public.subject
 
 
 --
--- TOC entry 3394 (class 2606 OID 17337)
+-- TOC entry 3378 (class 2606 OID 17337)
 -- Name: grade_claims fk8b4k9pw7j018vpks0ns5wmsp0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1082,7 +1063,7 @@ ALTER TABLE ONLY public.grade_claims
 
 
 --
--- TOC entry 3395 (class 2606 OID 17352)
+-- TOC entry 3379 (class 2606 OID 17352)
 -- Name: grade_claims fkc1rbjpi3wpf5ihn0h81pygtnc; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1091,16 +1072,7 @@ ALTER TABLE ONLY public.grade_claims
 
 
 --
--- TOC entry 3402 (class 2606 OID 17382)
--- Name: student_info_requests fkfawh6psw2f3yivjbpciph35nh; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.student_info_requests
-    ADD CONSTRAINT fkfawh6psw2f3yivjbpciph35nh FOREIGN KEY (student_id) REFERENCES public.students(id);
-
-
---
--- TOC entry 3398 (class 2606 OID 17357)
+-- TOC entry 3382 (class 2606 OID 17357)
 -- Name: grades fkfrqv6jj26ycmq0uqihsmofd9w; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1109,7 +1081,7 @@ ALTER TABLE ONLY public.grades
 
 
 --
--- TOC entry 3399 (class 2606 OID 17372)
+-- TOC entry 3383 (class 2606 OID 17372)
 -- Name: grades fkippbjcacm6nkn7hon47r53l99; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1118,7 +1090,7 @@ ALTER TABLE ONLY public.grades
 
 
 --
--- TOC entry 3401 (class 2606 OID 17377)
+-- TOC entry 3385 (class 2606 OID 17377)
 -- Name: grading_window fkmkan866y61akk4qim8e74d3dj; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1127,7 +1099,7 @@ ALTER TABLE ONLY public.grading_window
 
 
 --
--- TOC entry 3404 (class 2606 OID 17387)
+-- TOC entry 3387 (class 2606 OID 17387)
 -- Name: subject fkqym877gemkcwuhmjmbuokvf6f; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1136,7 +1108,7 @@ ALTER TABLE ONLY public.subject
 
 
 --
--- TOC entry 3405 (class 2606 OID 17401)
+-- TOC entry 3388 (class 2606 OID 17401)
 -- Name: user_levels fkr5aqf5bnqm78uhohv89f203v2; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1145,7 +1117,7 @@ ALTER TABLE ONLY public.user_levels
 
 
 --
--- TOC entry 3400 (class 2606 OID 17362)
+-- TOC entry 3384 (class 2606 OID 17362)
 -- Name: grades fks0yeww9160sohy3wpgmt7dve; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1154,7 +1126,7 @@ ALTER TABLE ONLY public.grades
 
 
 --
--- TOC entry 3396 (class 2606 OID 17347)
+-- TOC entry 3380 (class 2606 OID 17347)
 -- Name: grade_claims fkteaqiirgxcnndhnx4ljcoc60h; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1162,7 +1134,7 @@ ALTER TABLE ONLY public.grade_claims
     ADD CONSTRAINT fkteaqiirgxcnndhnx4ljcoc60h FOREIGN KEY (semester_id) REFERENCES public.semesters(id);
 
 
--- Completed on 2025-08-25 14:52:49 WAT
+-- Completed on 2025-08-27 09:38:32 WAT
 
 --
 -- PostgreSQL database dump complete
