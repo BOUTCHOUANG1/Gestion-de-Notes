@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Data
@@ -18,6 +19,6 @@ public class SemesterResponse {
     private LocalDate endDate;
     private Boolean active;
     private Integer orderIndex;
-    private java.time.Instant createdDate;
-    private java.time.Instant lastModifiedDate;
+    private Instant createdDate;
+    private Instant lastModifiedDate;
 }

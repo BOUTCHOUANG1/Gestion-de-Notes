@@ -20,7 +20,7 @@ public class GradingWindowRequest {
     private String shortName;
 
     @NotNull
-    private PeriodType type;
+    private PeriodType periodLabel;
 
     @NotNull
     private LocalDate startDate;

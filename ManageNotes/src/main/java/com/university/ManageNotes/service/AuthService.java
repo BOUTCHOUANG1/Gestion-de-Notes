@@ -12,6 +12,7 @@ import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.security.JwtUtils;
 import com.university.ManageNotes.security.UserPrincipal;
@@ -40,6 +41,7 @@ public class AuthService {
     private final StudentRepository studentRepository;
     private final EmailService emailService;
     private final DepartmentRepository departmentRepository;
+    private final SubjectRepository subjectRepository;
     private final UserDetailsService userDetailsService;
 
     public MessageResponse registerUser(SignupRequest signupRequest) {
@@ -59,10 +61,17 @@ public class AuthService {
             signupRequest.setRole(requestedRole);
         }
 
+        // Generate default password if not provided (admin creating users)
+        String password = signupRequest.getPassword();
+        if (password == null || password.isBlank()) {
+            password = "password123"; // Default password
+            signupRequest.setPassword(password);
+        }
+
         // No registrationKey handling; admins directly register any role
 
         Users user = userMapper.toEntity(signupRequest);
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setActive(true);
 
         // Handle role-specific fields
@@ -161,15 +170,30 @@ public class AuthService {
             jwtResponse.setRole(userDetails.getRole());
             jwtResponse.setAuthorities(authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
             jwtResponse.setMustChangePassword(userDetails.getMustChangePassword());
-            // If admin, populate department selection metadata
+            
+            // Role-specific data population
             if (userDetails.getRole() == Role.ADMIN) {
                 jwtResponse.setMustChooseDepartment(true);
                 jwtResponse.setDepartments(departmentRepository.findAll()
                         .stream()
                         .map(Department::getName)
                         .toList());
+            } else if (userDetails.getRole() == Role.TEACHER) {
+                jwtResponse.setMustChooseDepartment(false);
+                jwtResponse.setDepartments(null); // Remove this field
+                // Add teacher-specific data
+                jwtResponse.setDepartment(userDetails.getDepartment());
+                jwtResponse.setLevels(userDetails.getLevels());
+                jwtResponse.setPhone(userDetails.getPhone());
+                
+                // Add subjects taught by this teacher
+                var subjects = subjectRepository.findByIdTeacher(userDetails.getId());
+                jwtResponse.setSubjects(subjects.stream()
+                        .map(subject -> subject.getName() + " (" + subject.getCode() + ")")
+                        .toList());
             } else {
                 jwtResponse.setMustChooseDepartment(false);
+                jwtResponse.setDepartments(null);
             }
             return jwtResponse;
         } else {

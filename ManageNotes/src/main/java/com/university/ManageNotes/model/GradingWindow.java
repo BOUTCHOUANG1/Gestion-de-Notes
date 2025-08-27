@@ -17,8 +17,8 @@ public class GradingWindow extends AbstractEntity {
     private String shortName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private PeriodType type;
+    @Column(name = "period_label")
+    private PeriodType periodLabel;
 
     @ManyToOne
     @JoinColumn(name = "id_semester")
@@ -39,5 +39,5 @@ public class GradingWindow extends AbstractEntity {
     @Column(name = "order_index")
     private Integer order;
 
-    private PeriodType periodType;
+    // Removed duplicate field
 }

@@ -3,6 +3,7 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.GradingWindowRequest;
 import com.university.ManageNotes.dto.Response.GradingWindowResponse;
 import com.university.ManageNotes.model.GradingWindow;
+import com.university.ManageNotes.model.PeriodType;
 import com.university.ManageNotes.repository.GradingWindowRepository;
 import com.university.ManageNotes.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,9 @@ public class GradingWindowService {
     private final GradingWindowRepository windowRepository;
     private final SemesterRepository semesterRepository;
 
-    public boolean isWindowOpen(Long semesterId, String label) {
-        if (label == null) return true;
-        var windows = windowRepository.findBySemesterIdAndShortNameIgnoreCase(semesterId, label);
+    public boolean isWindowOpen(Long semesterId, PeriodType periodType) {
+        if (periodType == null) return true;
+        var windows = windowRepository.findBySemesterIdAndPeriodLabel(semesterId, periodType);
         if (windows.isEmpty()) return false;
         LocalDate today = LocalDate.now();
         return windows.stream().anyMatch(w -> Boolean.TRUE.equals(w.getIsActive()) &&
@@ -28,47 +29,30 @@ public class GradingWindowService {
                 (w.getEndDate()==null || !today.isAfter(w.getEndDate())));
     }
     
-    public String getWindowStatusMessage(Long semesterId, String label) {
-        if (label == null) return "No period specified - entry allowed";
+    public String getWindowStatusMessage(Long semesterId, PeriodType periodType) {
+        if (periodType == null) return "No period specified - entry allowed";
         
-        var windows = windowRepository.findBySemesterIdAndShortNameIgnoreCase(semesterId, label);
+        var windows = windowRepository.findBySemesterIdAndPeriodLabel(semesterId, periodType);
         if (windows.isEmpty()) {
-            var availableWindows = windowRepository.findBySemesterIdAndIsActive(semesterId, true);
-            if (availableWindows.isEmpty()) {
-                return "No grading windows configured for this semester";
-            }
-            var openWindows = availableWindows.stream()
-                .filter(w -> {
-                    LocalDate today = LocalDate.now();
-                    return (w.getStartDate() == null || !today.isBefore(w.getStartDate())) &&
-                           (w.getEndDate() == null || !today.isAfter(w.getEndDate()));
-                })
-                .map(w -> w.getShortName())
-                .toList();
-            
-            if (openWindows.isEmpty()) {
-                return "Grading window '" + label + "' not found. No windows are currently open.";
-            }
-            return "Grading window '" + label + "' not found. Available windows: " + String.join(", ", openWindows);
+            return "Grading window for '" + periodType + "' not found";
         }
         
         var window = windows.getFirst();
         LocalDate today = LocalDate.now();
         
         if (!Boolean.TRUE.equals(window.getIsActive())) {
-            return "Grading window '" + label + "' is disabled by administrator";
+            return "Grading window '" + periodType + "' is disabled by administrator";
         }
         
         if (window.getStartDate() != null && today.isBefore(window.getStartDate())) {
-            return "Grading window '" + label + "' opens on " + window.getStartDate();
+            return "Grading window '" + periodType + "' opens on " + window.getStartDate();
         }
         
         if (window.getEndDate() != null && today.isAfter(window.getEndDate())) {
-            return "Grading window '" + label + "' closed on " + window.getEndDate();
+            return "Grading window '" + periodType + "' closed on " + window.getEndDate();
         }
         
-        return "Grading window '" + label + "' is open until " + 
-               (window.getEndDate() != null ? window.getEndDate().toString() : "further notice");
+        return "Grading window '" + periodType + "' is open";
     }
 
     public List<GradingWindowResponse> getAllWindows() {
@@ -81,7 +65,7 @@ public class GradingWindowService {
         GradingWindow window = new GradingWindow();
         window.setName(request.getName());
         window.setShortName(request.getShortName());
-        window.setType(request.getType());
+        window.setPeriodLabel(request.getPeriodLabel());
         window.setSemester(semesterRepository.findById(request.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
         window.setStartDate(request.getStartDate());
@@ -100,7 +84,7 @@ public class GradingWindowService {
         
         window.setName(request.getName());
         window.setShortName(request.getShortName());
-        window.setType(request.getType());
+        window.setPeriodLabel(request.getPeriodLabel());
         window.setSemester(semesterRepository.findById(request.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
         window.setStartDate(request.getStartDate());
@@ -128,7 +112,7 @@ public class GradingWindowService {
         response.setId(window.getId());
         response.setName(window.getName());
         response.setShortName(window.getShortName());
-        response.setType(window.getType());
+        response.setPeriodLabel(window.getPeriodLabel());
         response.setSemester(window.getSemester() != null ? 
                 window.getSemester().getId().intValue() : null);
         response.setStartDate(window.getStartDate());

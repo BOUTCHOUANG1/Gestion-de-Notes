@@ -45,4 +45,13 @@ public class DepartmentController extends BaseCrudController<Long, DepartmentReq
     public DepartmentResponse getDepartmentDetails(@PathVariable Long deptId) {
         return departmentService.getDepartmentDetails(deptId);
     }
+    
+    @Override
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public java.util.List<DepartmentResponse> all() {
+        return service().getAll().stream()
+                .map(dept -> departmentService.getDepartmentDetails(dept.getId()))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

@@ -30,6 +30,12 @@ public class JwtResponse {
 
     /** List of departments available to the admin */
     private List<String> departments;
+    
+    // Teacher-specific fields
+    private String department;
+    private List<String> levels;
+    private String phone;
+    private List<String> subjects;
 
 
 }

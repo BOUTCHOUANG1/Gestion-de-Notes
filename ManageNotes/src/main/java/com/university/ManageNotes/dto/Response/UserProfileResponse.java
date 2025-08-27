@@ -19,6 +19,5 @@ public class UserProfileResponse {
     private String lastName;
     private String email;
     private Role role;
-    private List<TeacherResponse> levels;
     private List<SubjectResponse> subjects;
 }
