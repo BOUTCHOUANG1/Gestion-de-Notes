@@ -10,15 +10,15 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class SemesterResponse {
+    
     private Long id;
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean active;
-    private Integer orderIndex;
     private Instant createdDate;
     private Instant lastModifiedDate;
 }
