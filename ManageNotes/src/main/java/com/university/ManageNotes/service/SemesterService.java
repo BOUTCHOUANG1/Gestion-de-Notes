@@ -1,96 +1,86 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.dto.Request.SemesterUpdateRequest;
+import com.university.ManageNotes.dto.Request.SemesterRequest;
+import com.university.ManageNotes.dto.Response.SemesterResponse;
 import com.university.ManageNotes.model.Semesters;
 import com.university.ManageNotes.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Provides helper operations around semesters (school periods).
- * For User-Story 3 we expose a single method that lazily initialises default periods
- * whenever the database contains none yet.  Default periods are:
- *  • S1  (1 Jan – 30 Jun of current year)
- *  • S2  (1 Jul – 31 Dec of current year)
- * This keeps the back-end stateless for the first boot while still allowing an
- * administrator to later customise / delete / add periods via existing CRUD.
- */
 @Service
 @RequiredArgsConstructor
 public class SemesterService {
+
     private final SemesterRepository semesterRepository;
 
-    public List<Semesters> getSemestersWithDefaults() {
-        if (semesterRepository.count() > 0) {
-            return semesterRepository.findAll();
-        }
-        // Build and persist default periods for current calendar year
-        int year = LocalDate.now().getYear();
-        Semesters s1 = new Semesters();
-        s1.setName("S1 " + year);
-        s1.setStartDate(LocalDate.of(year, 1, 1));
-        s1.setEndDate(LocalDate.of(year, 6, 30));
-        s1.setActive(true);
-
-        Semesters s2 = new Semesters();
-        s2.setName("S2 " + year);
-        s2.setStartDate(LocalDate.of(year, 7, 1));
-        s2.setEndDate(LocalDate.of(year, 12, 31));
-        s2.setActive(false);
-
-        List<Semesters> defaults = Arrays.asList(s1, s2);
-        semesterRepository.saveAll(defaults);
-        return defaults;
+    public List<SemesterResponse> getAllSemesters() {
+        return semesterRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Update multiple semesters at once (name, dates, activation flag, ordering).
-     * Functional style: we keep the pipeline immutable – each DB entity is first fetched, then a new instance
-     * is created via mapping, finally we persist everything in one call.
-     *
-     * @param requests list of changes coming from the client
-     * @return updated semesters persisted in the DB
-     */
-    public List<Semesters> updateSemesters(List<SemesterUpdateRequest> requests) {
-        // 1. Pre-fetch all existing semesters referenced by the request ids.
-        Map<Long, Semesters> existingById = semesterRepository.findAllById(
-                        requests.stream().map(SemesterUpdateRequest::getId).toList())
-                .stream()
-                .collect(Collectors.toMap(Semesters::getId, Function.identity()));
+    public SemesterResponse getSemesterById(Long id) {
+        Semesters semester = semesterRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Semester not found with id: " + id));
+        return toResponse(semester);
+    }
 
-        // 2. Map each request -> updated entity (copy-on-write) keeping mutation localised.
-        List<Semesters> toSave = requests.stream()
-                .map(req -> {
-                    Semesters src = existingById.get(req.getId());
-                    if (src == null) {
-                        throw new IllegalArgumentException("Semester with id %d not found".formatted(req.getId()));
-                    }
-                    // We mutate the managed entity instance – JPA will detect changes. still functional enough.
-                    if (req.getName() != null) src.setName(req.getName());
-                    if (req.getStartDate() != null) src.setStartDate(req.getStartDate());
-                    if (req.getEndDate() != null) src.setEndDate(req.getEndDate());
-                    if (req.getActive() != null && req.getActive()) {
-                        src.setActive(true);
-                        // deactivate others later
-                    } else if(req.getActive()!=null) {
-                        src.setActive(false);
-                    }
-                    if (req.getOrderIndex() != null) src.setOrderIndex(req.getOrderIndex());
-                    return src;
-                })
-                .toList();
+    @Transactional
+    public SemesterResponse createSemester(SemesterRequest request) {
+        Semesters semester = new Semesters();
+        semester.setName(request.getName());
+        semester.setStartDate(request.getStartDate());
+        semester.setEndDate(request.getEndDate());
+        semester.setActive(request.getActive());
 
-        // 3. Persist in one batch – reduces round-trips.
-        List<Semesters> saved = semesterRepository.saveAll(toSave);
-        saved.stream().filter(Semesters::getActive).findFirst()
-                .ifPresent(s -> semesterRepository.deactivateOtherSemesters(s.getId()));
-        return saved;
+        Semesters saved = semesterRepository.save(semester);
+        return toResponse(saved);
+    }
+
+    @Transactional
+    public SemesterResponse updateSemester(Long id, SemesterRequest request) {
+        Semesters semester = semesterRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Semester not found with id: " + id));
+
+        semester.setName(request.getName());
+        semester.setStartDate(request.getStartDate());
+        semester.setEndDate(request.getEndDate());
+        semester.setActive(request.getActive());
+
+        Semesters updated = semesterRepository.save(semester);
+        return toResponse(updated);
+    }
+
+    @Transactional
+    public void updateSemesters(List<SemesterRequest> requests) {
+        for (SemesterRequest request : requests) {
+            if (request.getId() != null) {
+                updateSemester(request.getId(), request);
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteSemester(Long id) {
+        if (!semesterRepository.existsById(id)) {
+            throw new RuntimeException("Semester not found with id: " + id);
+        }
+        semesterRepository.deleteById(id);
+    }
+
+    private SemesterResponse toResponse(Semesters semester) {
+        return SemesterResponse.builder()
+                .id(semester.getId())
+                .name(semester.getName())
+                .startDate(semester.getStartDate())
+                .endDate(semester.getEndDate())
+                .active(semester.getActive())
+                .createdDate(semester.getCreatedDate())
+                .lastModifiedDate(semester.getLastModifiedDate())
+                .build();
     }
 }
