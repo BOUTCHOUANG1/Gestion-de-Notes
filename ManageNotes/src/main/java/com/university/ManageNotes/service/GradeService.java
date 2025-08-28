@@ -212,9 +212,8 @@ public class GradeService {
             }
         }
 
-        // Find student by students.id (not users.id)
-        Students student = studentRepository.findById(gradeRequest.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + gradeRequest.getStudentId()));
+        // Convert user ID to student record for consistency
+        Students student = getStudentByUserId(gradeRequest.getStudentId());
 
         Grades grade = new Grades();
         grade.setStudent(student);
