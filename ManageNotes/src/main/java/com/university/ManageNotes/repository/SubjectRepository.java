@@ -27,4 +27,9 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findAllOrderByName();
     
     List<Subject> findByDepartmentId(Long departmentId);
+    
+    @Query("SELECT s FROM Subject s WHERE s.idTeacher = :teacherId AND s.level = :level")
+    Optional<Subject> findByTeacherIdAndLevel(@Param("teacherId") Long teacherId, @Param("level") com.university.ManageNotes.model.StudentLevel level);
+    
+    boolean existsByIdTeacherAndLevel(Long idTeacher, com.university.ManageNotes.model.StudentLevel level);
 }

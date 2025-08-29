@@ -10,6 +10,9 @@ import java.util.List;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Table(uniqueConstraints = {
+    @UniqueConstraint(name = "uk_teacher_level", columnNames = {"id_teacher", "level"})
+})
 public class Subject extends AbstractEntity {
      @Column(name = "name")
      private String name;
