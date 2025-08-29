@@ -34,7 +34,8 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
     }
 
     public List<SubjectResponse> getAllSubjects() {
-        return subjectRepository.findAllOrderByName().stream()
+        return subjectRepository.findAll().stream()
+                .sorted((s1, s2) -> s2.getCreatedDate().compareTo(s1.getCreatedDate()))
                 .map(this::enrichSubjectResponse)
                 .toList();
     }

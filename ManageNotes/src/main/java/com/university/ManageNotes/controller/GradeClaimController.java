@@ -32,9 +32,13 @@ public class GradeClaimController {
             GradeClaimResponse response = claimService.create(req);
             return ResponseEntity.ok(response);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(403).body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.status(403)
+                    .body(MessageResponse
+                            .error("Grade claim submission failed: " + ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse
+                            .error("Grade claim submission failed: " + ex.getMessage()));
         }
     }
 
@@ -88,7 +92,9 @@ public class GradeClaimController {
             GradeClaimResponse response = claimService.reject(id, reason);
             return ResponseEntity.ok(response);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse
+                            .error(ex.getMessage()));
         }
     }
 
@@ -99,7 +105,9 @@ public class GradeClaimController {
         try {
             return ResponseEntity.ok(claimService.getPending());
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.error(ex.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse
+                            .error(ex.getMessage()));
         }
     }
 

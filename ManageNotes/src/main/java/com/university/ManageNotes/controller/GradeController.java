@@ -54,7 +54,8 @@ public class GradeController {
             GradeResponse response = gradeService.updateGrade(gradeId, updateRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error updating grade: " + e.getMessage(), "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error updating grade: " + e.getMessage(), "ERROR"));
         }
     }
 

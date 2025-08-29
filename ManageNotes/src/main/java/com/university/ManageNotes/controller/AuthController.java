@@ -1,6 +1,9 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.dto.Request.*;
+import com.university.ManageNotes.dto.Request.LoginRequest;
+import com.university.ManageNotes.dto.Request.PasswordChangeRequest;
+import com.university.ManageNotes.dto.Request.PasswordResetRequest;
+import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.JwtResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.security.UserPrincipal;

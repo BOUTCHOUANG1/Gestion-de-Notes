@@ -98,4 +98,14 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                 })
                 .orElseThrow(() -> new RuntimeException("Department not found"));
     }
+
+    @Override
+    @Transactional
+    public MessageResponse delete(Long id) {
+        var subjects = subjectRepository.findByDepartmentId(id);
+        subjects.forEach(subject -> subject.setDepartment(null));
+        subjectRepository.saveAll(subjects);
+        departmentRepository.deleteById(id);
+        return MessageResponse.success("Department deleted successfully. " + subjects.size() + " subjects are now unassigned.");
+    }
 }

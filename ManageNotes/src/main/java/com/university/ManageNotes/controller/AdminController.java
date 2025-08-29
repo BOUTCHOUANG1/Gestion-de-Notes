@@ -1,6 +1,7 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.StudentUpdateRequest;
+import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserProfileResponse;
 import com.university.ManageNotes.service.AdminService;
@@ -35,7 +36,7 @@ public class AdminController {
     @Operation(summary = "Update subject information (Admin only)")
     public ResponseEntity<MessageResponse> updateSubject(
             @PathVariable Long id, 
-            @Valid @RequestBody com.university.ManageNotes.dto.Request.SubjectRequest request) {
+            @Valid @RequestBody SubjectRequest request) {
         var response = adminService.updateSubject(id, request);
         return ResponseEntity.ok(MessageResponse.success("Subject updated successfully"));
     }

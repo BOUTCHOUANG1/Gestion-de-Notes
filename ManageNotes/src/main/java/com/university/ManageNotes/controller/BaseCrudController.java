@@ -27,7 +27,8 @@ public abstract class BaseCrudController<ID, Req, Res> {
     }
 
     @PutMapping("/{id}")
-    public MessageResponse update(@PathVariable ID id, @Valid @RequestBody Req request) {
+    public MessageResponse update(@PathVariable ID id,
+                                  @Valid @RequestBody Req request) {
         return service().update(id, request);
     }
 

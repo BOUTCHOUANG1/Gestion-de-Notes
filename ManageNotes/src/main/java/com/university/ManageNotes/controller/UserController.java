@@ -211,7 +211,9 @@ public class UserController {
         } else {
             students = studentRepository.findStudentsByTeacherSubject(principal.getId());
         }
-        return students.stream().map(s -> {
+        return students.stream()
+                .sorted((s1, s2) -> s2.getCreatedDate().compareTo(s1.getCreatedDate()))
+                .map(s -> {
             // Find corresponding user to get proper ID
             var user = userRepository.findByUsername(s.getMatricule()).orElse(null);
             
@@ -260,6 +262,7 @@ public class UserController {
                     .lastName(s.getLastName())
                     .email(s.getEmail())
                     .role(Role.STUDENT)
+                    .level(s.getLevel())
                     .subjects(studentSubjects)
                     .build();
         }).collect(Collectors.toList());
