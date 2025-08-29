@@ -19,11 +19,12 @@ A comprehensive university grade management system built with Spring Boot, provi
 
 ### Role-Based Access Control
 - **Admin**: Full system access, user management, department/subject creation
-- **Teacher**: Grade entry, subject management, student grade viewing
+- **Teacher**: Grade entry, subject management (one subject per level), student grade viewing
 - **Student**: Grade viewing, grade claim submission, transcript access
 
 ### Advanced Features
 - **Real-time Validation**: Grade entry validation with grading window controls
+- **Teacher Assignment Control**: One subject per teacher per academic level constraint
 - **Audit Trail**: Complete tracking of grade changes and user actions
 - **Bulk Operations**: Batch updates for semesters and departments
 - **Data Integrity**: Foreign key constraint handling with cascade operations
@@ -44,7 +45,8 @@ A comprehensive university grade management system built with Spring Boot, provi
 Users (id, username, password, role, email, first_name, last_name)
 ├── Students (id, matricule, level, cycle, speciality)
 ├── Departments (id, name, creation_date)
-├── Subjects (id, name, code, credits, level, cycle, department_id)
+├── Subjects (id, name, code, credits, level, cycle, department_id, id_teacher)
+│   └── CONSTRAINT uk_teacher_level UNIQUE (id_teacher, level)
 ├── Semesters (id, name, start_date, end_date, active)
 ├── Grades (id, student_id, subject_id, semester_id, value, type, period_type)
 ├── GradeClaims (id, grade_id, student_id, requested_score, status, cause)
