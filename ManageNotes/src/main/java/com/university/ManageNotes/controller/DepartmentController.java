@@ -50,9 +50,6 @@ public class DepartmentController extends BaseCrudController<Long, DepartmentReq
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public java.util.List<DepartmentResponse> all() {
-        return service().getAll().stream()
-                .sorted((d1, d2) -> d2.getCreatedDate().compareTo(d1.getCreatedDate()))
-                .map(dept -> departmentService.getDepartmentDetails(dept.getId()))
-                .collect(java.util.stream.Collectors.toList());
+        return departmentService.getAllDepartmentsSortedByDate();
     }
 }

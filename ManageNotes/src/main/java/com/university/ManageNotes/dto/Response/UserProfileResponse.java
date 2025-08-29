@@ -19,5 +19,7 @@ public class UserProfileResponse {
     private String lastName;
     private String email;
     private Role role;
+    private com.university.ManageNotes.model.StudentLevel level;
+    private List<String> levels;
     private List<SubjectResponse> subjects;
 }

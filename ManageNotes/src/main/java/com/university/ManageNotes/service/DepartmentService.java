@@ -13,6 +13,8 @@ import com.university.ManageNotes.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class DepartmentService extends BaseCrudService<Department, Long, DepartmentRequest, DepartmentResponse> {
     
@@ -97,6 +99,13 @@ public class DepartmentService extends BaseCrudService<Department, Long, Departm
                     return response;
                 })
                 .orElseThrow(() -> new RuntimeException("Department not found"));
+    }
+
+    public List<DepartmentResponse> getAllDepartmentsSortedByDate() {
+        return departmentRepository.findAll().stream()
+                .sorted((d1, d2) -> d2.getCreatedDate().compareTo(d1.getCreatedDate()))
+                .map(dept -> getDepartmentDetails(dept.getId()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override

@@ -9,21 +9,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/subjects")
+@RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Subject Lookup", description = "Endpoints for subject lookup")
 public class SubjectController {
-
-    @Autowired
-    private SubjectService subjectService;
+    private final SubjectService subjectService;
 
     @GetMapping
     @Operation(summary = "Get all subjects")
@@ -47,20 +49,23 @@ public class SubjectController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update subject", description = "Teacher or Admin can update a subject")
-    public MessageResponse update(@PathVariable Long id, @Valid @RequestBody SubjectRequest request) {
+    public MessageResponse update(@PathVariable Long id,
+                                  @Valid @RequestBody SubjectRequest request) {
         return subjectService.updateSubject(id, request);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete subject", description = "Teacher or Admin can delete a subject")
+    @Operation(summary = "Delete subject",
+            description = "Teacher or Admin can delete a subject")
     public MessageResponse delete(@PathVariable Long id) {
         return subjectService.deleteSubject(id);
     }
 
     @GetMapping("/assigned")
     @PreAuthorize("hasRole('TEACHER')")
-    @Operation(summary = "Get subjects assigned to current teacher", description = "Return subjects taught by the authenticated teacher")
+    @Operation(summary = "Get subjects assigned to current teacher",
+            description = "Return subjects taught by the authenticated teacher")
     public List<SubjectResponse> assignedSubjects(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long teacherId = userPrincipal.getId();
         return subjectService.getSubjectsByTeacher(teacherId);
@@ -78,11 +83,11 @@ public class SubjectController {
      */
     @GetMapping("/view-only")
     @PreAuthorize("hasRole('ADMIN')")
-    public org.springframework.http.ResponseEntity<?> listViewOnly() {
+    public ResponseEntity<?> listViewOnly() {
         var subjects = subjectService.getAllSubjects();
-        return java.util.Optional.of(subjects)
+        return Optional.of(subjects)
                 .filter(list -> !list.isEmpty())
-                .<org.springframework.http.ResponseEntity<?>>map(org.springframework.http.ResponseEntity::ok)
-                .orElseGet(() -> org.springframework.http.ResponseEntity.ok("No subjects found"));
+                .<org.springframework.http.ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok("No subjects found"));
     }
 }
