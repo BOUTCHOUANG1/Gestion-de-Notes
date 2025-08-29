@@ -15,8 +15,7 @@ public class GradeClaimRequest {
     @NotBlank
     private String cause;
 
-    @NotBlank
-    @Pattern(regexp = "CC_1|CC_2|SN_1|SN_2", message = "period must be CC_1, CC_2, SN_1 or SN_2")
+    @NotNull
     private PeriodType period;
 
     @NotBlank

@@ -343,7 +343,7 @@ public class UserController {
                                 .teacherName(t.getFirstName() + " " + t.getLastName())
                                 .build();
                     })
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
             t.setSubjects(teacherSubjects);
         });
 
