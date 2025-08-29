@@ -100,21 +100,9 @@ public class UserController {
         } else if (user.getRole() == Role.TEACHER) {
             var subjects = subjectRepository.findByIdTeacher(user.getId());
             
-            // Add subjects to response with semester info
+            // Add subjects to response with proper semester and department info
             List<SubjectResponse> subjectResponses = subjects.stream()
                     .map(sub -> {
-                        // Get semester info from any grades by this teacher
-                        var teacherGrades = gradeRepository.findByEnteredById(user.getId());
-                        Long semesterId = null;
-                        String semesterName = null;
-                        if (!teacherGrades.isEmpty()) {
-                            var firstGrade = teacherGrades.get(0);
-                            if (firstGrade.getSemesters() != null) {
-                                semesterId = firstGrade.getSemesters().getId();
-                                semesterName = firstGrade.getSemesters().getName();
-                            }
-                        }
-                        
                         return SubjectResponse.builder()
                                 .id(sub.getId())
                                 .code(sub.getCode())
@@ -124,8 +112,8 @@ public class UserController {
                                 .active(sub.getActive())
                                 .level(sub.getLevel())
                                 .cycle(sub.getCycle())
-                                .semesterId(semesterId)
-                                .semesterName(semesterName)
+                                .semesterId(sub.getSemester() != null ? sub.getSemester().getId() : null)
+                                .semesterName(sub.getSemester() != null ? sub.getSemester().getName() : null)
                                 .departmentId(sub.getDepartment() != null ? sub.getDepartment().getId() : null)
                                 .departmentName(sub.getDepartment() != null ? sub.getDepartment().getName() : null)
                                 .teacherId(sub.getIdTeacher())
@@ -135,55 +123,14 @@ public class UserController {
                     .collect(Collectors.toList());
             builder.subjects(subjectResponses);
             
-            // Add levels with departments and subjects
-            Map<String, List<DepartmentResponse>> map = new HashMap<>();
-            for (var sub : subjects) {
-                String level = sub.getLevel() != null ? sub.getLevel()
-                        .name().replace("LEVEL", "L") : "";
-                DepartmentResponse dept = new DepartmentResponse();
-                if (sub.getDepartment() != null) {
-                    dept.setId(sub.getDepartment().getId());
-                    dept.setName(sub.getDepartment().getName());
-                    // Add subjects to department with semester info
-                    List<SubjectResponse> deptSubjects = subjects.stream()
-                            .filter(s -> s.getDepartment() != null && s.getDepartment().getId().equals(sub.getDepartment().getId()))
-                            .map(s -> {
-                                // Get semester info from any grades by this teacher
-                                var teacherGrades = gradeRepository.findByEnteredById(user.getId());
-                                Long semesterId = null;
-                                String semesterName = null;
-                                if (!teacherGrades.isEmpty()) {
-                                    var firstGrade = teacherGrades.get(0);
-                                    if (firstGrade.getSemesters() != null) {
-                                        semesterId = firstGrade.getSemesters().getId();
-                                        semesterName = firstGrade.getSemesters().getName();
-                                    }
-                                }
-                                
-                                return SubjectResponse.builder()
-                                        .id(s.getId())
-                                        .code(s.getCode())
-                                        .name(s.getName())
-                                        .credits(s.getCredits())
-                                        .description(s.getDescription())
-                                        .active(s.getActive())
-                                        .level(s.getLevel())
-                                        .cycle(s.getCycle())
-                                        .semesterId(semesterId)
-                                        .semesterName(semesterName)
-                                        .departmentId(s.getDepartment().getId())
-                                        .departmentName(s.getDepartment().getName())
-                                        .teacherId(s.getIdTeacher())
-                                        .teacherName(user.getFirstName() + " " + user.getLastName())
-                                        .build();
-                            })
-                            .collect(java.util.stream.Collectors.toList());
-                    dept.setSubjects(deptSubjects);
-                }
-                map.computeIfAbsent(level, k -> new ArrayList<>()).add(dept);
-            }
-            // Note: levels field removed from UserProfileResponse
-            // Level info is now available in each subject's level field
+            // Set teacher levels from subjects they teach
+            List<String> teacherLevels = subjects.stream()
+                    .map(sub -> sub.getLevel() != null ? sub.getLevel().name() : null)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+            builder.levels(teacherLevels);
         }
 
         return builder.build();
@@ -311,21 +258,9 @@ public class UserController {
         teachers.forEach(t -> {
             var subjects = subjectRepository.findByIdTeacher(t.getId());
             
-            // Add subjects to teacher with semester info
+            // Add subjects to teacher with proper semester and department info
             List<SubjectResponse> teacherSubjects = subjects.stream()
                     .map(sub -> {
-                        // Get semester info from grades for this subject
-                        var grades = gradeRepository.findBySubjectId(sub.getId());
-                        Long semesterId = null;
-                        String semesterName = null;
-                        if (!grades.isEmpty()) {
-                            var firstGrade = grades.get(0);
-                            if (firstGrade.getSemesters() != null) {
-                                semesterId = firstGrade.getSemesters().getId();
-                                semesterName = firstGrade.getSemesters().getName();
-                            }
-                        }
-                        
                         return SubjectResponse.builder()
                                 .id(sub.getId())
                                 .code(sub.getCode())
@@ -335,8 +270,8 @@ public class UserController {
                                 .active(sub.getActive())
                                 .level(sub.getLevel())
                                 .cycle(sub.getCycle())
-                                .semesterId(semesterId)
-                                .semesterName(semesterName)
+                                .semesterId(sub.getSemester() != null ? sub.getSemester().getId() : null)
+                                .semesterName(sub.getSemester() != null ? sub.getSemester().getName() : null)
                                 .departmentId(sub.getDepartment() != null ? sub.getDepartment().getId() : null)
                                 .departmentName(sub.getDepartment() != null ? sub.getDepartment().getName() : null)
                                 .teacherId(sub.getIdTeacher())
@@ -345,6 +280,15 @@ public class UserController {
                     })
                     .collect(Collectors.toList());
             t.setSubjects(teacherSubjects);
+            
+            // Set teacher levels from subjects they teach
+            List<String> teacherLevels = subjects.stream()
+                    .map(sub -> sub.getLevel() != null ? sub.getLevel().name() : null)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+            t.setLevels(teacherLevels);
         });
 
         ResponseEntity<List<UserProfileResponse>> resp = Optional.of(teachers)
