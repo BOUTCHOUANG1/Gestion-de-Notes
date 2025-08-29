@@ -45,6 +45,13 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
         if (subjectRepository.existsByCode(request.getCode())) {
             return MessageResponse.error("Subject code already exists");
         }
+        
+        // Check if teacher is already assigned to a subject at this level
+        if (request.getTeacherId() != null && 
+            subjectRepository.existsByIdTeacherAndLevel(request.getTeacherId(), request.getLevel())) {
+            return MessageResponse.error("Teacher is already assigned to a subject at this level");
+        }
+        
         var subject = mapper.toEntity(request);
         subject.setLevel(request.getLevel());
         subject.setCycle(request.getCycle());
@@ -66,6 +73,15 @@ public class SubjectService extends BaseCrudService<Subject, Long, SubjectReques
                     if (!existing.getCode().equals(request.getCode()) && subjectRepository.existsByCode(request.getCode())) {
                         return MessageResponse.error("Subject code already exists");
                     }
+                    
+                    // Check if teacher is already assigned to another subject at this level
+                    if (request.getTeacherId() != null && 
+                        (!request.getTeacherId().equals(existing.getIdTeacher()) || !request.getLevel().equals(existing.getLevel()))) {
+                        if (subjectRepository.existsByIdTeacherAndLevel(request.getTeacherId(), request.getLevel())) {
+                            return MessageResponse.error("Teacher is already assigned to a subject at this level");
+                        }
+                    }
+                    
                     existing.setName(request.getName());
                     existing.setCode(request.getCode());
                     existing.setDescription(request.getDescription());
