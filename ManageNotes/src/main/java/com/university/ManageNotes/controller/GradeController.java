@@ -1,19 +1,19 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
-import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.repository.StudentRepository;
-import com.university.ManageNotes.security.UserPrincipal;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,31 +21,23 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/grades")
+@RequestMapping("/api")
 @Tag(name = "Grade Management", description = "Grade management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
 @AllArgsConstructor
 public class GradeController {
 
-
     private final GradeService gradeService;
-
 
     private final StudentRepository studentRepository;
 
-    @PostMapping
+    @PostMapping("/teacher/grade")
     @Operation(summary = "Create new grade", description = "Create a new grade entry (Teacher/Admin only)")
-    public ResponseEntity<?> createGrade(@Valid @RequestBody GradeRequest gradeRequest) {
-        try {
-            GradeResponse response = gradeService.createGrade(gradeRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error creating grade: " + e.getMessage(), "ERROR"));
-        }
+    public ResponseEntity<GradeRequest> createGrade(@Valid @RequestBody GradeRequest gradeRequest) {
+        return new ResponseEntity<>(gradeService.createGrade(gradeRequest), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{gradeId}")
+    @PutMapping("/grade/{gradeId}")
     @Operation(summary = "Update grade", description = "Update an existing grade (Teacher/Admin only)")
     public ResponseEntity<?> updateGrade(
             @PathVariable Long gradeId,
@@ -59,7 +51,7 @@ public class GradeController {
         }
     }
 
-    @DeleteMapping("/{gradeId}")
+    @DeleteMapping("/grade/{gradeId}")
     @Operation(summary = "Delete grade", description = "Delete a grade entry (Teacher/Admin only)")
     public ResponseEntity<MessageResponse> deleteGrade(@PathVariable Long gradeId) {
         try {

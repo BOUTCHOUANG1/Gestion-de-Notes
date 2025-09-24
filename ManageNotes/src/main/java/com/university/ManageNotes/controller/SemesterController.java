@@ -57,7 +57,7 @@ public class SemesterController {
     @Operation(summary = "Bulk update semesters")
     public ResponseEntity<MessageResponse> updateSemesters(@Valid @RequestBody List<SemesterRequest> requests) {
         semesterService.updateSemesters(requests);
-        return ResponseEntity.ok(MessageResponse.success("Semesters updated successfully"));
+        return ResponseEntity.ok(MessageResponse.success("Semester updated successfully"));
     }
 
     @DeleteMapping("/{id}")

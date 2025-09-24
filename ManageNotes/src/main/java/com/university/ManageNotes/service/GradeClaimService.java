@@ -1,39 +1,34 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.dto.Request.GradeClaimRequest;
-import com.university.ManageNotes.dto.Response.GradeClaimResponse;
+import com.university.ManageNotes.dto.Request.RevendicationRequest;
+import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
 import com.university.ManageNotes.mapper.GradeClaimMapper;
-import com.university.ManageNotes.model.GradeClaim;
-import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.Revendication;
 import com.university.ManageNotes.model.Users;
-import com.university.ManageNotes.repository.GradeClaimRepository;
+import com.university.ManageNotes.repository.RevendicationRepository;
 import com.university.ManageNotes.repository.GradeRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.UserRepository;
-import com.university.ManageNotes.security.UserPrincipal;
-import com.university.ManageNotes.service.GradingWindowService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeClaimResponse, GradeClaimRequest> {
+public class GradeClaimService extends AbstractRequestService<Revendication, RevendicationPeriodResponse, RevendicationRequest> {
 
-    private final GradeClaimRepository claimRepository;
+    private final RevendicationRepository claimRepository;
     private final GradeRepository gradeRepository;
     private final SubjectRepository subjectRepository;
-    private final GradingWindowService windowService;
+    private final RevendicationPeriodService windowService;
     private final UserRepository userRepository;
     private final GradeClaimMapper gradeClaimMapper;
 
-    public GradeClaimService(GradeClaimRepository claimRepository,
+    public GradeClaimService(RevendicationRepository claimRepository,
                              GradeRepository gradeRepository,
                              SubjectRepository subjectRepository,
-                             GradingWindowService windowService,
+                             RevendicationPeriodService windowService,
                              UserRepository userRepository,
                              GradeClaimMapper gradeClaimMapper) {
         super(claimRepository, gradeClaimMapper::toResponse);
@@ -47,12 +42,12 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
 
     @Override
     @Transactional
-    public GradeClaimResponse create(GradeClaimRequest req) {
+    public RevendicationPeriodResponse create(RevendicationRequest req) {
         var grade = gradeRepository.findById(req.getGradeId())
                 .orElseThrow(() -> new RuntimeException("Grade not found"));
 
         if (!windowService.isWindowOpen(grade.getSemesters()
-                .getId(), grade.getPeriodType())) {
+                .getId(), grade.getExamPeriod())) {
             throw new RuntimeException("Claim period is closed");
         }
 
@@ -61,7 +56,7 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
             throw new RuntimeException("period must be CC_1, CC_2, SN_1 or SN_2");
         }
 
-        GradeClaim claim = new GradeClaim();
+        Revendication claim = new Revendication();
         claim.setStudent(grade.getStudent());
         claim.setGrade(grade);
         claim.setSemester(grade.getSemesters());
@@ -77,28 +72,28 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
         return gradeClaimMapper.toResponse(claimRepository.save(claim));
     }
 
-    public List<GradeClaimResponse> listClaimsForTeacher(Long teacherId) {
+    public List<RevendicationPeriodResponse> listClaimsForTeacher(Long teacherId) {
         return claimRepository.findByGrade_Subject_IdTeacher(teacherId).stream()
                 .map(gradeClaimMapper::toResponse)
                 .toList();
     }
 
-    public List<GradeClaimResponse> listAll() {
+    public List<RevendicationPeriodResponse> listAll() {
         return claimRepository.findAll().stream()
                 .map(gradeClaimMapper::toResponse)
                 .toList();
     }
 
-    public List<GradeClaimResponse> getClaimsForCurrentTeacher() {
+    public List<RevendicationPeriodResponse> getClaimsForCurrentTeacher() {
         Users user = getCurrentUser();
         return listClaimsForTeacher(user.getId());
     }
 
     @Override
-    protected void onApprove(GradeClaim claim) {
+    protected void onApprove(Revendication claim) {
         // This is called when a claim is approved
         var grade = claim.getGrade();
-        grade.setValue(claim.getRequestedScore());
+        grade.setScore(claim.getRequestedScore());
         gradeRepository.save(grade);
     }
 
@@ -116,17 +111,17 @@ public class GradeClaimService extends AbstractRequestService<GradeClaim, GradeC
 
     // Implement any additional methods required by the abstract class or interface
     @Override
-    public GradeClaimResponse toDto(GradeClaim entity) {
+    public RevendicationPeriodResponse toDto(Revendication entity) {
         return gradeClaimMapper.toResponse(entity);
     }
 
     @Override
-    public List<GradeClaimResponse> getPending() {
+    public List<RevendicationPeriodResponse> getPending() {
         return super.getPending();
     }
 
     @Override
-    public GradeClaimResponse getById(Long id) {
+    public RevendicationPeriodResponse getById(Long id) {
         return super.getById(id);
     }
 }

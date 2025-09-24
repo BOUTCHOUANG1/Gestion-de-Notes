@@ -1,55 +1,61 @@
 package com.university.ManageNotes.controller;
 
+import com.university.ManageNotes.config.AppConstant;
 import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.security.UserPrincipal;
-import com.university.ManageNotes.service.BaseCrudService;
 import com.university.ManageNotes.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/departments")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "Department Management", description = "CRUD operations and department-specific functionality")
-public class DepartmentController extends BaseCrudController<Long, DepartmentRequest, DepartmentResponse> {
+public class DepartmentController {
     
     private final DepartmentService departmentService;
 
-    @Override
-    protected BaseCrudService<?, Long, DepartmentRequest, DepartmentResponse> service() {
-        return departmentService;
+    @PostMapping("/admin/department")
+    @Operation(summary = "Create department context", description = "This endpoint is used to create a new department.")
+    public ResponseEntity<DepartmentRequest> createDepartement(@RequestBody DepartmentRequest request) {
+        return new ResponseEntity<>(departmentService.createDepartment(request),
+                HttpStatus.CREATED);
     }
 
-    @PostMapping("/switch/{deptId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Switch user's department context")
-    public MessageResponse switchDept(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long deptId) {
-        return departmentService.switchDepartment(principal.getId(), deptId);
+    @GetMapping("/admin/department")
+    @Operation(summary = "Get All department", description = "This endpoint retrieves all the departments in a paginated format")
+    public ResponseEntity<DepartmentResponse> getAllDepartment(@RequestParam(name = "pageNumber",
+                                                           defaultValue = AppConstant.PAGE_NUMBER,
+                                                           required = false) Integer pageNumber,
+                                               @RequestParam(name = "pageSize",
+                                                       defaultValue = AppConstant.PAGE_SIZE,
+                                                       required = false) Integer pageSize,
+                                               @RequestParam(name = "sortBy",
+                                                       defaultValue = AppConstant.SORT_DEPARTMENT_BY,
+                                                       required = false) String sortBy,
+                                               @RequestParam(name = "sortOrder",
+                                                       defaultValue = AppConstant.SORT_DIR,
+                                                       required = false) String sortOrder) {
+        return new ResponseEntity<>(departmentService.getAllDepartments(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
     }
 
-    @Override
-    public MessageResponse create(@RequestBody DepartmentRequest request) {
-        DepartmentResponse response = departmentService.createDepartmentWithSubjects(request);
-        return new MessageResponse("Department created successfully", "SUCCESS", response);
+    @PutMapping("/admin/department/{departmentId}")
+    @Operation(summary = "Update a department information", description = "This endpoint update the department from a departmentId")
+    public ResponseEntity<DepartmentRequest> updateDepartment(@Valid @RequestBody DepartmentRequest departmentRequest,
+                                                          @PathVariable Long departmentId) {
+        DepartmentRequest savedDepartement = departmentService.updateDepartment(departmentRequest, departmentId);
+        return new ResponseEntity<>(savedDepartement, HttpStatus.OK);
     }
 
-    @GetMapping("/{deptId}/details")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get department details with subjects")
-    public DepartmentResponse getDepartmentDetails(@PathVariable Long deptId) {
-        return departmentService.getDepartmentDetails(deptId);
-    }
-    
-    @Override
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public java.util.List<DepartmentResponse> all() {
-        return departmentService.getAllDepartmentsSortedByDate();
+    @DeleteMapping("/admin/department/{departmentId}")
+    @Operation(summary = "Delete a department information", description = "This endpoint delete the department from a departmentId")
+    public ResponseEntity<DepartmentRequest> deleteDepartment(@PathVariable Long departmentId){
+        DepartmentRequest deletedDepartment = departmentService.deleteDepartment(departmentId);
+        return new ResponseEntity<>(deletedDepartment, HttpStatus.OK);
     }
 }

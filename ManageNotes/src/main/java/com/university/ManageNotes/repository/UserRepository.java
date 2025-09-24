@@ -1,7 +1,10 @@
 package com.university.ManageNotes.repository;
 
-import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.AppRole;
 import com.university.ManageNotes.model.Users;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +18,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findByEmail(String email);
 
-    Boolean existsByUsername(String username);
+    List<Users> findByRole(AppRole appRole);
 
-    Boolean existsByEmail(String email);
+    boolean existsByUserName(@NotBlank @Size(min =  3, max = 50) String username);
 
-    List<Users> findByRole(Role role);
+    boolean existsByEmail(@NotBlank @Email @Size(max = 50) String email);
 }

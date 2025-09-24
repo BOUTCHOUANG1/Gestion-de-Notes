@@ -7,7 +7,6 @@ import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -114,7 +113,7 @@ public class DatabaseUsersInitializer implements CommandLineRunner {
         teacher.setLastName(lastName);
         teacher.setEmail(email);
         teacher.setPassword(passwordEncoder.encode("nathan"));
-        teacher.setRole(Role.TEACHER);
+        teacher.setAppRole(AppRole.TEACHER);
         teacher.setActive(true);
         teacher.setMustChangePassword(false);
         teacher.setDepartment(department);
@@ -133,7 +132,7 @@ public class DatabaseUsersInitializer implements CommandLineRunner {
         studentUser.setLastName(lastName);
         studentUser.setEmail(email);
         studentUser.setPassword(passwordEncoder.encode("nathan"));
-        studentUser.setRole(Role.STUDENT);
+        studentUser.setAppRole(AppRole.STUDENT);
         studentUser.setActive(true);
         studentUser.setMustChangePassword(false);
         userRepository.save(studentUser);

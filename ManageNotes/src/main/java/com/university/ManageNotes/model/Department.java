@@ -1,25 +1,47 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-/**
- * Represents an academic department. Currently, exposes only id & name to support
- * department listing for admin selection after login. Additional fields can be
- * added later without impacting the login flow.
- */
-@Getter
-@Setter
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Data
 @Entity
 @Table(name = "departments")
-@ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(callSuper = true)
-public class Department extends AbstractEntity {
+public class Department {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long departmentId;
 
-    @Column(nullable = false, unique = true, length = 100)
-    @ToString.Include
-    private String name;
+    @Column(unique = true)
+    @NotBlank(message = "Department name is required")
+    @Size(min = 5, message = "Department name must be at least 5 characters long")
+    private String departmentName;
+
+    @CreatedDate
+    @Column(name ="creation_date",nullable = false,updatable = false)
+    private Instant createdDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
+
+    @ToString.Exclude
+    @OneToOne(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Teacher teacher;
+
+    @OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Subject> subjects = new HashSet<>();
 }

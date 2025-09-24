@@ -1,6 +1,6 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.model.GradeType;
+import com.university.ManageNotes.model.AssessmentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GradeSheetColumn {
-    private GradeType type;
+    private AssessmentType type;
     private String label;
 }

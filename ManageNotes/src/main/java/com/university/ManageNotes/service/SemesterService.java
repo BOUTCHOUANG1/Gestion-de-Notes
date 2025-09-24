@@ -2,7 +2,7 @@ package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.SemesterRequest;
 import com.university.ManageNotes.dto.Response.SemesterResponse;
-import com.university.ManageNotes.model.Semesters;
+import com.university.ManageNotes.model.Semester;
 import com.university.ManageNotes.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,26 +24,26 @@ public class SemesterService {
     }
 
     public SemesterResponse getSemesterById(Long id) {
-        Semesters semester = semesterRepository.findById(id)
+        Semester semester = semesterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Semester not found with id: " + id));
         return toResponse(semester);
     }
 
     @Transactional
     public SemesterResponse createSemester(SemesterRequest request) {
-        Semesters semester = new Semesters();
+        Semester semester = new Semester();
         semester.setName(request.getName());
         semester.setStartDate(request.getStartDate());
         semester.setEndDate(request.getEndDate());
         semester.setActive(request.getActive());
 
-        Semesters saved = semesterRepository.save(semester);
+        Semester saved = semesterRepository.save(semester);
         return toResponse(saved);
     }
 
     @Transactional
     public SemesterResponse updateSemester(Long id, SemesterRequest request) {
-        Semesters semester = semesterRepository.findById(id)
+        Semester semester = semesterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Semester not found with id: " + id));
 
         semester.setName(request.getName());
@@ -51,7 +51,7 @@ public class SemesterService {
         semester.setEndDate(request.getEndDate());
         semester.setActive(request.getActive());
 
-        Semesters updated = semesterRepository.save(semester);
+        Semester updated = semesterRepository.save(semester);
         return toResponse(updated);
     }
 
@@ -72,7 +72,7 @@ public class SemesterService {
         semesterRepository.deleteById(id);
     }
 
-    private SemesterResponse toResponse(Semesters semester) {
+    private SemesterResponse toResponse(Semester semester) {
         return SemesterResponse.builder()
                 .id(semester.getId())
                 .name(semester.getName())

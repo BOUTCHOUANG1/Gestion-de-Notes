@@ -1,14 +1,12 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.model.Role;
+import com.university.ManageNotes.model.AppRole;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 // @Component
 @RequiredArgsConstructor
@@ -26,7 +24,7 @@ public class TeacherInitializer implements CommandLineRunner {
         
         teacher.setUsername("teacher");
         teacher.setPassword(passwordEncoder.encode("teacher"));
-        teacher.setRole(Role.TEACHER);
+        teacher.setAppRole(AppRole.TEACHER);
         teacher.setEmail("teacher@example.com");
         teacher.setFirstName("Default");
         teacher.setLastName("Teacher");

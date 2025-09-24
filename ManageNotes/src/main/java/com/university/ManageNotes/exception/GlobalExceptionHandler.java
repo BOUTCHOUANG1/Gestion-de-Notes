@@ -1,45 +1,40 @@
 package com.university.ManageNotes.exception;
 
-import com.university.ManageNotes.dto.Response.ErrorResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> myMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> response = new HashMap<>();
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers,
-                                                                  org.springframework.http.HttpStatusCode status,
-                                                                  WebRequest request) {
-        List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(this::mapToFieldError)
-                .collect(Collectors.toList());
+        // Extract the error messages for each fieldValue that failed validation
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String fieldName = error.getField();
+            String errorMessage = error.getDefaultMessage();
+            response.put(fieldName, errorMessage);
+        });
 
-        ErrorResponse error = new ErrorResponse("Validation failed", "VALIDATION_ERROR", HttpStatus.BAD_REQUEST.value());
-        error.setFieldErrors(fieldErrors);
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        // Return the error messages in a map along with the BAD_REQUEST success code
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    private ErrorResponse.FieldError mapToFieldError(FieldError fieldError) {
-        return new ErrorResponse.FieldError(fieldError.getField(), fieldError.getDefaultMessage(), fieldError.getRejectedValue());
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<APIResponse> myResourceNotFoundException(ResourceNotFoundException ex) {
+        String message = ex.getMessage();
+        return new ResponseEntity<>(new APIResponse(message, false), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntime(RuntimeException ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage(), "INTERNAL_ERROR", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(APIException.class)
+    public ResponseEntity<APIResponse> myAPIException(APIException ex) {
+        String message = ex.getMessage();
+        return new ResponseEntity<>(new APIResponse(message, false), HttpStatus.BAD_REQUEST);
     }
 }

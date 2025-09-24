@@ -317,10 +317,10 @@ ALTER SEQUENCE public.semesters_seq OWNER TO postgres;
 
 --
 -- TOC entry 223 (class 1259 OID 17279)
--- Name: semesters; Type: TABLE; Schema: public; Owner: postgres
+-- Name: semester; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.semesters (
+CREATE TABLE public.semester (
     id bigint DEFAULT nextval('public.semesters_seq'::regclass) NOT NULL,
     creation_date timestamp(6) with time zone NOT NULL,
     last_modified_date timestamp(6) with time zone,
@@ -332,7 +332,7 @@ CREATE TABLE public.semesters (
 );
 
 
-ALTER TABLE public.semesters OWNER TO postgres;
+ALTER TABLE public.semester OWNER TO postgres;
 
 --
 -- TOC entry 234 (class 1259 OID 17333)
@@ -475,9 +475,9 @@ CREATE TABLE public.users (
     must_change_password boolean,
     password character varying(255),
     phone character varying(30),
-    role character varying(255),
+    appRole character varying(255),
     username character varying(255),
-    CONSTRAINT users_role_check CHECK (((role)::text = ANY ((ARRAY['ADMIN'::character varying, 'STUDENT'::character varying, 'TEACHER'::character varying])::text[])))
+    CONSTRAINT users_role_check CHECK (((appRole)::text = ANY ((ARRAY['ADMIN'::character varying, 'STUDENT'::character varying, 'TEACHER'::character varying])::text[])))
 );
 
 
@@ -634,10 +634,10 @@ COPY public.report_record (id, creation_date, last_modified_date, academic_year,
 --
 -- TOC entry 3552 (class 0 OID 17279)
 -- Dependencies: 223
--- Data for Name: semesters; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: semester; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.semesters (id, creation_date, last_modified_date, active, end_date, name, order_index, start_date) FROM stdin;
+COPY public.semester (id, creation_date, last_modified_date, active, end_date, name, order_index, start_date) FROM stdin;
 1	2025-08-25 14:15:05.490253+01	2025-08-29 16:07:20.415783+01	t	2026-02-23	1	1	2025-09-05
 2	2025-08-25 14:15:05.490253+01	2025-08-29 16:07:39.783406+01	f	2026-06-02	2	2	2026-03-15
 \.
@@ -778,7 +778,7 @@ COPY public.user_levels (user_id, level) FROM stdin;
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, creation_date, last_modified_date, active, department, email, first_name, last_name, must_change_password, password, phone, role, username) FROM stdin;
+COPY public.users (id, creation_date, last_modified_date, active, department, email, first_name, last_name, must_change_password, password, phone, appRole, username) FROM stdin;
 11	2025-08-26 10:16:28.15487+01	2025-08-26 11:11:37.698248+01	t	Business Administration	jthomas@university.edu	Jennifer	Thomas	f	$2a$10$kbq2EAXpcyYFB4Z5FxAp1OQuf1gH5kLlV6.0M1HZVfTjDBvpVKoQW	+237123456789	TEACHER	prof.thomas
 12	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:37.875202+01	t	\N	alice.cooper@student.university.edu	Alice	Cooper	f	$2a$10$m1yNiLvTZXLFDWGI3YY0aOeroO744IIc9CsRWF5gOESAZpeor8i5m	\N	STUDENT	STU2024001
 14	2025-08-26 10:16:28.177803+01	2025-08-26 11:11:38.193241+01	t	\N	carol.white@student.university.edu	Carol	White	f	$2a$10$6QOSgtWRsHlO/k4.vS.dSOmu59.cwLxV4Hrootfj74bJxqwu.2IvG	\N	STUDENT	STU2024003
@@ -1010,10 +1010,10 @@ ALTER TABLE ONLY public.report_record
 
 --
 -- TOC entry 3370 (class 2606 OID 17283)
--- Name: semesters semesters_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: semester semesters_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.semesters
+ALTER TABLE ONLY public.semester
     ADD CONSTRAINT semesters_pkey PRIMARY KEY (id);
 
 
@@ -1120,7 +1120,7 @@ ALTER TABLE ONLY public.grades
 --
 
 ALTER TABLE ONLY public.subject
-    ADD CONSTRAINT fk4b66tj7yip7jmo922vvy6bw4y FOREIGN KEY (id_semester) REFERENCES public.semesters(id);
+    ADD CONSTRAINT fk4b66tj7yip7jmo922vvy6bw4y FOREIGN KEY (id_semester) REFERENCES public.semester(id);
 
 
 --
@@ -1138,7 +1138,7 @@ ALTER TABLE ONLY public.grade_claims
 --
 
 ALTER TABLE ONLY public.grades
-    ADD CONSTRAINT fk_grades_semester FOREIGN KEY (id_semester) REFERENCES public.semesters(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_grades_semester FOREIGN KEY (id_semester) REFERENCES public.semester(id) ON DELETE SET NULL;
 
 
 --
@@ -1183,7 +1183,7 @@ ALTER TABLE ONLY public.grades
 --
 
 ALTER TABLE ONLY public.grading_window
-    ADD CONSTRAINT fkmkan866y61akk4qim8e74d3dj FOREIGN KEY (id_semester) REFERENCES public.semesters(id);
+    ADD CONSTRAINT fkmkan866y61akk4qim8e74d3dj FOREIGN KEY (id_semester) REFERENCES public.semester(id);
 
 
 --
@@ -1210,7 +1210,7 @@ ALTER TABLE ONLY public.user_levels
 --
 
 ALTER TABLE ONLY public.grades
-    ADD CONSTRAINT fks0yeww9160sohy3wpgmt7dve FOREIGN KEY (id_semester) REFERENCES public.semesters(id);
+    ADD CONSTRAINT fks0yeww9160sohy3wpgmt7dve FOREIGN KEY (id_semester) REFERENCES public.semester(id);
 
 
 --
@@ -1219,7 +1219,7 @@ ALTER TABLE ONLY public.grades
 --
 
 ALTER TABLE ONLY public.grade_claims
-    ADD CONSTRAINT fkteaqiirgxcnndhnx4ljcoc60h FOREIGN KEY (semester_id) REFERENCES public.semesters(id);
+    ADD CONSTRAINT fkteaqiirgxcnndhnx4ljcoc60h FOREIGN KEY (semester_id) REFERENCES public.semester(id);
 
 
 -- Completed on 2025-08-29 18:31:58 WAT

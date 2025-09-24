@@ -1,21 +1,16 @@
 package com.university.ManageNotes.dto.Request;
 
-import com.university.ManageNotes.model.Role;
-import com.university.ManageNotes.model.StudentCycle;
-import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.model.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignupRequest {
@@ -25,11 +20,11 @@ public class SignupRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
+    @Size(max = 15, message = "Email must not exceed 15 characters")
     private String email;
 
-    @Size(min = 5, max = 100, message = "Password must be between 5 and 100 characters")
-    private String password; // Optional - will be auto-generated if not provided
+    @Size(min = 5, max = 9, message = "Password must be between 5 and 9 characters")
+    private String password;
 
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
@@ -39,10 +34,10 @@ public class SignupRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    private Role role;
+    private Set<String> role;
 
     // Student fields
-    private StudentLevel level;
+    private TeachingLevel level;  // Single level for students
     private String matricule;
     private String speciality;
     private StudentCycle cycle;
@@ -50,7 +45,8 @@ public class SignupRequest {
     private String placeOfBirth;
 
     // Teacher fields
-    private List<String> levels;
-    private String department;
+    private List<TeachingLevel> levels;
+    private Department department;
     private String phone;
+    private List<Subject> subjects;
 }

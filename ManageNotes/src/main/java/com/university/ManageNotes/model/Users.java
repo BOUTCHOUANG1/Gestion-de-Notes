@@ -1,59 +1,81 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Table(name = "Users")
-public class Users extends AbstractEntity {
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "phone")
+        })
+public class Users{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 50)
     @Column(name = "username", unique = true)
     private String username;
 
-    @Column(name = "firstName")
+    @NotBlank(message = "First name is required")
+    @Size(min = 3, max = 50, message = "First name must be between 3 and 50 characters long")
     private String firstName;
 
-    @Column(name = "lastName")
+    @NotBlank(message = "Last name is required")
+    @Size(min = 3, max = 50, message = "Last name must be between 3 and 50 characters long")
     private String lastName;
 
-    @Column(name = "email")
+    @NotBlank
+    @Email
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password")
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 8 characters long")
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private Role role;
-
-    @Column(name = "active")
-    private Boolean active;
 
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = true;
 
-    // --- Extra fields for teacher profile (US N6) ---
-    @Column(name = "phone", length = 30)
-    private String phone;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Getter
+    @Setter
+    private Set<Roles> roles = new HashSet<>();
 
-    // Simple department name reference; we avoid full FK to keep migration light.
-    @Column(name = "department", length = 100)
-    private String department;
+    @CreatedDate
+    @Column(name ="creation_date",nullable = false,updatable = false)
+    private Instant createdDate;
 
-    // Levels that a teacher can teach (stored as JSON array)
-    @ElementCollection
-    @CollectionTable(name = "user_levels", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "level")
-    private List<String> levels;
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
 
-    @OneToMany(mappedBy = "enteredBy")
-    private List<Grades> gradesEntered;
+    private Boolean isActive = false;
+
+    public Users(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }

@@ -1,7 +1,7 @@
 package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.GradeType;
+import com.university.ManageNotes.model.AssessmentType;
 
 import java.util.List;
 import java.util.Map;
@@ -23,10 +23,10 @@ public class GradeCalculator {
     public static double calculateSubjectAverage(List<Grades> components) {
         if (components.isEmpty()) return 0.0;
         
-        Map<GradeType, List<Grades>> gradesByType = components.stream()
-                .collect(Collectors.groupingBy(Grades::getType));
+        Map<AssessmentType, List<Grades>> gradesByType = components.stream()
+                .collect(Collectors.groupingBy(Grades::getExam));
         
-        boolean hasPractical = gradesByType.containsKey(GradeType.PRACTICAL);
+        boolean hasPractical = gradesByType.containsKey(AssessmentType.PRACTICAL);
         double snMax = hasPractical ? DEFAULT_SN_WITH_PRACTICAL_MAX : DEFAULT_SN_MAX;
         
         double semester1Average = 0.0;
@@ -34,24 +34,24 @@ public class GradeCalculator {
         int semesterCount = 0;
         
         // Calculate Semester 1 (CC_1 + SN_1)
-        if (gradesByType.containsKey(GradeType.CC_1) && gradesByType.containsKey(GradeType.SN_1)) {
-            double cc1 = gradesByType.get(GradeType.CC_1).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+        if (gradesByType.containsKey(AssessmentType.CC_1) && gradesByType.containsKey(AssessmentType.SN_1)) {
+            double cc1 = gradesByType.get(AssessmentType.CC_1).stream()
+                    .mapToDouble(g -> g.getScore() != null ? g.getScore() : 0.0)
                     .sum();
-            double sn1 = gradesByType.get(GradeType.SN_1).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+            double sn1 = gradesByType.get(AssessmentType.SN_1).stream()
+                    .mapToDouble(g -> g.getScore() != null ? g.getScore() : 0.0)
                     .sum();
             semester1Average = ((cc1 + sn1) / (DEFAULT_CC_MAX + snMax)) * 20.0;
             semesterCount++;
         }
         
         // Calculate Semester 2 (CC_2 + SN_2)
-        if (gradesByType.containsKey(GradeType.CC_2) && gradesByType.containsKey(GradeType.SN_2)) {
-            double cc2 = gradesByType.get(GradeType.CC_2).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+        if (gradesByType.containsKey(AssessmentType.CC_2) && gradesByType.containsKey(AssessmentType.SN_2)) {
+            double cc2 = gradesByType.get(AssessmentType.CC_2).stream()
+                    .mapToDouble(g -> g.getScore() != null ? g.getScore() : 0.0)
                     .sum();
-            double sn2 = gradesByType.get(GradeType.SN_2).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+            double sn2 = gradesByType.get(AssessmentType.SN_2).stream()
+                    .mapToDouble(g -> g.getScore() != null ? g.getScore() : 0.0)
                     .sum();
             semester2Average = ((cc2 + sn2) / (DEFAULT_CC_MAX + snMax)) * 20.0;
             semesterCount++;
@@ -64,8 +64,8 @@ public class GradeCalculator {
         
         // Add practical component if exists (bonus points)
         if (hasPractical) {
-            double practicalSum = gradesByType.get(GradeType.PRACTICAL).stream()
-                    .mapToDouble(g -> g.getValue() != null ? g.getValue() : 0.0)
+            double practicalSum = gradesByType.get(AssessmentType.PRACTICAL).stream()
+                    .mapToDouble(g -> g.getScore() != null ? g.getScore() : 0.0)
                     .sum();
             yearAverage += (practicalSum / PRACTICAL_MAX) * 2.0; // Practical adds up to 2 points
         }

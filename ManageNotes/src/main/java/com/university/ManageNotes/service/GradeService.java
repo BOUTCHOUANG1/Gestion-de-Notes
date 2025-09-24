@@ -1,51 +1,21 @@
 package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
-import com.university.ManageNotes.dto.Request.GradeUpdateRequest;
 import com.university.ManageNotes.dto.Response.*;
-import com.university.ManageNotes.model.GradeType;
+import com.university.ManageNotes.model.AssessmentType;
 import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.Students;
 import com.university.ManageNotes.model.Subject;
-import com.university.ManageNotes.repository.*;
-import com.university.ManageNotes.security.UserPrincipal;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class GradeService {
 
-    private final GradeRepository gradeRepository;
-    private final StudentRepository studentRepository;
-    private final SubjectRepository subjectRepository;
-    private final UserRepository userRepository;
-    private final SemesterRepository semesterRepository;
-    private final GradingWindowService gradingWindowService;
+public interface GradeService {
 
-    public GradeResponse updateGrade(Long gradeId, GradeUpdateRequest gradeRequest) {
-        Grades grade = gradeRepository.findById(gradeId)
-                .orElseThrow(() -> new RuntimeException("Grade not found"));
-
-        if (gradeRequest.getValue() != null) {
-            grade.setValue(gradeRequest.getValue());
-        }
-
-        if (gradeRequest.getComments() != null) {
-            grade.setComments(gradeRequest.getComments());
-        }
-        if (gradeRequest.getType() != null) {
-            grade.setType(gradeRequest.getType());
-        }
-
-        Grades updatedGrade = gradeRepository.save(grade);
-        return convertToResponse(updatedGrade);
-    }
+    GradeRequest updateGrade(Long gradeId, GradeUpdateRequest gradeRequest);
 
     public MessageResponse deleteGrade(Long id) {
         try {
@@ -73,7 +43,7 @@ public class GradeService {
             boolean passed = subjectAverage >= 10.0;
 
             subjectResults.add(new ReportResponse.SubjectResult(
-                    subject.getName(),
+                    subject.getSubjectName(),
                     subjectAverage,
                     subject.getCredits(),
                     passed
@@ -163,19 +133,19 @@ public class GradeService {
         response.setStudentName(grade.getStudent().getFirstName() + " " + grade.getStudent().getLastName());
 
         response.setSubjectId(grade.getSubject().getId());
-        response.setSubjectName(grade.getSubject().getName());
-        response.setSubjectCode(grade.getSubject().getCode());
+        response.setSubjectName(grade.getSubject().getSubjectName());
+        response.setSubjectCode(grade.getSubject().getSubjectCode());
 
         if (grade.getSemesters() != null) {
             response.setSemesterId(grade.getSemesters().getId());
             response.setSemesterName(grade.getSemesters().getName());
         }
 
-        response.setValue(grade.getValue());
-        response.setPeriodLabel(grade.getPeriodType() != null ? grade.getPeriodType().name() : null);
+        response.setValue(grade.getScore());
+        response.setPeriodLabel(grade.getExamPeriod() != null ? grade.getExamPeriod().name() : null);
 
         // Check if student passed the subject (score ≥ 10/20)
-        boolean passed = grade.getValue() != null && grade.getValue() >= 10;
+        boolean passed = grade.getScore() != null && grade.getScore() >= 10;
         response.setPassed(passed);
 
         // Award credits if passed
@@ -185,13 +155,13 @@ public class GradeService {
             response.setCreditsEarned(BigDecimal.ZERO);
         }
 
-        response.setType(grade.getType());
+        response.setType(grade.getExam());
         response.setComments(grade.getComments());
 
-        if (grade.getEnteredBy() != null) {
-            response.setEnteredBy(grade.getEnteredBy().getId());
-            response.setEnteredByName(grade.getEnteredBy()
-                    .getFirstName() + " " + grade.getEnteredBy().getLastName());
+        if (grade.getExaminer() != null) {
+            response.setEnteredBy(grade.getExaminer().getId());
+            response.setEnteredByName(grade.getExaminer()
+                    .getFirstName() + " " + grade.getExaminer().getLastName());
         }
 
         response.setCreatedDate(grade.getCreatedDate());
@@ -206,8 +176,8 @@ public class GradeService {
         boolean isTeacher = auth!=null && auth.getAuthorities()
                 .stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"));
         if (isTeacher) {
-            if (!gradingWindowService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getPeriodType())) {
-                String statusMessage = gradingWindowService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getPeriodType());
+            if (!revendicationPeriodService.isWindowOpen(gradeRequest.getSemesterId(), gradeRequest.getExamPeriod())) {
+                String statusMessage = revendicationPeriodService.getWindowStatusMessage(gradeRequest.getSemesterId(), gradeRequest.getExamPeriod());
                 throw new RuntimeException(statusMessage);
             }
         }
@@ -221,12 +191,12 @@ public class GradeService {
                 .orElseThrow(() -> new RuntimeException("Subject not found")));
         grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
                 .orElseThrow(() -> new RuntimeException("Semester not found")));
-        grade.setValue(gradeRequest.getValue());
+        grade.setScore(gradeRequest.getValue());
         grade.setMaxValue(gradeRequest.getMaxValue());
-        grade.setType(gradeRequest.getType());
+        grade.setExam(gradeRequest.getType());
         grade.setComments(gradeRequest.getComments());
-        grade.setPeriodType(gradeRequest.getPeriodType());
-        grade.setEnteredBy(userRepository.findById(gradeRequest.getEnteredBy())
+        grade.setExamPeriod(gradeRequest.getExamPeriod());
+        grade.setExaminer(userRepository.findById(gradeRequest.getEnteredBy())
                 .orElseThrow(() -> new RuntimeException("User not found")));
 
         Grades saved = gradeRepository.save(grade);
@@ -238,7 +208,7 @@ public class GradeService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        if (!"STUDENT".equals(user.getRole().name())) {
+        if (!"STUDENT".equals(user.getAppRole().name())) {
             throw new RuntimeException("User is not a student");
         }
         
@@ -278,7 +248,7 @@ public class GradeService {
         // simple GPA calculation
         if (!grades.isEmpty()) {
             double avg = grades.stream()
-                    .mapToDouble(Grades::getValue)
+                    .mapToDouble(Grades::getScore)
                     .average().orElse(0);
             response.setGpa(Math.round(avg * 100.0) / 100.0);
         }
@@ -362,8 +332,8 @@ public class GradeService {
 
         // Prepare response
         var resp = new GradeSheetResponse();
-        resp.setSubjectCode(subject.getCode());
-        resp.setSubjectName(subject.getName());
+        resp.setSubjectCode(subject.getSubjectCode());
+        resp.setSubjectName(subject.getSubjectName());
         if (subject.getLevel() != null) resp
                 .setLevel(subject.getLevel().name());
         if (subject.getCycle() != null) resp
@@ -396,8 +366,8 @@ public class GradeService {
                     .toList();
         }
         for (var g : allGradesForSubject) {
-            String key = g.getType().name() + "::" + (g.getPeriodType() == null ? "" : g.getPeriodType().name());
-            String label = g.getPeriodType() != null ? g.getPeriodType().name() : g.getType().name();
+            String key = g.getExam().name() + "::" + (g.getExamPeriod() == null ? "" : g.getExamPeriod().name());
+            String label = g.getExamPeriod() != null ? g.getExamPeriod().name() : g.getExam().name();
             colKeys.add(key);
             keyToLabel.put(key, label);
         }
@@ -405,7 +375,7 @@ public class GradeService {
         List<GradeSheetColumn> cols = new ArrayList<>();
         for (String k : colKeys) {
             String[] parts = k.split("::",2);
-            GradeType t = GradeType.valueOf(parts[0]);
+            AssessmentType t = AssessmentType.valueOf(parts[0]);
             cols.add(new GradeSheetColumn(t, keyToLabel.get(k)));
         }
         resp.setColumns(cols);
@@ -428,9 +398,9 @@ public class GradeService {
 
             for (var g: sg) {
                 if (!g.getSubject().getId().equals(subject.getId())) continue;
-                String k = g.getType().name()+"::"+(g.getPeriodType()==null?"":g.getPeriodType().name());
+                String k = g.getExam().name()+"::"+(g.getExamPeriod()==null?"":g.getExamPeriod().name());
                 if (gradeMap.get(k)!=null) conflicts++;// duplicate
-                gradeMap.put(k, g.getValue());
+                gradeMap.put(k, g.getScore());
             }
 
             long missing = gradeMap.values().stream()
@@ -470,7 +440,7 @@ public class GradeService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         
-        if (!"STUDENT".equals(user.getRole().name())) {
+        if (!"STUDENT".equals(user.getAppRole().name())) {
             throw new RuntimeException("User with ID " + userId + " is not a student");
         }
         

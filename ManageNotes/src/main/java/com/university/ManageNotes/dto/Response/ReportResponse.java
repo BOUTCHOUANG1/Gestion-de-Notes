@@ -1,6 +1,5 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.model.AbstractEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

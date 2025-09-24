@@ -25,12 +25,12 @@ class SubjectServiceConstraintTest {
     void shouldPreventTeacherFromTeachingMultipleSubjectsAtSameLevel() {
         // Given: First subject for teacher at LEVEL1
         SubjectRequest firstSubject = createSubjectRequest("MATH101", "Mathematics 101", 1L, StudentLevel.LEVEL1);
-        MessageResponse firstResponse = subjectService.create(firstSubject);
+        MessageResponse firstResponse = subjectService.createSubject(firstSubject);
         assertThat(firstResponse.getStatus()).isEqualTo("success");
 
         // When: Trying to assign same teacher to another subject at LEVEL1
         SubjectRequest secondSubject = createSubjectRequest("PHYS101", "Physics 101", 1L, StudentLevel.LEVEL1);
-        MessageResponse secondResponse = subjectService.create(secondSubject);
+        MessageResponse secondResponse = subjectService.createSubject(secondSubject);
 
         // Then: Should fail with appropriate error message
         assertThat(secondResponse.getStatus()).isEqualTo("error");
@@ -41,12 +41,12 @@ class SubjectServiceConstraintTest {
     void shouldAllowTeacherToTeachDifferentLevels() {
         // Given: First subject for teacher at LEVEL1
         SubjectRequest level1Subject = createSubjectRequest("MATH101", "Mathematics 101", 1L, StudentLevel.LEVEL1);
-        MessageResponse firstResponse = subjectService.create(level1Subject);
+        MessageResponse firstResponse = subjectService.createSubject(level1Subject);
         assertThat(firstResponse.getStatus()).isEqualTo("success");
 
         // When: Assigning same teacher to subject at LEVEL2
         SubjectRequest level2Subject = createSubjectRequest("MATH201", "Mathematics 201", 1L, StudentLevel.LEVEL2);
-        MessageResponse secondResponse = subjectService.create(level2Subject);
+        MessageResponse secondResponse = subjectService.createSubject(level2Subject);
 
         // Then: Should succeed
         assertThat(secondResponse.getStatus()).isEqualTo("success");
@@ -56,12 +56,12 @@ class SubjectServiceConstraintTest {
     void shouldAllowDifferentTeachersAtSameLevel() {
         // Given: First teacher at LEVEL1
         SubjectRequest teacher1Subject = createSubjectRequest("MATH101", "Mathematics 101", 1L, StudentLevel.LEVEL1);
-        MessageResponse firstResponse = subjectService.create(teacher1Subject);
+        MessageResponse firstResponse = subjectService.createSubject(teacher1Subject);
         assertThat(firstResponse.getStatus()).isEqualTo("success");
 
         // When: Different teacher at same level
         SubjectRequest teacher2Subject = createSubjectRequest("PHYS101", "Physics 101", 2L, StudentLevel.LEVEL1);
-        MessageResponse secondResponse = subjectService.create(teacher2Subject);
+        MessageResponse secondResponse = subjectService.createSubject(teacher2Subject);
 
         // Then: Should succeed
         assertThat(secondResponse.getStatus()).isEqualTo("success");

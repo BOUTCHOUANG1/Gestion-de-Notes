@@ -5,12 +5,12 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.5-blue.svg)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A comprehensive university grade management system built with Spring Boot, providing secure role-based access for administrators, teachers, and students to manage academic records, grades, and institutional data.
+A comprehensive university grade management system built with Spring Boot, providing secure appRole-based access for administrators, teachers, and students to manage academic records, grades, and institutional data.
 
 ## 🚀 Features
 
 ### Core Functionality
-- **Multi-role Authentication**: JWT-based authentication for Admin, Teacher, and Student roles
+- **Multi-appRole Authentication**: JWT-based authentication for Admin, Teacher, and Student roles
 - **Grade Management**: Complete CRUD operations for student grades with validation
 - **Academic Structure**: Department, subject, and semester management
 - **Grade Claims**: Student-initiated grade dispute system with approval workflow
@@ -26,7 +26,7 @@ A comprehensive university grade management system built with Spring Boot, provi
 - **Real-time Validation**: Grade entry validation with grading window controls
 - **Teacher Assignment Control**: One subject per teacher per academic level constraint
 - **Audit Trail**: Complete tracking of grade changes and user actions
-- **Bulk Operations**: Batch updates for semesters and departments
+- **Bulk Operations**: Batch updates for semester and departments
 - **Data Integrity**: Foreign key constraint handling with cascade operations
 - **API Documentation**: Comprehensive Swagger/OpenAPI documentation
 
@@ -35,14 +35,14 @@ A comprehensive university grade management system built with Spring Boot, provi
 ### Technology Stack
 - **Backend**: Spring Boot 3.5.3, Spring Security, Spring Data JPA
 - **Database**: PostgreSQL 17.5 with Flyway migrations
-- **Authentication**: JWT tokens with role-based authorization
+- **Authentication**: JWT tokens with appRole-based authorization
 - **Documentation**: SpringDoc OpenAPI 3 (Swagger UI)
 - **Build Tool**: Maven 3.9+
 - **Java Version**: OpenJDK 21
 
 ### Database Schema
 ```
-Users (id, username, password, role, email, first_name, last_name)
+Users (id, username, password, appRole, email, first_name, last_name)
 ├── Students (id, matricule, level, cycle, speciality)
 ├── Departments (id, name, creation_date)
 ├── Subjects (id, name, code, credits, level, cycle, department_id, id_teacher)
@@ -117,17 +117,17 @@ Users (id, username, password, role, email, first_name, last_name)
   "admin": {
     "username": "admin",
     "password": "admin123",
-    "role": "ADMIN"
+    "appRole": "ADMIN"
   },
   "teacher": {
     "username": "prof.johnson",
     "password": "teacher123",
-    "role": "TEACHER"
+    "appRole": "TEACHER"
   },
   "student": {
     "username": "STU2024001",
     "password": "student123",
-    "role": "STUDENT"
+    "appRole": "STUDENT"
   }
 }
 ```
@@ -164,8 +164,8 @@ curl -X GET http://localhost:3030/api/students \
 - `POST /api/departments` - Create department (Admin)
 - `GET /api/subjects` - List subjects
 - `POST /api/subjects` - Create subject (Admin)
-- `GET /api/semesters` - List semesters
-- `PUT /api/semesters` - Bulk update semesters (Admin)
+- `GET /api/semester` - List semester
+- `PUT /api/semester` - Bulk update semester (Admin)
 
 #### Grade Management
 - `POST /api/grades` - Create grade (Teacher)
@@ -192,7 +192,7 @@ curl -X POST http://localhost:3030/api/grades \
     "value": 15.5,
     "maxValue": 20,
     "type": "CC_1",
-    "periodType": "CC_1",
+    "examPeriod": "CC_1",
     "comments": "Good work",
     "enteredBy": 2
   }'
@@ -283,7 +283,7 @@ mvn test
 ### API Testing with Postman
 1. Import the Swagger JSON from `http://localhost:3030/api-docs`
 2. Set up environment variables for base URL and JWT token
-3. Test authentication flow and role-based access
+3. Test authentication flow and appRole-based access
 
 ### Manual Testing Scenarios
 1. **Admin Workflow**: Create departments, subjects, manage users

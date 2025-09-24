@@ -139,9 +139,9 @@ Checking what subjects are available for each student level to verify automatic 
 
 ## 🔄 How it works:
 1. **Student Registration**: When you create a student with `level: "LEVEL2"` and `cycle: "BACHELOR"`
-2. **Automatic Subject Access**: They automatically see all LEVEL2 BACHELOR subjects for both semesters
+2. **Automatic Subject Access**: They automatically see all LEVEL2 BACHELOR subjects for both semester
 3. **Grade Tracking**: Teachers can enter grades for these students in their assigned subjects
-4. **Academic Progression**: Students can view their complete academic journey across both semesters
+4. **Academic Progression**: Students can view their complete academic journey across both semester
 
 This structure allows for easy academic management and clear progression paths! 🚀
 
@@ -196,7 +196,7 @@ Perfect! ✅ **Database cleaned up successfully!**
 2. **grade_claims** - GradeClaim entity
 3. **grades** - Grades entity
 4. **grading_window** - GradingWindow entity
-5. **semesters** - Semesters entity
+5. **semester** - Semesters entity
 6. **students** - Students entity
 7. **subject** - Subject entity
 8. **user_levels** - User levels mapping
@@ -227,7 +227,7 @@ Perfect! ✅ I've added the endpoint to get all active grading windows. Here's w
 ## 🆕 New Endpoint Added:
 
 **GET `/api/grading-windows/active`**
-- **Access**: All authenticated users (no role restriction)
+- **Access**: All authenticated users (no appRole restriction)
 - **Purpose**: Returns all grading windows where `isActive = true`
 - **Response**: List of `GradingWindowResponse` objects
 
@@ -1147,7 +1147,7 @@ curl -X 'POST' \
   "email": "admin@example.com",
   "firstName": "System",
   "lastName": "Administrator",
-  "role": "ADMIN",
+  "appRole": "ADMIN",
   "authorities": [
     "ROLE_ADMIN"
   ],
@@ -1395,7 +1395,7 @@ Error starting ApplicationContext. To display the condition evaluation report re
 2025-08-26T09:09:44.828+01:00 ERROR 10080 --- [ManageNotes] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
 
 org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 09:09:44.643671+01, 2025-08-26 09:09:44.643671+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$VNl.nfZJS1Yowic8JuNOgOYQ6e0yK.NDmjkg7mRimKA3wXH9jW/TK, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
+  Detail: Failing row contains (null, 2025-08-26 09:09:44.643671+01, 2025-08-26 09:09:44.643671+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$VNl.nfZJS1Yowic8JuNOgOYQ6e0yK.NDmjkg7mRimKA3wXH9jW/TK, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:294) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:256) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241) ~[spring-orm-6.2.8.jar:6.2.8]
@@ -1434,7 +1434,7 @@ org.springframework.dao.DataIntegrityViolationException: could not execute state
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
 	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.5.3.jar:3.5.3]
 Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 09:09:44.643671+01, 2025-08-26 09:09:44.643671+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$VNl.nfZJS1Yowic8JuNOgOYQ6e0yK.NDmjkg7mRimKA3wXH9jW/TK, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
+  Detail: Failing row contains (null, 2025-08-26 09:09:44.643671+01, 2025-08-26 09:09:44.643671+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$VNl.nfZJS1Yowic8JuNOgOYQ6e0yK.NDmjkg7mRimKA3wXH9jW/TK, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
 	at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:97) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
@@ -1843,7 +1843,7 @@ Error starting ApplicationContext. To display the condition evaluation report re
 2025-08-26T09:49:59.176+01:00 ERROR 14660 --- [ManageNotes] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
 
 org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 09:49:59.008792+01, 2025-08-26 09:49:59.008792+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$ybU/v5G7KndgK7VBl4Pg5.Te9J3EoAluVQCdhnb9NrJdGI0LNPrDC, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
+  Detail: Failing row contains (null, 2025-08-26 09:49:59.008792+01, 2025-08-26 09:49:59.008792+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$ybU/v5G7KndgK7VBl4Pg5.Te9J3EoAluVQCdhnb9NrJdGI0LNPrDC, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:294) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:256) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241) ~[spring-orm-6.2.8.jar:6.2.8]
@@ -1882,7 +1882,7 @@ org.springframework.dao.DataIntegrityViolationException: could not execute state
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
 	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.5.3.jar:3.5.3]
 Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 09:49:59.008792+01, 2025-08-26 09:49:59.008792+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$ybU/v5G7KndgK7VBl4Pg5.Te9J3EoAluVQCdhnb9NrJdGI0LNPrDC, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
+  Detail: Failing row contains (null, 2025-08-26 09:49:59.008792+01, 2025-08-26 09:49:59.008792+01, t, Administration, admin@example.com, System, Administrator, f, $2a$10$ybU/v5G7KndgK7VBl4Pg5.Te9J3EoAluVQCdhnb9NrJdGI0LNPrDC, +1111111111, ADMIN, admin).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
 	at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:97) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
@@ -2184,7 +2184,7 @@ shell
 **What happens when you restart:**
 - AdminInitializer creates: `admin` user
 - TeacherInitializer creates: `teacher` user
-- Your core academic structure (departments, subjects, semesters) is intact
+- Your core academic structure (departments, subjects, semester) is intact
 
 The important academic framework is preserved - only user accounts and grades were cleared to fix the authentication issues! 🚀
 
@@ -2729,7 +2729,7 @@ Excellent! ✅ **Database Structure Now Fully Matches Codebase:**
 - **students** (50): Student records linked to user accounts  
 - **departments** (5): CS, Math, Physics, Engineering, Business
 - **subject** (20): All subjects assigned to teachers
-- **semesters** (2): Academic semesters
+- **semester** (2): Academic semester
 - **user_levels** (26): Teacher level assignments
 
 ### **✅ Academic Data Tables (Now Populated):**
@@ -2752,7 +2752,7 @@ Excellent! ✅ **Database Structure Now Fully Matches Codebase:**
 | GradingWindow | grading_window | Grading periods | ✅ Complete |
 | Subject | subject | Course catalog | ✅ Complete |
 | Department | departments | Academic departments | ✅ Complete |
-| Semesters | semesters | Academic terms | ✅ Complete |
+| Semesters | semester | Academic terms | ✅ Complete |
 
 ## 🎯 **Key Features Now Available:**
 - ✅ Student grade management
@@ -2771,7 +2771,7 @@ Error starting ApplicationContext. To display the condition evaluation report re
 2025-08-26T11:11:45.891+01:00 ERROR 25515 --- [ManageNotes] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
 
 org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 11:11:45.806993+01, 2025-08-26 11:11:45.806993+01, t, Mathematics, teacher@example.com, Default, Teacher, f, $2a$10$Cglb2JopGjoEMLrjIWKuCep7rjXeIh70lpEzKepcwHUznx0cLA5oG, +1234567890, TEACHER, teacher).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
+  Detail: Failing row contains (null, 2025-08-26 11:11:45.806993+01, 2025-08-26 11:11:45.806993+01, t, Mathematics, teacher@example.com, Default, Teacher, f, $2a$10$Cglb2JopGjoEMLrjIWKuCep7rjXeIh70lpEzKepcwHUznx0cLA5oG, +1234567890, TEACHER, teacher).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [id&quot; of relation &quot;users]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:294) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:256) ~[spring-orm-6.2.8.jar:6.2.8]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241) ~[spring-orm-6.2.8.jar:6.2.8]
@@ -2809,7 +2809,7 @@ org.springframework.dao.DataIntegrityViolationException: could not execute state
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
 	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.5.3.jar:3.5.3]
 Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [ERROR: null value in column &quot;id&quot; of relation &quot;users&quot; violates not-null constraint
-  Detail: Failing row contains (null, 2025-08-26 11:11:45.806993+01, 2025-08-26 11:11:45.806993+01, t, Mathematics, teacher@example.com, Default, Teacher, f, $2a$10$Cglb2JopGjoEMLrjIWKuCep7rjXeIh70lpEzKepcwHUznx0cLA5oG, +1234567890, TEACHER, teacher).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,role,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
+  Detail: Failing row contains (null, 2025-08-26 11:11:45.806993+01, 2025-08-26 11:11:45.806993+01, t, Mathematics, teacher@example.com, Default, Teacher, f, $2a$10$Cglb2JopGjoEMLrjIWKuCep7rjXeIh70lpEzKepcwHUznx0cLA5oG, +1234567890, TEACHER, teacher).] [insert into users (active,creation_date,department,email,first_name,last_modified_date,last_name,must_change_password,password,phone,appRole,username) values (?,?,?,?,?,?,?,?,?,?,?,?)]
 	at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:97) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
 	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
@@ -3012,7 +3012,7 @@ and the reponse
     &quot;email&quot;: &quot;mjohnson@university.edu&quot;,
     &quot;firstName&quot;: &quot;Michael&quot;,
     &quot;lastName&quot;: &quot;Johnson&quot;,
-    &quot;role&quot;: &quot;TEACHER&quot;,
+    &quot;appRole&quot;: &quot;TEACHER&quot;,
     &quot;authorities&quot;: [
         &quot;ROLE_TEACHER&quot;
     ],
@@ -3030,7 +3030,7 @@ the preview was this
     &quot;email&quot;: &quot;mjohnson@university.edu&quot;,
     &quot;firstName&quot;: &quot;Michael&quot;,
     &quot;lastName&quot;: &quot;Johnson&quot;,
-    &quot;role&quot;: &quot;TEACHER&quot;,
+    &quot;appRole&quot;: &quot;TEACHER&quot;,
     &quot;authorities&quot;: [
         &quot;ROLE_TEACHER&quot;
     ],
@@ -3081,7 +3081,7 @@ Perfect! ✅ Now restart your application and test the teacher login again. You 
     "email": "mjohnson@university.edu",
     "firstName": "Michael",
     "lastName": "Johnson",
-    "role": "TEACHER",
+    "appRole": "TEACHER",
     "authorities": ["ROLE_TEACHER"],
     "mustChangePassword": false,
     "mustChooseDepartment": false,
@@ -3097,7 +3097,7 @@ Perfect! ✅ Now restart your application and test the teacher login again. You 
 - ✅ Added `levels` field showing what levels they can teach
 - ✅ Added `phone` field for contact information
 - ✅ Added `subjects` field showing assigned subjects with codes
-- ✅ Proper role-specific data population in AuthService
+- ✅ Proper appRole-specific data population in AuthService
 
 The teacher login will now provide complete information about their teaching assignments! 🚀
 
@@ -3171,7 +3171,7 @@ Try creating a grade again and it should work! 🎉
 
 ---
 
-i also having this issue, 2025-08-26T12:13:18.371+01:00  WARN 33966 --- [ManageNotes] [nio-3030-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.dao.InvalidDataAccessApiUsageException: No enum constant com.university.ManageNotes.model.PeriodType.CC]
+i also having this issue, 2025-08-26T12:13:18.371+01:00  WARN 33966 --- [ManageNotes] [nio-3030-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.dao.InvalidDataAccessApiUsageException: No enum constant com.university.ManageNotes.model.ExamPeriod.CC]
 
 ---
 
@@ -3250,7 +3250,7 @@ Correct! The error is **NOT coming from your backend**.
 
 The error message:
 ```
-No enum constant com.university.ManageNotes.model.PeriodType.CC
+No enum constant com.university.ManageNotes.model.ExamPeriod.CC
 ```
 
 This means:
@@ -3332,7 +3332,7 @@ departments
 level
 : 
 &quot;L4&quot;
-role
+appRole
 : 
 &quot;TEACHER&quot;
 subjects
@@ -3350,7 +3350,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Kate&quot;,
         &quot;lastName&quot;: &quot;Brown&quot;,
         &quot;email&quot;: &quot;kate.brown@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3360,7 +3360,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Jack&quot;,
         &quot;lastName&quot;: &quot;Orange&quot;,
         &quot;email&quot;: &quot;jack.orange@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3370,7 +3370,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Uma&quot;,
         &quot;lastName&quot;: &quot;Ivory&quot;,
         &quot;email&quot;: &quot;uma.ivory@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3380,7 +3380,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Yara&quot;,
         &quot;lastName&quot;: &quot;Pearl&quot;,
         &quot;email&quot;: &quot;yara.pearl@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3390,7 +3390,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Rose&quot;,
         &quot;lastName&quot;: &quot;Amethyst&quot;,
         &quot;email&quot;: &quot;rose.amethyst@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3400,7 +3400,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Xander&quot;,
         &quot;lastName&quot;: &quot;Amber&quot;,
         &quot;email&quot;: &quot;xander.amber@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3410,7 +3410,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Sam&quot;,
         &quot;lastName&quot;: &quot;Teal&quot;,
         &quot;email&quot;: &quot;sam.teal@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3420,7 +3420,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Eva&quot;,
         &quot;lastName&quot;: &quot;Black&quot;,
         &quot;email&quot;: &quot;eva.black@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3430,7 +3430,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Iris&quot;,
         &quot;lastName&quot;: &quot;Purple&quot;,
         &quot;email&quot;: &quot;iris.purple@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3440,7 +3440,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Noah&quot;,
         &quot;lastName&quot;: &quot;Gold&quot;,
         &quot;email&quot;: &quot;noah.gold@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3450,7 +3450,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Tina&quot;,
         &quot;lastName&quot;: &quot;Coral&quot;,
         &quot;email&quot;: &quot;tina.coral@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3460,7 +3460,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Will&quot;,
         &quot;lastName&quot;: &quot;Labradorite&quot;,
         &quot;email&quot;: &quot;will.labradorite@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3470,7 +3470,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Frank&quot;,
         &quot;lastName&quot;: &quot;Blue&quot;,
         &quot;email&quot;: &quot;frank.blue@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3480,7 +3480,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Quinn&quot;,
         &quot;lastName&quot;: &quot;Magenta&quot;,
         &quot;email&quot;: &quot;quinn.magenta@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3490,7 +3490,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Ruby&quot;,
         &quot;lastName&quot;: &quot;Lime&quot;,
         &quot;email&quot;: &quot;ruby.lime@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3500,7 +3500,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Zoe&quot;,
         &quot;lastName&quot;: &quot;Onyx&quot;,
         &quot;email&quot;: &quot;zoe.onyx@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3510,7 +3510,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Bob&quot;,
         &quot;lastName&quot;: &quot;Martin&quot;,
         &quot;email&quot;: &quot;bob.martin@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3520,7 +3520,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Adam&quot;,
         &quot;lastName&quot;: &quot;Copper&quot;,
         &quot;email&quot;: &quot;adam.copper@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3530,7 +3530,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Oscar&quot;,
         &quot;lastName&quot;: &quot;Obsidian&quot;,
         &quot;email&quot;: &quot;oscar.obsidian@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3540,7 +3540,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Ulrich&quot;,
         &quot;lastName&quot;: &quot;Fluorite&quot;,
         &quot;email&quot;: &quot;ulrich.fluorite@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3550,7 +3550,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Zara&quot;,
         &quot;lastName&quot;: &quot;Malachite&quot;,
         &quot;email&quot;: &quot;zara.malachite@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3560,7 +3560,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Alice&quot;,
         &quot;lastName&quot;: &quot;Cooper&quot;,
         &quot;email&quot;: &quot;alice.cooper@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3570,7 +3570,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Kevin&quot;,
         &quot;lastName&quot;: &quot;Quartz&quot;,
         &quot;email&quot;: &quot;kevin.quartz@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3580,7 +3580,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;David&quot;,
         &quot;lastName&quot;: &quot;Green&quot;,
         &quot;email&quot;: &quot;david.green@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3590,7 +3590,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Ian&quot;,
         &quot;lastName&quot;: &quot;Garnet&quot;,
         &quot;email&quot;: &quot;ian.garnet@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3600,7 +3600,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Paul&quot;,
         &quot;lastName&quot;: &quot;Cyan&quot;,
         &quot;email&quot;: &quot;paul.cyan@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3610,7 +3610,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Fiona&quot;,
         &quot;lastName&quot;: &quot;Emerald&quot;,
         &quot;email&quot;: &quot;fiona.emerald@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3620,7 +3620,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Wendy&quot;,
         &quot;lastName&quot;: &quot;Ruby&quot;,
         &quot;email&quot;: &quot;wendy.ruby@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3630,7 +3630,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Hannah&quot;,
         &quot;lastName&quot;: &quot;Topaz&quot;,
         &quot;email&quot;: &quot;hannah.topaz@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3640,7 +3640,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Chris&quot;,
         &quot;lastName&quot;: &quot;Steel&quot;,
         &quot;email&quot;: &quot;chris.steel@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3650,7 +3650,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Mia&quot;,
         &quot;lastName&quot;: &quot;Silver&quot;,
         &quot;email&quot;: &quot;mia.silver@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3660,7 +3660,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Vera&quot;,
         &quot;lastName&quot;: &quot;Hematite&quot;,
         &quot;email&quot;: &quot;vera.hematite@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3670,7 +3670,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Julia&quot;,
         &quot;lastName&quot;: &quot;Opal&quot;,
         &quot;email&quot;: &quot;julia.opal@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3680,7 +3680,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Bella&quot;,
         &quot;lastName&quot;: &quot;Bronze&quot;,
         &quot;email&quot;: &quot;bella.bronze@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3690,7 +3690,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Luna&quot;,
         &quot;lastName&quot;: &quot;Agate&quot;,
         &quot;email&quot;: &quot;luna.agate@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3700,7 +3700,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Henry&quot;,
         &quot;lastName&quot;: &quot;Yellow&quot;,
         &quot;email&quot;: &quot;henry.yellow@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3710,7 +3710,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Olivia&quot;,
         &quot;lastName&quot;: &quot;Pink&quot;,
         &quot;email&quot;: &quot;olivia.pink@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3720,7 +3720,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Tara&quot;,
         &quot;lastName&quot;: &quot;Carnelian&quot;,
         &quot;email&quot;: &quot;tara.carnelian@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3730,7 +3730,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Victor&quot;,
         &quot;lastName&quot;: &quot;Jade&quot;,
         &quot;email&quot;: &quot;victor.jade@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3740,7 +3740,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Nina&quot;,
         &quot;lastName&quot;: &quot;Turquoise&quot;,
         &quot;email&quot;: &quot;nina.turquoise@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3750,7 +3750,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Carol&quot;,
         &quot;lastName&quot;: &quot;White&quot;,
         &quot;email&quot;: &quot;carol.white@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3760,7 +3760,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Penny&quot;,
         &quot;lastName&quot;: &quot;Peridot&quot;,
         &quot;email&quot;: &quot;penny.peridot@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3770,7 +3770,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Quinn&quot;,
         &quot;lastName&quot;: &quot;Citrine&quot;,
         &quot;email&quot;: &quot;quinn.citrine@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3780,7 +3780,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Diana&quot;,
         &quot;lastName&quot;: &quot;Platinum&quot;,
         &quot;email&quot;: &quot;diana.platinum@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3790,7 +3790,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Steve&quot;,
         &quot;lastName&quot;: &quot;Beryl&quot;,
         &quot;email&quot;: &quot;steve.beryl@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3800,7 +3800,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Max&quot;,
         &quot;lastName&quot;: &quot;Jasper&quot;,
         &quot;email&quot;: &quot;max.jasper@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3810,7 +3810,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;George&quot;,
         &quot;lastName&quot;: &quot;Sapphire&quot;,
         &quot;email&quot;: &quot;george.sapphire@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3820,7 +3820,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Ethan&quot;,
         &quot;lastName&quot;: &quot;Diamond&quot;,
         &quot;email&quot;: &quot;ethan.diamond@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3830,7 +3830,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Grace&quot;,
         &quot;lastName&quot;: &quot;Red&quot;,
         &quot;email&quot;: &quot;grace.red@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     },
@@ -3840,7 +3840,7 @@ and when i try to list out the students, look the null values i have
         &quot;firstName&quot;: &quot;Leo&quot;,
         &quot;lastName&quot;: &quot;Gray&quot;,
         &quot;email&quot;: &quot;leo.gray@student.university.edu&quot;,
-        &quot;role&quot;: &quot;STUDENT&quot;,
+        &quot;appRole&quot;: &quot;STUDENT&quot;,
         &quot;levels&quot;: null,
         &quot;subjects&quot;: null
     }

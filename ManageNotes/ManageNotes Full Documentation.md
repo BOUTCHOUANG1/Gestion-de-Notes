@@ -22,10 +22,10 @@
 
 ## System Overview
 
-ManageNotes is a comprehensive university grade management system built with Spring Boot 3.5.3, designed to handle academic operations for administrators, teachers, and students. The system provides secure role-based access control, grade management, academic reporting, and administrative functions.
+ManageNotes is a comprehensive university grade management system built with Spring Boot 3.5.3, designed to handle academic operations for administrators, teachers, and students. The system provides secure appRole-based access control, grade management, academic reporting, and administrative functions.
 
 ### Key Features
-- **Multi-role Authentication**: JWT-based authentication for Admin, Teacher, and Student roles
+- **Multi-appRole Authentication**: JWT-based authentication for Admin, Teacher, and Student roles
 - **Grade Management**: Complete CRUD operations with validation and grading windows
 - **Academic Structure**: Department, subject, semester, and student management
 - **Grade Claims**: Student-initiated grade dispute system with approval workflow
@@ -106,7 +106,7 @@ erDiagram
         varchar username UK
         varchar email UK
         varchar password
-        varchar role
+        varchar appRole
         varchar first_name
         varchar last_name
         boolean active
@@ -323,7 +323,7 @@ public class ExampleController {
 #### Academic Controllers
 - **DepartmentController** (`/api/departments`) - Department management
 - **SubjectController** (`/api/subjects`) - Subject management
-- **SemesterController** (`/api/semesters`) - Semester management
+- **SemesterController** (`/api/semester`) - Semester management
 
 #### Grade Management Controllers
 - **GradeController** (`/api/grades`) - Grade CRUD operations
@@ -332,7 +332,7 @@ public class ExampleController {
 
 ### Request/Response Flow
 1. **Request Validation** - Bean validation on DTOs
-2. **Security Check** - JWT token validation and role authorization
+2. **Security Check** - JWT token validation and appRole authorization
 3. **Service Delegation** - Business logic execution
 4. **Data Mapping** - Entity to DTO conversion
 5. **Response Formation** - HTTP response with appropriate status codes
@@ -569,7 +569,7 @@ public class SignupRequest {
     
     private String firstName;
     private String lastName;
-    private Role role = Role.STUDENT;
+    private Role appRole = Role.STUDENT;
 }
 ```
 
@@ -597,7 +597,7 @@ public class GradeRequest {
     private GradeType type;
     
     @NotNull
-    private PeriodType periodType;
+    private PeriodType examPeriod;
     
     private String comments;
     
@@ -638,7 +638,7 @@ public class UserProfileResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private Role role;
+    private Role appRole;
     private StudentLevel level;        // For students
     private List<String> levels;       // For teachers
     private List<SubjectResponse> subjects;
@@ -720,12 +720,12 @@ public class GradeResponse {
 | PUT | `/{id}` | `SubjectRequest` | `MessageResponse` | ADMIN | Update subject |
 | DELETE | `/{id}` | - | `MessageResponse` | ADMIN | Delete subject |
 
-#### Semesters (`/api/semesters`)
+#### Semesters (`/api/semester`)
 | Method | Endpoint | Request | Response | Roles | Description |
 |--------|----------|---------|----------|-------|-------------|
-| GET | `/` | - | `List<SemesterResponse>` | ADMIN | List semesters |
+| GET | `/` | - | `List<SemesterResponse>` | ADMIN | List semester |
 | POST | `/` | `SemesterRequest` | `MessageResponse` | ADMIN | Create semester |
-| PUT | `/` | `List<SemesterRequest>` | `MessageResponse` | ADMIN | Bulk update semesters |
+| PUT | `/` | `List<SemesterRequest>` | `MessageResponse` | ADMIN | Bulk update semester |
 | PUT | `/{id}` | `SemesterRequest` | `MessageResponse` | ADMIN | Update semester |
 | DELETE | `/{id}` | - | `MessageResponse` | ADMIN | Delete semester |
 
@@ -887,9 +887,9 @@ public double calculateGPA(List<Grades> grades) {
 
 #### Window Validation Logic
 ```java
-public boolean isWindowOpen(Long semesterId, PeriodType periodType) {
+public boolean isWindowOpen(Long semesterId, PeriodType examPeriod) {
     Optional<GradingWindow> window = gradingWindowRepository
-        .findBySemesterIdAndPeriodType(semesterId, periodType);
+        .findBySemesterIdAndPeriodType(semesterId, examPeriod);
     
     if (window.isEmpty()) return false;
     
@@ -1243,7 +1243,7 @@ return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.forbidden(
 #### Authentication & Authorization
 - Always use `@PreAuthorize` for method-level security
 - Validate JWT tokens on every protected endpoint
-- Implement proper role-based access control
+- Implement proper appRole-based access control
 
 #### Data Protection
 - Never log sensitive information (passwords, tokens)

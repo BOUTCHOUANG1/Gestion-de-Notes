@@ -1,61 +1,68 @@
 package com.university.ManageNotes.model;
 
-import com.university.ManageNotes.util.PeriodLabelUtil;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Setter
-@Getter
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class Grades extends AbstractEntity{
+@Data
+@Table(name = "grades")
+public class Grades{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long gradeId;
 
-    @Column(name = "value")
-    private Double value;
+    @NotBlank(message = "Score is required")
+    @Min(value = 0, message = "Score must be greater than or equal to 0")
+    private Double score;
 
-    @Column(name="max_value")
-    private Double maxValue = 20.0;
+    @NotBlank(message = "Max value is required")
+    @Min(value = 0, message = "Max value must be greater than or equal to 0")
+    @Max(value = 100, message = "Max value must be less than or equal to 100")
+    private Double maxValue;
 
-    @Column(name = "Comments")
+    @NotBlank(message = "Comments are required")
+    @Size(min = 5, max = 255, message = "Comments must be between 5 and 255 characters long")
     private String comments;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "period_type")
-    private PeriodType periodType; // e.g., CC_1, CC_2, SN_1, SN_2
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "id_students")
-    private Students student;
-
-    @ManyToOne
-    @JoinColumn(name = "id_subject")
+    @JoinColumn(name = "subject_id")
     private Subject subject;
 
     @ManyToOne
-    @JoinColumn(name = "id_users")
-    private Users enteredBy;
+    @JoinColumn(name = "teacher_id")
+    private Teacher examiner;
 
     @ManyToOne
-    @JoinColumn(name = "id_semester")
-    private Semesters semester;
+    @JoinColumn(name = "semester_id")
+    private Semester semester;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "grade_type")
-    private GradeType type;
+    @Column(name = "assessment_type")
+    private AssessmentType exam;
 
+    @OneToMany(mappedBy = "grades", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+    orphanRemoval = true)
+    private List<Revendication> revendication = new ArrayList<>();
 
-    public Semesters getSemesters() {
-        return this.semester;
+    public Grades(Double score, Double maxValue, Student student, Subject subject, String comments, Teacher examiner, Semester semester, AssessmentType exam) {
+        this.score = score;
+        this.maxValue = maxValue;
+        this.student = student;
+        this.subject = subject;
+        this.comments = comments;
+        this.examiner = examiner;
+        this.semester = semester;
+        this.exam = exam;
     }
-
-    public void setSemesters(Semesters semesters) {
-        this.semester = semesters;
-    }
-
-    public void setPeriodType(PeriodType periodType){
-        this.periodType = periodType;
-    }
-
 }

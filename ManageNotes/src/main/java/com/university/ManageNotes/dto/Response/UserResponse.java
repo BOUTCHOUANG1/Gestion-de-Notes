@@ -1,19 +1,16 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.model.AbstractEntity;
-import com.university.ManageNotes.model.Role;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.university.ManageNotes.model.*;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
-@Setter
-@Getter
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse extends AbstractEntity {
+public class UserResponse {
 
     private String username;
 
@@ -23,26 +20,22 @@ public class UserResponse extends AbstractEntity {
 
     private String lastName;
 
-    // phone removed
+    private Roles appRole;
 
-    private Role role;
-
-    private Boolean active;
+    private Boolean isActive;
 
     // Teacher fields
-    private List<String> levels;
-    private String department;
+    private List<TeachingLevel> levels;
+    private Department department;
     private String phone;
+    private List<Subject> subjects;
 
     // Student fields
-    private String level;  // Single level for students
+    private TeachingLevel level;  // Single level for students
     private String matricule;
     private String speciality;
-    private String cycle;
-    private java.time.LocalDate dateOfBirth;
+    private StudentCycle cycle;
+    private LocalDate dateOfBirth;
     private String placeOfBirth;
 
-    public void setId(Long id) {
-        super.setId(id);
-    }
 }

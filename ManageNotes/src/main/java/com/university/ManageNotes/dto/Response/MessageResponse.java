@@ -1,32 +1,10 @@
 package com.university.ManageNotes.dto.Response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Setter
-@Getter
+@NoArgsConstructor
 @AllArgsConstructor
-
+@Data
 public class MessageResponse {
     private String message;
-    private String status; // "SUCCESS", "ERROR", "WARNING", "INFO"
-    private Object data;
-
-    public MessageResponse(String message, String status) {
-        this.message = message;
-        this.status = status;
-        this.data = null;
-    }
-    // Static factory methods
-    public static MessageResponse success(String message) {
-       return new MessageResponse(message, "SUCCESS");
-    }
-
-    public static MessageResponse error(String message) {
-       return new MessageResponse(message, "ERROR");
-   }
-
-
-
 }
