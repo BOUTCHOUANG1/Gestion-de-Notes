@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.Grades;
 import com.university.ManageNotes.repository.*;
@@ -36,30 +37,19 @@ public class GradeServiceImpl implements GradeService {
     public GradeRequest createGrade(GradeRequest gradeRequest) {
        Grades grade = modelMapper.map(gradeRequest, Grades.class);
 
-       Grades gradeByTeacherDb = gradeRepository.findByTeacherAndStudentAndTeachingLevelAndSemester(
+       List<Grades> gradeByTeacherDb = gradeRepository.findByTeacherAndStudentAndTeachingLevelAndSemester(
                grade.getExaminer().getId(),
-               grade.getStudent(), grade.getTeachingLevel(), grade.getSemester());)
+               grade.getStudent().getId(), grade.getStudent().getStudentLevel(), grade.getSemester());
 
+       if(gradeByTeacherDb != null && !gradeByTeacherDb.isEmpty()){
+           throw new APIException("Grade already exists for this teacher with name " + grade.getExaminer().getUsername());
+       }
+           throw new APIException("No grade found for this teacher with name " + grade.getExaminer().getUsername());
+       }
 
-        // Convert user ID to student record for consistency
-        Students student = getStudentByUserId(gradeRequest.getStudentId());
+       List<Grades> gradeDb = gradeRepository.findAll();
 
-        Grades grade = new Grades();
-        grade.setStudent(student);
-        grade.setSubject(subjectRepository.findById(gradeRequest.getSubjectId())
-                .orElseThrow(() -> new RuntimeException("Subject not found")));
-        grade.setSemesters(semesterRepository.findById(gradeRequest.getSemesterId())
-                .orElseThrow(() -> new RuntimeException("Semester not found")));
-        grade.setScore(gradeRequest.getValue());
-        grade.setMaxValue(gradeRequest.getMaxValue());
-        grade.setExam(gradeRequest.getType());
-        grade.setComments(gradeRequest.getComments());
-        grade.setExamPeriod(gradeRequest.getExamPeriod());
-        grade.setExaminer(userRepository.findById(gradeRequest.getEnteredBy())
-                .orElseThrow(() -> new RuntimeException("User not found")));
-
-        Grades saved = gradeRepository.save(grade);
-        return convertToResponse(saved);
+    gradeDb.stream()
     }
 
     public StudentGradesResponse getStudentGrades(Long userId, Long semesterId) {
