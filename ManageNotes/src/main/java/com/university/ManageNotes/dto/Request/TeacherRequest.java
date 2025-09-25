@@ -1,31 +1,27 @@
-package com.university.ManageNotes.dto.Response;
+package com.university.ManageNotes.dto.Request;
 
 import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Roles;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.model.TeachingLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.Instant;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TeacherResponse {
-    private Long teacherId;
+@Setter
+@Getter
+public class TeacherRequest {
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private String email;
-    private List<SubjectResponse> subjects;
+    private List<Subject> subjects;
     private Department department;
     private List<TeachingLevel> teachingLevel;
-    private Instant createdDate;
-    private Instant lastModifiedDate;
     private Roles appRole;
     private Boolean isActive;
 }

@@ -3,7 +3,10 @@ package com.university.ManageNotes.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +57,18 @@ public class Grades{
     @OneToMany(mappedBy = "grades", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
     orphanRemoval = true)
     private List<Revendication> revendication = new ArrayList<>();
+
+    @CreatedDate
+    @Column(name ="creation_date",nullable = false,updatable = false)
+    private Instant createdDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
+
+    private Boolean hasPassed;
+
+    private Double gpa;
 
     public Grades(Double score, Double maxValue, Student student, Subject subject, String comments, Teacher examiner, Semester semester, AssessmentType exam) {
         this.score = score;

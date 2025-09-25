@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubjectRequest {
-    private Long subjectId;
     private String subjectCode;
     private BigDecimal credits;
     private String description;

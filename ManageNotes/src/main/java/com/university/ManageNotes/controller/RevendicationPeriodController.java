@@ -1,7 +1,6 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
-import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,10 +1,14 @@
 package com.university.ManageNotes.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -25,14 +29,22 @@ public class RevendicationPeriod {
     @JoinColumn(name = "semester_id")
     private Semester semester;
 
+    @NotBlank(message = "The start date of the revendication period is required")
     private LocalDate startDate;
 
+    @NotBlank(message = "The start date of the revendication period is required")
     private LocalDate endDate;
 
-    @Column(name = "color")
     private String color;
 
-    @Column(name = "is_active")
     private Boolean isActive = false;
+
+    @CreatedDate
+    @Column(name ="creation_date",nullable = false,updatable = false)
+    private Instant createdDate;
+
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
 
 }

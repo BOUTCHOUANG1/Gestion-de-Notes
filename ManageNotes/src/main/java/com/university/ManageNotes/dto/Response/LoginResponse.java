@@ -3,6 +3,7 @@ package com.university.ManageNotes.dto.Response;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.List;
 
 @Setter
@@ -13,6 +14,10 @@ public class LoginResponse {
     private String username;
 
     private List<String> roles;
+
+    private Instant createdDate;
+
+    private Instant lastModifiedDate;
 
 
     public LoginResponse(Long id, String username, List<String> roles) {

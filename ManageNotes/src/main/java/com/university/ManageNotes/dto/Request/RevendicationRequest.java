@@ -1,22 +1,17 @@
 package com.university.ManageNotes.dto.Request;
 
+import com.university.ManageNotes.model.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class RevendicationRequest {
-    @NotNull
-    private Long gradeId;
-
-    @NotNull
-    private Double requestedScore;
-
-    @NotBlank
-    private String cause;
-
-    @NotNull
     private ExamPeriod period;
-
-    @NotBlank
+    private Student student;
+    private Grades grade;
+    private Semester semester;
+    private Double requestedScore;
     private String description;
 }

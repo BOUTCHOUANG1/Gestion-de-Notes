@@ -12,16 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SemesterRequest {
-    
-    private Long id;
-    
-    @NotBlank(message = "Semester name is required")
-    @Size(min = 1, max = 50, message = "Semester name must be between 1 and 50 characters")
     private String name;
-    
     private LocalDate startDate;
-    
     private LocalDate endDate;
-    
     private Boolean active = true;
 }

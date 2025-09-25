@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,7 +109,7 @@ public class GradeController {
             @RequestParam Long studentId,
             @RequestParam Long semesterId) {
         try {
-            ReportResponse response = gradeService.calculateSemesterSummary(studentId, semesterId);
+            TranscriptResponse response = gradeService.calculateSemesterSummary(studentId, semesterId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -125,7 +124,7 @@ public class GradeController {
             @RequestParam Long semester1Id,
             @RequestParam Long semester2Id) {
         try {
-            ReportResponse response = gradeService.calculateYearSummary(studentId, semester1Id, semester2Id);
+            TranscriptResponse response = gradeService.calculateYearSummary(studentId, semester1Id, semester2Id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()

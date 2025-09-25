@@ -1,7 +1,6 @@
 package com.university.ManageNotes;
 
 import com.university.ManageNotes.dto.Request.SubjectRequest;
-import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.model.StudentCycle;
 import com.university.ManageNotes.model.StudentLevel;
 import com.university.ManageNotes.service.SubjectService;

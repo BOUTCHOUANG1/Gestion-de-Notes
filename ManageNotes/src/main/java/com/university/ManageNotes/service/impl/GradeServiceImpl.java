@@ -2,7 +2,6 @@ package com.university.ManageNotes.service.impl;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.StudentGradesResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
@@ -35,21 +34,19 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public GradeRequest createGrade(GradeRequest gradeRequest) {
-       Grades grade = modelMapper.map(gradeRequest, Grades.class);
+        Grades grade = modelMapper.map(gradeRequest, Grades.class);
 
-       List<Grades> gradeByTeacherDb = gradeRepository.findByTeacherAndStudentAndTeachingLevelAndSemester(
-               grade.getExaminer().getId(),
-               grade.getStudent().getId(), grade.getStudent().getStudentLevel(), grade.getSemester());
+        List<Grades> gradeByTeacherDb = gradeRepository.findByTeacherAndStudentAndTeachingLevelAndSemester(
+                grade.getExaminer().getId(),
+                grade.getStudent().getId(), grade.getStudent().getStudentLevel(), grade.getSemester());
 
-       if(gradeByTeacherDb != null && !gradeByTeacherDb.isEmpty()){
-           throw new APIException("Grade already exists for this teacher with name " + grade.getExaminer().getUsername());
-       }
-           throw new APIException("No grade found for this teacher with name " + grade.getExaminer().getUsername());
-       }
+        if (gradeByTeacherDb != null && !gradeByTeacherDb.isEmpty()) {
+            throw new APIException("Grade already exists for this teacher with name " + grade.getExaminer().getUsername());
+        }
+        throw new APIException("No grade found for this teacher with name " + grade.getExaminer().getUsername());
 
-       List<Grades> gradeDb = gradeRepository.findAll();
-
-    gradeDb.stream()
+        List<Grades> gradeDb = gradeRepository.findAll();
+        gradeDb.stream();
     }
 
     public StudentGradesResponse getStudentGrades(Long userId, Long semesterId) {
@@ -140,7 +137,7 @@ public class GradeServiceImpl implements GradeService {
         response.setLastName(student.getLastName());
         response.setEmail(student.getEmail());
         response.setUsername(student.getMatricule());
-        if(student.getLevel()!=null) response.setLevel(student.getLevel().name());
+        if (student.getLevel() != null) response.setLevel(student.getLevel().name());
         response.setRole("STUDENT");
 
         return response;
@@ -153,7 +150,8 @@ public class GradeServiceImpl implements GradeService {
             if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
                 teacherId = up.getId();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         if (teacherId == null) {
             return List.of();
@@ -188,3 +186,5 @@ public class GradeServiceImpl implements GradeService {
         return convertToResponse(updatedGrade);
     }
 }
+
+

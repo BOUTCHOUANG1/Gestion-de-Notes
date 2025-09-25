@@ -2,8 +2,7 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.RevendicationRequest;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
-import com.university.ManageNotes.dto.Response.MessageResponse;
-import com.university.ManageNotes.service.GradeClaimService;
+import com.university.ManageNotes.service.RevendicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/grade-claims")
 @RequiredArgsConstructor
 public class RevendicationController {
-    private final GradeClaimService claimService;
+    private final RevendicationService claimService;
 
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")

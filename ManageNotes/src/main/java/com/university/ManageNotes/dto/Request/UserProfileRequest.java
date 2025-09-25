@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileRequest {
-    private Long id;
     private String username;
     private String firstName;
     private String lastName;

@@ -20,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,9 +70,9 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .map(sub -> modelMapper.map(sub, SubjectRequest.class))
                 .toList();
 
-        List<SubjectResponse> subjectResponses = subjectRequests.stream()
-                .map(sub -> modelMapper.map(sub, SubjectResponse.class))
-                .toList();
+        Set<Subject> subjectResponses = subjectRequests.stream()
+                .map(sub -> modelMapper.map(sub, Subject.class))
+                .collect(Collectors.toSet());
 
         DepartmentResponse departmentResponse = new DepartmentResponse();
 

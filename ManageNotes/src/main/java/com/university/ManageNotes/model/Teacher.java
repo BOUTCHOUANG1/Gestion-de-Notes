@@ -6,7 +6,10 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,7 @@ public class Teacher extends Users {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "teachingLevel_id")
     private List<TeachingLevel> teachingLevel = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "examiner")
     private List<Grades> gradesEntered = new ArrayList<>();

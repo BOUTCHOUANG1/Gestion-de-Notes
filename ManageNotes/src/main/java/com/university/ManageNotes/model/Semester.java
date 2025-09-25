@@ -37,8 +37,8 @@ public class Semester {
     @Column(name = "isActive")
     private Boolean active;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "semester", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY,
             orphanRemoval = true)
     private List<Subject> subjects = new ArrayList<>();
 

@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +23,9 @@ public class Revendication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long revendicationId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "student_revendication",
-            joinColumns = @JoinColumn(name = "revendication_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id"))
-    private List<Student> student = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @ManyToOne
     @JoinColumn(name = "period_id")
@@ -49,18 +50,16 @@ public class Revendication {
 
     @Column(name = "teacher_comment", columnDefinition = "TEXT")
     @NotBlank(message = "Teacher comment is required")
-    private String teacherComment;
+    private String teacherComment = "Pending review";
 
     @Enumerated(EnumType.STRING)
     private RequestStatus status = RequestStatus.PENDING;
 
-    private String rejectionReason;
+    @CreatedDate
+    @Column(name ="creation_date",nullable = false,updatable = false)
+    private Instant createdDate;
 
-    private LocalDateTime requestedAt;
-
-    private LocalDateTime resolvedAt;
-
-    @ManyToOne
-    @JoinColumn(name = "revendicated_by")
-    private Student revendicatedBy;
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
 }

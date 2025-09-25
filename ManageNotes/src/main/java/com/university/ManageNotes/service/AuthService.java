@@ -1,6 +1,5 @@
 package com.university.ManageNotes.service;
 
-import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
 import org.springframework.security.core.Authentication;
 

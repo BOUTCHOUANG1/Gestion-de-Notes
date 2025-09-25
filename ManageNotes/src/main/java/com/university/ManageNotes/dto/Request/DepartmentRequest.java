@@ -11,7 +11,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DepartmentRequest {
-    private Long departmentId;
     private String departmentName;
     private Set<Subject> subjects;
 }

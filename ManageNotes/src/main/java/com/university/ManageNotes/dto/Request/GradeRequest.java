@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GradeRequest {
-    private Long gradeId;
     private Double score;
     private Double maxValue;
     private String comments;
