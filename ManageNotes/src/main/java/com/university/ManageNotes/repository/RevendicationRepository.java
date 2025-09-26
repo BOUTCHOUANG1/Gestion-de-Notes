@@ -13,10 +13,6 @@ public interface RevendicationRepository extends JpaRepository<Revendication, Lo
     boolean existsByStudentAndGradeAndStatus(Student student, Grades grade, RequestStatus status);
     
     Page<Revendication> findByGrade_Subject_TeacherAndStatusOrderByCreatedDateDesc(Teacher teacher, RequestStatus status, Pageable pageable);
-    
-    List<Revendication> findByGrade_Subject_TeacherAndStatus(Teacher teacher, RequestStatus status);
-    
+
     List<Revendication> findByStudentOrderByCreatedDateDesc(Student student);
-    
-    List<Revendication> findByStatus(RequestStatus status);
 }

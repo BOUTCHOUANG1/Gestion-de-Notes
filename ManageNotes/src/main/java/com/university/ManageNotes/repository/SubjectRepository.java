@@ -18,12 +18,4 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Optional<Subject> findBySubjectCode(String code);
 
     boolean existsByIdTeacherAndLevel(Long idTeacher, List<TeachingLevel> level);
-
-        
-    @Query("SELECT s FROM Subject s " +
-           "JOIN s.subjectsLevel tl " +
-           "WHERE tl.studentLevel = :studentLevel " +
-           "AND s.semester.active = true")
-    Set<Subject> findByStudentLevelAndActiveSemester(
-        @Param("studentLevel") TeachingLevel studentLevel);
 }
