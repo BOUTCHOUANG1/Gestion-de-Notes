@@ -21,35 +21,33 @@ public class RevendicationPeriodController {
     private final RevendicationPeriodService revendicationPeriodService;
 
     @GetMapping("/revendication-period")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all the periods of revendication")
+    @Operation(summary = "Get all the periods of revendication", description = "This endpoint allows to retrieve all the periods of revendication")
     public ResponseEntity<List<RevendicationPeriodResponse>> getAllRevendicationPeriod() {
         return new ResponseEntity<>(revendicationPeriodService.getAllPeriod(), HttpStatus.OK);
     }
 
     @PostMapping("/admin/revendication-period")
     @Operation(summary = "Create a new revendication period", description = "This endpoint allows the admin to define the period through which revendications are evalued")
-    public ResponseEntity<RevendicationPeriodResponse> createRevendicatioPeriod(@Valid @RequestBody RevendicationPeriodRequest request) {
+    public ResponseEntity<RevendicationPeriodRequest> createRevendicatioPeriod(@Valid @RequestBody RevendicationPeriodRequest request) {
         return new ResponseEntity<>(revendicationPeriodService.createPeriod(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/admin/revendication-period/{id}")
-    @Operation(summary = "Update a grading window")
+    @Operation(summary = "Update a revendication period", description = "This endpoint allows the admin to update the period through which revendications are evaluated")
     public ResponseEntity<RevendicationPeriodRequest> updateRevendicationPeriod(@PathVariable Long id, @Valid @RequestBody RevendicationPeriodRequest request) {
         return new ResponseEntity<>(revendicationPeriodService.updatePeriod(id, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/revendication-period/{id}")
-    @Operation(summary = "Delete a grading window")
+    @Operation(summary = "Delete a revendication period", description = "This endpoint allows the admin to delete a period through which revendications are evaluated")
     public ResponseEntity<MessageResponse> deleteRevendicationPeriod(@PathVariable Long id) {
         revendicationPeriodService.deletePeriod(id);
-        return new ResponseEntity<>(new MessageResponse("Grading window deleted successfully"), HttpStatus.OK);
+        return new ResponseEntity<>(new MessageResponse("Revendication period deleted successfully"), HttpStatus.OK);
     }
 
     @GetMapping("/revendication-period/active")
-    @Operation(summary = "Get all isActive grading windows")
+    @Operation(summary = "Get all active revendication periods", description = "This endpoint allows to retrieve all the active periods of revendication")
     public ResponseEntity<List<RevendicationPeriodResponse>> getActiveRevendicationPeriod() {
         return new ResponseEntity<>(revendicationPeriodService.getActivePeriods(), HttpStatus.OK);
     }
-
 }

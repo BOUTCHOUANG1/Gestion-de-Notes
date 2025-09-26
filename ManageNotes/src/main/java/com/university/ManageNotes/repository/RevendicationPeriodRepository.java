@@ -2,15 +2,19 @@ package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Exam;
 import com.university.ManageNotes.model.RevendicationPeriod;
+import com.university.ManageNotes.model.Semester;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface RevendicationPeriodRepository extends JpaRepository<RevendicationPeriod, Long> {
-    List<RevendicationPeriod> findBySemesterId(Long idSemester);
-    List<RevendicationPeriod> findBySemesterIdAndShortNameIgnoreCase(Long idSemester, String shortName);
-    List<RevendicationPeriod> findBySemesterIdAndExamPeriod(Long idSemester, Exam periodLabel);
-    List<RevendicationPeriod> findBySemesterIdAndIsActive(Long idSemester, Boolean isActive);
-    List<RevendicationPeriod> findAllByOrderByOrderAsc();
-    List<RevendicationPeriod> findByIsActiveTrue();
+    
+    boolean existsByExamAndSemester(Exam exam, Semester semester);
+    
+    List<RevendicationPeriod> findBySemesterAndIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        Semester semester, LocalDate startDate, LocalDate endDate);
+    
+    boolean existsByExamAndSemesterAndIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        Exam exam, Semester semester, LocalDate startDate, LocalDate endDate);
 }

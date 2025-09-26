@@ -23,28 +23,26 @@ public class SemesterController {
 
     private final SemesterService semesterService;
 
-    @GetMapping("/admin/semesters")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all semesters")
+    @GetMapping("/semesters")
+    @Operation(summary = "Get all semesters", description = "Retrieve a list of all semesters")
     public ResponseEntity<List<SemesterResponse>> getAllSemesters() {
         return new ResponseEntity<>(semesterService.getAllSemesters(), HttpStatus.OK);
     }
 
     @PostMapping("/admin/semester")
-    @Operation(summary = "Create new semester")
-    public ResponseEntity<SemesterResponse> createSemester(@Valid @RequestBody SemesterRequest request) {
+    @Operation(summary = "Create new semester", description = "Create a new semester with the provided details")
+    public ResponseEntity<SemesterRequest> createSemester(@Valid @RequestBody SemesterRequest request) {
         return new ResponseEntity<>(semesterService.createSemester(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/admin/semester/{id}")
-    @Operation(summary = "Update semester")
-    public ResponseEntity<SemesterResponse> updateSemester(@PathVariable Long id, @Valid @RequestBody SemesterRequest request) {
+    @Operation(summary = "Update semester", description = "Update the details of a semester with the provided ID")
+    public ResponseEntity<SemesterRequest> updateSemester(@PathVariable Long id, @Valid @RequestBody SemesterRequest request) {
         return new ResponseEntity<>(semesterService.updateSemester(id, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/semester/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete semester")
+    @Operation(summary = "Delete semester", description = "Delete the semester with the provided ID")
     public ResponseEntity<MessageResponse> deleteSemester(@PathVariable Long id) {
         semesterService.deleteSemester(id);
         return new ResponseEntity<>(new MessageResponse("Semester deleted successfully"), HttpStatus.OK);

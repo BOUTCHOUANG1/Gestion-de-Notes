@@ -11,11 +11,9 @@ public interface SemesterService {
     
     SemesterResponse getSemesterById(Long id);
     
-    SemesterResponse createSemester(SemesterRequest request);
+    SemesterRequest createSemester(SemesterRequest request);
     
-    SemesterResponse updateSemester(Long id, SemesterRequest request);
-    
-    void updateSemesters(List<SemesterRequest> requests);
+    SemesterRequest updateSemester(Long id, SemesterRequest request);
     
     void deleteSemester(Long id);
 }

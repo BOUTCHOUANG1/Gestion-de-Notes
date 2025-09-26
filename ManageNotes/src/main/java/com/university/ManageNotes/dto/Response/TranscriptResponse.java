@@ -16,12 +16,12 @@ public class TranscriptResponse {
     private String studentFirstName;
     private String studentLastName;
     private String studentMatricule;
-    private List<Subject> subjectResults;
+    private List<SubjectResponse> subjectResults;
     private TranscriptStatus status;
     private TeachingLevel studentLevel;
     private StudentCycle studentCycle;
     private String semesterName;
-    private List<Grades> studentGrades;
+    private List<GradeResponse> studentGrades;
     private Double annualAverage;
     private String pdfPath;
     private Integer creditsEarned;

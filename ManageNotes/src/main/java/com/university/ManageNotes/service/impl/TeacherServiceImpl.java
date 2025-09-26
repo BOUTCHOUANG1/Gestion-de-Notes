@@ -1,20 +1,12 @@
 package com.university.ManageNotes.service.impl;
 
-import com.university.ManageNotes.dto.Request.StudentRequest;
 import com.university.ManageNotes.dto.Request.TeacherRequest;
-import com.university.ManageNotes.dto.Response.StudentResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
-import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
-import com.university.ManageNotes.model.Student;
 import com.university.ManageNotes.model.Teacher;
 import com.university.ManageNotes.model.TeachingLevel;
-import com.university.ManageNotes.model.enums.StudentCycle;
-import com.university.ManageNotes.model.enums.StudentLevel;
 import com.university.ManageNotes.repository.TeacherRepository;
 import com.university.ManageNotes.service.TeacherService;
-
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;

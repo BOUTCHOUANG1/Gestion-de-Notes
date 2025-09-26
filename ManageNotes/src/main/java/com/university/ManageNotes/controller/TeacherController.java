@@ -1,9 +1,7 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.dto.Request.StudentRequest;
 import com.university.ManageNotes.dto.Request.TeacherRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.StudentResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.service.GradeService;
 import com.university.ManageNotes.service.TeacherService;
@@ -13,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +26,7 @@ public class TeacherController {
     private final GradeService gradeService;
 
     @PutMapping("/admin/teacher/{id}")
-    @Operation(summary = "Update Teacher information (Admin only)")
+    @Operation(summary = "Update Teacher information (Admin only)", description = "Allows admin to update teacher details such as name, email, and department.")
     public ResponseEntity<TeacherRequest> updateTeacher(
             @PathVariable Long id, 
             @Valid @RequestBody TeacherRequest request) {
@@ -44,7 +41,6 @@ public class TeacherController {
     }
 
     @GetMapping("/teacher/my-grades")
-    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @Operation(summary = "Get teacher's grades", description = "Get all grades entered by current teacher")
     public ResponseEntity<List<GradeResponse>> getTeacherGrades() {
         return new ResponseEntity<>(gradeService.getTeacherGrades(), HttpStatus.OK);

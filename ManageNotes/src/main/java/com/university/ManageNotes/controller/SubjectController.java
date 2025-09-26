@@ -18,14 +18,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Subject Lookup", description = "Endpoints for subject lookup")
 public class SubjectController {
     private final SubjectService subjectService;
 
     @GetMapping("/admin/subjects")
     @Operation(summary = "View all subject", description = "Admin can view all the subjects")
-    public ResponseEntity<SubjectResponse> viewAllSubject(
+    public ResponseEntity<SubjectResponse> getAllSubject(
             @RequestParam(name = "pageNumber",
                     defaultValue = AppConstant.PAGE_NUMBER,
                     required = false) Integer pageNumber,

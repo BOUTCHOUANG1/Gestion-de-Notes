@@ -1,7 +1,5 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
-import com.university.ManageNotes.model.Exam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,20 +12,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RevendicationPeriodResponse {
-    private Long id;
-    private String name;
-    private String shortName;
-    private Exam periodLabel;
-    private Integer semester;
+    private Long revendicationPeriodId;
+    private ExamResponse exam;
+    private SemesterResponse semester;
     private LocalDate startDate;
     private LocalDate endDate;
     private String color;
     private Boolean isActive;
-    private Integer order;
     private Instant createdDate;
     private Instant lastModifiedDate;
 
-    private List<RevendicationPeriodRequest> content;
+    // Pagination support
+    private List<RevendicationPeriodResponse> content;
     private Integer pageNumber;
     private Integer pageSize;
     private Long totalElements;
