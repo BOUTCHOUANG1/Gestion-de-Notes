@@ -11,19 +11,21 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TeacherResponse {
     private Long teacherId;
+    private String username;
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private String email;
     private List<SubjectResponse> subjects;
     private Department department;
-    private List<TeachingLevel> teachingLevel;
+    private Set<TeachingLevel> teachingLevel;
     private Instant createdDate;
     private Instant lastModifiedDate;
     private Roles appRole;

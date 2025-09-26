@@ -1,190 +1,232 @@
 package com.university.ManageNotes.service.impl;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
-import com.university.ManageNotes.dto.Response.GradeResponse;
-import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
-import com.university.ManageNotes.model.Grades;
+import com.university.ManageNotes.model.*;
 import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.GradeService;
 import com.university.ManageNotes.service.RevendicationPeriodService;
+import com.university.ManageNotes.util.GradeCalculator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GradeServiceImpl implements GradeService {
+    
     private final GradeRepository gradeRepository;
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
-    private final UserRepository userRepository;
+    private final TeacherRepository teacherRepository;
     private final SemesterRepository semesterRepository;
+    private final ExamRepository examRepository;
     private final RevendicationPeriodService revendicationPeriodService;
     private final ModelMapper modelMapper;
 
     @Override
-    public GradeRequest createGrade(GradeRequest gradeRequest) {
-        Grades grade = modelMapper.map(gradeRequest, Grades.class);
-
-        List<Grades> gradeByTeacherDb = gradeRepository.findByTeacherAndStudentAndTeachingLevelAndSemester(
-                grade.getExaminer().getId(),
-                grade.getStudent().getId(), grade.getStudent().getStudentLevel(), grade.getSemester());
-
-        if (gradeByTeacherDb != null && !gradeByTeacherDb.isEmpty()) {
-            throw new APIException("Grade already exists for this teacher with name " + grade.getExaminer().getUsername());
+    @Transactional
+    public GradeRequest createGrade(GradeRequest request) {
+        // Map DTO to Entity
+        Grades grade = modelMapper.map(request, Grades.class);
+        
+        // Get current teacher
+        Teacher currentTeacher = getCurrentTeacher();
+        
+        // Get entities
+        Student student = studentRepository.findById(request.getStudentId())
+            .orElseThrow(() -> new ResourceNotFoundException("Student", "id", request.getStudentId()));
+            
+        Subject subject = subjectRepository.findById(request.getSubjectId())
+            .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", request.getSubjectId()));
+            
+        Semester semester = semesterRepository.findById(request.getSemesterId())
+            .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", request.getSemesterId()));
+            
+        Exam exam = examRepository.findById(request.getExamId())
+            .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
+        
+        // Validate teacher can enter grade for this subject and level
+        if (!canTeacherEnterGrade(currentTeacher, subject, student)) {
+            throw new APIException("You are not authorized to enter grades for this subject and level");
         }
-        throw new APIException("No grade found for this teacher with name " + grade.getExaminer().getUsername());
-
-        List<Grades> gradeDb = gradeRepository.findAll();
-        gradeDb.stream();
-    }
-
-    public StudentGradesResponse getStudentGrades(Long userId, Long semesterId) {
-        // Convert user ID to student ID for grade lookup
-        var user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!"STUDENT".equals(user.getAppRole().name())) {
-            throw new RuntimeException("User is not a student");
+        
+        // Check if semester is active
+        if (!semester.getActive()) {
+            throw new APIException("Cannot enter grades for inactive semester");
         }
-
-        var student = studentRepository.findByMatricule(user.getUsername())
-                .orElseThrow(() -> new RuntimeException("Student record not found"));
-
-        List<Grades> grades;
-        if (semesterId != null) {
-            grades = gradeRepository.findByStudentIdAndSemesterId(student.getId(), semesterId);
-        } else {
-            grades = gradeRepository.findByStudentId(student.getId());
+        
+        // Validate period is open
+        if (!revendicationPeriodService.isPeriodOpen(semester.getSemesterId(), exam)) {
+            throw new APIException("Grade entry period is closed for " + exam.getAssessmentType());
         }
-
-        List<GradeResponse> gradeResponses = grades.stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
-
-        StudentGradesResponse response = new StudentGradesResponse();
-        response.setStudentId(userId); // Return user ID for consistency
-        response.setStudentName(student.getFirstName() + " " + student.getLastName());
-        if (semesterId != null) {
-            var semOpt = semesterRepository.findById(semesterId);
-            semOpt.ifPresent(se -> {
-                response.setSemesterId(se.getId());
-                response.setSemesterName(se.getName());
-            });
-        } else if (!grades.isEmpty()) {
-            // Use semester from first grade if no specific semester requested
-            var firstGrade = grades.get(0);
-            if (firstGrade.getSemesters() != null) {
-                response.setSemesterId(firstGrade.getSemesters().getId());
-                response.setSemesterName(firstGrade.getSemesters().getName());
-            }
+        
+        // Check for duplicate grade entry
+        if (gradeRepository.existsByStudentAndSubjectAndExamAndSemester(student, subject, exam, semester)) {
+            throw new APIException("Grade already exists for this student, subject, and exam");
         }
-        response.setGrades(gradeResponses);
-
-        // simple GPA calculation
-        if (!grades.isEmpty()) {
-            double avg = grades.stream()
-                    .mapToDouble(Grades::getScore)
-                    .average().orElse(0);
-            response.setGpa(Math.round(avg * 100.0) / 100.0);
-        }
-
-        // Build SubjectResponse list for frontend with complete data
-        Map<String, SubjectResponse> subjectMap = new HashMap<>();
-        for (var gr : gradeResponses) {
-            subjectMap.computeIfAbsent(gr.getSubjectCode(), k -> {
-                var subj = subjectRepository.findById(gr.getSubjectId()).orElse(null);
-                String teacherName = null;
-                if (subj != null && subj.getIdTeacher() != null) {
-                    var teacher = userRepository.findById(subj.getIdTeacher()).orElse(null);
-                    if (teacher != null) {
-                        teacherName = teacher.getFirstName() + " " + teacher.getLastName();
-                    }
-                }
-
-                return SubjectResponse.builder()
-                        .id(subj != null ? subj.getId() : null)
-                        .code(gr.getSubjectCode())
-                        .name(gr.getSubjectName())
-                        .credits(subj != null ? subj.getCredits() : BigDecimal.ZERO)
-                        .description(subj != null ? subj.getDescription() : null)
-                        .active(subj != null ? subj.getActive() : null)
-                        .level(subj != null ? subj.getLevel() : null)
-                        .cycle(subj != null ? subj.getCycle() : null)
-                        .semesterId(gr.getSemesterId())
-                        .semesterName(gr.getSemesterName())
-                        .departmentId(subj != null && subj.getDepartment() != null ? subj.getDepartment().getId() : null)
-                        .departmentName(subj != null && subj.getDepartment() != null ? subj.getDepartment().getName() : null)
-                        .teacherId(subj != null ? subj.getIdTeacher() : null)
-                        .teacherName(teacherName)
-                        .build();
-            });
-        }
-
-        List<SubjectResponse> subjectList = new ArrayList<>(subjectMap.values());
-        response.setSubjects(subjectList);
-        response.setFirstName(student.getFirstName());
-        response.setLastName(student.getLastName());
-        response.setEmail(student.getEmail());
-        response.setUsername(student.getMatricule());
-        if (student.getLevel() != null) response.setLevel(student.getLevel().name());
-        response.setRole("STUDENT");
-
-        return response;
-    }
-
-    public List<GradeResponse> getTeacherGrades() {
-        Long teacherId = null;
-        try {
-            var auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof UserPrincipal up) {
-                teacherId = up.getId();
-            }
-        } catch (Exception ignored) {
-        }
-
-        if (teacherId == null) {
-            return List.of();
-        }
-
-        List<Grades> grades = gradeRepository.findByEnteredById(teacherId);
-        return grades.stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
+        
+        // Set relationships
+        grade.setStudent(student);
+        grade.setSubject(subject);
+        grade.setExaminer(currentTeacher);
+        grade.setSemester(semester);
+        grade.setExam(exam);
+        
+        // Calculate total score from CC and SN
+        double totalScore = GradeCalculator.calculateSubjectTotal(grade.getCcScore(), grade.getSnScore());
+        grade.setTotalScore(totalScore);
+        
+        // Calculate and set derived values
+        calculateGradeMetrics(grade);
+        
+        // Save and map back to DTO
+        Grades savedGrade = gradeRepository.save(grade);
+        return modelMapper.map(savedGrade, GradeRequest.class);
     }
 
     @Override
-    public GradeRequest updateGrade(Long gradeId, GradeRequest gradeRequest) {
-        Grades grade = modelMapper.map(gradeRequest, Grades.class);
-
-        Grades gradeDb = gradeRepository.findById(gradeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Grades", "gradeId", gradeId));
-
-        if (grade.getScore() != null) {
-            gradeDb.setScore(grade.getScore());
+    @Transactional
+    public GradeRequest updateGrade(Long gradeId, GradeRequest updateRequest) {
+        // Get existing grade
+        Grades existingGrade = gradeRepository.findById(gradeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", gradeId));
+            
+        // Validate teacher can update this grade
+        Teacher currentTeacher = getCurrentTeacher();
+        if (!existingGrade.getExaminer().getId().equals(currentTeacher.getId())) {
+            throw new APIException("You can only update grades you entered");
         }
-
-        if (grade.getComments() != null) {
-            gradeDb.setComments(grade.getComments());
+        
+        // Check if revendication period is open for updates
+        if (!revendicationPeriodService.isPeriodOpen(
+                existingGrade.getSemester().getSemesterId(), 
+                existingGrade.getExam())) {
+            throw new APIException("Grade update period is closed");
         }
-
-        if (grade.getExam() != null) {
-            gradeDb.setExam(grade.getExam());
+        
+        // Update fields
+        if (updateRequest.getCcScore() != null) {
+            existingGrade.setCcScore(updateRequest.getCcScore());
         }
+        if (updateRequest.getSnScore() != null) {
+            existingGrade.setSnScore(updateRequest.getSnScore());
+        }
+        if (updateRequest.getComments() != null) {
+            existingGrade.setComments(updateRequest.getComments());
+        }
+        
+        // Recalculate total score
+        double totalScore = GradeCalculator.calculateSubjectTotal(
+            existingGrade.getCcScore(), existingGrade.getSnScore());
+        existingGrade.setTotalScore(totalScore);
+        
+        // Recalculate metrics
+        calculateGradeMetrics(existingGrade);
+        
+        // Save and map back to DTO
+        Grades updatedGrade = gradeRepository.save(existingGrade);
+        return modelMapper.map(updatedGrade, GradeRequest.class);
+    }
 
-        Grades updatedGrade = gradeRepository.save(gradeDb);
-        return convertToResponse(updatedGrade);
+    @Override
+    @Transactional
+    public MessageResponse deleteGrade(Long gradeId) {
+        Grades grade = gradeRepository.findById(gradeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", gradeId));
+            
+        // Validate teacher can delete this grade
+        Teacher currentTeacher = getCurrentTeacher();
+        if (!grade.getExaminer().getId().equals(currentTeacher.getId())) {
+            throw new APIException("You can only delete grades you entered");
+        }
+        
+        gradeRepository.delete(grade);
+        return new MessageResponse("Grade deleted successfully");
+    }
+
+    @Override
+    public StudentResponse getStudentGrades(Long studentId, Long semesterId) {
+        // Get student
+        Student student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
+        
+        // Get semester (active if not specified)
+        Semester semester = semesterId != null ? 
+            semesterRepository.findById(semesterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", semesterId)) :
+            getActiveSemester();
+            
+        // Get grades for student in semester for their level
+        List<Grades> grades = gradeRepository.findByStudentAndSemester(student, semester);
+        
+        // Filter grades for student's level subjects only
+        grades = grades.stream()
+            .filter(grade -> grade.getSubject().getSubjectsLevel().stream()
+                .anyMatch(level -> level.getStudentLevel().equals(student.getStudentLevel().getStudentLevel())))
+            .toList();
+        
+        // Map to response DTOs
+        List<GradeResponse> gradeResponses = grades.stream()
+            .map(grade -> modelMapper.map(grade, GradeResponse.class))
+            .collect(Collectors.toList());
+            
+        // Build student response with grades
+        StudentResponse response = modelMapper.map(student, StudentResponse.class);
+        response.setGrades(gradeResponses);
+        
+        return response;
+    }
+
+    @Override
+    public List<GradeResponse> getTeacherGrades() {
+        Teacher currentTeacher = getCurrentTeacher();
+        
+        List<Grades> grades = gradeRepository.findByExaminer(currentTeacher);
+        
+        return grades.stream()
+            .map(grade -> modelMapper.map(grade, GradeResponse.class))
+            .collect(Collectors.toList());
+    }
+
+    // Helper methods
+    private Teacher getCurrentTeacher() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            return teacherRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new APIException("Teacher not found"));
+        }
+        throw new APIException("No authenticated teacher");
+    }
+    
+    private Semester getActiveSemester() {
+        return semesterRepository.findByActiveTrue()
+            .orElseThrow(() -> new APIException("No active semester found"));
+    }
+    
+    private boolean canTeacherEnterGrade(Teacher teacher, Subject subject, Student student) {
+        // Check if teacher teaches this subject at student's level
+        return subject.getTeacher() != null &&
+               subject.getTeacher().getId().equals(teacher.getId()) &&
+               subject.getSubjectsLevel().stream()
+                   .anyMatch(level -> level.getStudentLevel()
+                           .equals(student.getStudentLevel().getStudentLevel()));
+    }
+    
+    private void calculateGradeMetrics(Grades grade) {
+        // Calculate GPA based on total score
+        double gpa = GradeCalculator.calculateGPA(grade.getTotalScore());
+        grade.setGpa(gpa);
+        
+        // Check if passed
+        boolean passed = GradeCalculator.hasPassed(grade.getTotalScore());
+        grade.setHasPassed(passed);
     }
 }
-
-

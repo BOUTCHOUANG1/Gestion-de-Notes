@@ -1,4 +1,4 @@
-package com.university.ManageNotes.model;
+package com.university.ManageNotes.model.enums;
 
 public enum AppRole {
     ROLE_ADMIN,

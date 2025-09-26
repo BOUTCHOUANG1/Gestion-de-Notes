@@ -192,7 +192,7 @@ curl -X POST http://localhost:3030/api/grades \
     "value": 15.5,
     "maxValue": 20,
     "type": "CC_1",
-    "examPeriod": "CC_1",
+    "exam": "CC_1",
     "comments": "Good work",
     "enteredBy": 2
   }'

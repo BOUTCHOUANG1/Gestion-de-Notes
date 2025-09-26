@@ -3171,7 +3171,7 @@ Try creating a grade again and it should work! 🎉
 
 ---
 
-i also having this issue, 2025-08-26T12:13:18.371+01:00  WARN 33966 --- [ManageNotes] [nio-3030-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.dao.InvalidDataAccessApiUsageException: No enum constant com.university.ManageNotes.model.ExamPeriod.CC]
+i also having this issue, 2025-08-26T12:13:18.371+01:00  WARN 33966 --- [ManageNotes] [nio-3030-exec-2] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.dao.InvalidDataAccessApiUsageException: No enum constant com.university.ManageNotes.model.Exam.CC]
 
 ---
 
@@ -3250,7 +3250,7 @@ Correct! The error is **NOT coming from your backend**.
 
 The error message:
 ```
-No enum constant com.university.ManageNotes.model.ExamPeriod.CC
+No enum constant com.university.ManageNotes.model.Exam.CC
 ```
 
 This means:

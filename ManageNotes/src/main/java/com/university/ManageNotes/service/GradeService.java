@@ -2,27 +2,18 @@ package com.university.ManageNotes.service;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
 import com.university.ManageNotes.dto.Response.*;
-import com.university.ManageNotes.model.Students;
 
 import java.util.List;
 
 public interface GradeService {
 
-    GradeRequest updateGrade(Long gradeId, GradeUpdateRequest gradeRequest);
+    GradeRequest createGrade(GradeRequest gradeRequest);
     
-    MessageResponse deleteGrade(Long id);
+    GradeRequest updateGrade(Long gradeId, GradeRequest updateRequest);
     
-    TranscriptResponse calculateSemesterSummary(Long studentId, Long semesterId);
+    MessageResponse deleteGrade(Long gradeId);
     
-    TranscriptResponse calculateYearSummary(Long studentId, Long semester1Id, Long semester2Id);
-    
-    GradeResponse createGrade(GradeRequest gradeRequest);
-    
-    StudentGradesResponse getStudentGrades(Long userId, Long semesterId);
-    
+    StudentResponse getStudentGrades(Long studentId, Long semesterId);
+
     List<GradeResponse> getTeacherGrades();
-    
-    GradeSheetResponse getGradeSheet(String subjectCode, Long semesterId, String period);
-    
-    List<Students> getStudentsBySemester(Long semesterId);
 }

@@ -1,5 +1,7 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.model.enums.AssessmentType;
+import com.university.ManageNotes.util.GradeCalculator;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -21,14 +23,16 @@ public class Grades{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gradeId;
 
-    @NotBlank(message = "Score is required")
-    @Min(value = 0, message = "Score must be greater than or equal to 0")
-    private Double score;
-
-    @NotBlank(message = "Max value is required")
-    @Min(value = 0, message = "Max value must be greater than or equal to 0")
-    @Max(value = 100, message = "Max value must be less than or equal to 100")
-    private Double maxValue;
+    @Min(value = 0, message = "CC score must be greater than or equal to 0")
+    @Max(value = 30, message = "CC score must be less than or equal to 30")
+    private Double ccScore;
+    
+    @Min(value = 0, message = "SN score must be greater than or equal to 0")
+    @Max(value = 70, message = "SN score must be less than or equal to 70")
+    private Double snScore;
+    
+    // Calculated field - total score on 100
+    private Double totalScore;
 
     @NotBlank(message = "Comments are required")
     @Size(min = 5, max = 255, message = "Comments must be between 5 and 255 characters long")
@@ -50,9 +54,9 @@ public class Grades{
     @JoinColumn(name = "semester_id")
     private Semester semester;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "assessment_type")
-    private AssessmentType exam;
+    @OneToOne
+    @JoinColumn(name = "exam_id")
+    private Exam exam;
 
     @OneToMany(mappedBy = "grades", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
     orphanRemoval = true)
@@ -70,14 +74,15 @@ public class Grades{
 
     private Double gpa;
 
-    public Grades(Double score, Double maxValue, Student student, Subject subject, String comments, Teacher examiner, Semester semester, AssessmentType exam) {
-        this.score = score;
-        this.maxValue = maxValue;
+    public Grades(Double ccScore, Double snScore, Student student, Subject subject, String comments, Teacher examiner, Semester semester, Exam exam) {
+        this.ccScore = ccScore;
+        this.snScore = snScore;
         this.student = student;
         this.subject = subject;
         this.comments = comments;
         this.examiner = examiner;
         this.semester = semester;
         this.exam = exam;
+        this.totalScore = GradeCalculator.calculateSubjectTotal(ccScore, snScore);
     }
 }

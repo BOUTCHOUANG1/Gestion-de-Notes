@@ -597,7 +597,7 @@ public class GradeRequest {
     private GradeType type;
     
     @NotNull
-    private PeriodType examPeriod;
+    private PeriodType exam;
     
     private String comments;
     
@@ -887,9 +887,9 @@ public double calculateGPA(List<Grades> grades) {
 
 #### Window Validation Logic
 ```java
-public boolean isWindowOpen(Long semesterId, PeriodType examPeriod) {
+public boolean isWindowOpen(Long semesterId, PeriodType exam) {
     Optional<GradingWindow> window = gradingWindowRepository
-        .findBySemesterIdAndPeriodType(semesterId, examPeriod);
+        .findBySemesterIdAndPeriodType(semesterId, exam);
     
     if (window.isEmpty()) return false;
     

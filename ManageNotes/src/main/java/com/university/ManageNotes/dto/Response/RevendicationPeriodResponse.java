@@ -1,7 +1,7 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
-import com.university.ManageNotes.model.ExamPeriod;
+import com.university.ManageNotes.model.Exam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class RevendicationPeriodResponse {
     private Long id;
     private String name;
     private String shortName;
-    private ExamPeriod periodLabel;
+    private Exam periodLabel;
     private Integer semester;
     private LocalDate startDate;
     private LocalDate endDate;

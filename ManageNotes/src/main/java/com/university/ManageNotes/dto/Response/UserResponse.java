@@ -22,6 +22,10 @@ public class UserResponse {
 
     private String lastName;
 
+    private Roles roles;
+
+    private Boolean isActive;
+
     private Instant createdDate;
     private Instant lastModifiedDate;
 }

@@ -1,6 +1,6 @@
 package com.university.ManageNotes.model;
 
-import com.university.ManageNotes.util.ExaminationPeriodsUtil;
+import com.university.ManageNotes.model.enums.RequestStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,9 +9,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -29,7 +26,7 @@ public class Revendication {
 
     @ManyToOne
     @JoinColumn(name = "period_id")
-    private ExamPeriod period;
+    private Exam period;
 
     @ManyToOne
     @JoinColumn(name = "grade_id")

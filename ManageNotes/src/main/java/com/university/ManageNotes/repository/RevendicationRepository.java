@@ -1,10 +1,22 @@
 package com.university.ManageNotes.repository;
 
-import com.university.ManageNotes.model.Revendication;
+import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.model.enums.RequestStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface RevendicationRepository extends JpaRepository<Revendication, Long> {
-    List<Revendication> findByGrade_Subject_IdTeacher(Long teacherId);
+    
+    boolean existsByStudentAndGradeAndStatus(Student student, Grades grade, RequestStatus status);
+    
+    Page<Revendication> findByGrade_Subject_TeacherAndStatusOrderByCreatedDateDesc(Teacher teacher, RequestStatus status, Pageable pageable);
+    
+    List<Revendication> findByGrade_Subject_TeacherAndStatus(Teacher teacher, RequestStatus status);
+    
+    List<Revendication> findByStudentOrderByCreatedDateDesc(Student student);
+    
+    List<Revendication> findByStatus(RequestStatus status);
 }

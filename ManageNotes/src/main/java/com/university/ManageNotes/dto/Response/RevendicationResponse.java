@@ -1,16 +1,12 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.dto.Request.RevendicationRequest;
-import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.RequestStatus;
-import com.university.ManageNotes.model.Semester;
-import com.university.ManageNotes.model.Student;
+import com.university.ManageNotes.model.enums.RequestStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data

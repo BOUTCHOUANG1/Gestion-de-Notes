@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.model.enums.StudentCycle;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

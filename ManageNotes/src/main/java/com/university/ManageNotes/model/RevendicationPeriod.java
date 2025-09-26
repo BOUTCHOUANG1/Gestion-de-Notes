@@ -23,7 +23,7 @@ public class RevendicationPeriod {
 
     @OneToOne
     @JoinColumn(name = "exam_period_id")
-    private ExamPeriod examPeriod;
+    private Exam exam;
 
     @ManyToOne
     @JoinColumn(name = "semester_id")

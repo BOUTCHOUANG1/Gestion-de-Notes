@@ -1,8 +1,8 @@
 package com.university.ManageNotes;
 
 import com.university.ManageNotes.dto.Request.SubjectRequest;
-import com.university.ManageNotes.model.StudentCycle;
-import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.model.enums.StudentCycle;
+import com.university.ManageNotes.model.enums.StudentLevel;
 import com.university.ManageNotes.service.SubjectService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

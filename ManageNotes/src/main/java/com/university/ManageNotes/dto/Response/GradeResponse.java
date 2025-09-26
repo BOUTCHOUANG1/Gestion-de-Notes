@@ -1,11 +1,10 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.dto.Request.GradeRequest;
+import com.university.ManageNotes.dto.Request.*;
 import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.model.enums.AssessmentType;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -15,12 +14,12 @@ public class GradeResponse {
     private Double score;
     private Double maxValue;
     private String comments;
-    private Student student;
-    private Subject subject;
+    private StudentRequest student;
+    private SubjectRequest subject;
     private Teacher examiner;
-    private Semester semester;
+    private SemesterRequest semester;
     private AssessmentType exam;
-    private List<Revendication> revendication;
+    private List<RevendicationRequest> revendication;
     private Boolean hasPassed;
     private Double gpa;
     private GradeRequest content;

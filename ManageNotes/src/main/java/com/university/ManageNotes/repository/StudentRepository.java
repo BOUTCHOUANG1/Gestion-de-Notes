@@ -1,11 +1,12 @@
 package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Student;
-import com.university.ManageNotes.model.StudentLevel;
+import com.university.ManageNotes.model.enums.StudentLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.lang.ScopedValue;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,9 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Optional<Student> findByMatricule(String matricule);
 
+    Optional<Student> findById(Long studentId);
+
     List<Student> findByLevel(StudentLevel level);
 
+    Optional<Student> findByUsername(String name);
 }

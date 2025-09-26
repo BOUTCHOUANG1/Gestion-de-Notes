@@ -1,6 +1,6 @@
 package com.university.ManageNotes.repository;
 
-import com.university.ManageNotes.model.AppRole;
+import com.university.ManageNotes.model.enums.AppRole;
 import com.university.ManageNotes.model.Users;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,11 +16,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findByUsername(String username);
 
-    Optional<Users> findByEmail(String email);
-
-    List<Users> findByRole(AppRole appRole);
-
     boolean existsByUserName(@NotBlank @Size(min =  3, max = 50) String username);
 
     boolean existsByEmail(@NotBlank @Email @Size(max = 50) String email);
+
+    boolean existsByUsername(@NotBlank(message = "Username is required") @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters") String username);
 }

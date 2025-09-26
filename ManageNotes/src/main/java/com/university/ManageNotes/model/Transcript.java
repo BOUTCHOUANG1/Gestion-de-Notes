@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.model.enums.TranscriptStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

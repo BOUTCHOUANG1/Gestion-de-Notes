@@ -1,11 +1,15 @@
-package com.university.ManageNotes.service;
+package com.university.ManageNotes.data;
 
-import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.model.enums.AppRole;
+import com.university.ManageNotes.model.enums.StudentCycle;
+import com.university.ManageNotes.model.enums.StudentLevel;
+import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +19,7 @@ import java.util.Arrays;
 
 // @Component
 @RequiredArgsConstructor
-@org.springframework.core.annotation.Order(2)
+@Order(2)
 public class DatabaseUsersInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;

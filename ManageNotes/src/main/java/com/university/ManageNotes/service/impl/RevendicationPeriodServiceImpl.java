@@ -3,7 +3,7 @@ package com.university.ManageNotes.service.impl;
 import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
 import com.university.ManageNotes.exception.APIException;
-import com.university.ManageNotes.model.ExamPeriod;
+import com.university.ManageNotes.model.Exam;
 import com.university.ManageNotes.model.RevendicationPeriod;
 import com.university.ManageNotes.repository.RevendicationPeriodRepository;
 import com.university.ManageNotes.repository.SemesterRepository;
@@ -24,9 +24,9 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
     private final ModelMapper modelMapper;
 
     @Override
-    public Boolean isPeriodOpen(Long semesterId, ExamPeriod examPeriod) {
-        if (examPeriod == null) return true;
-        List<RevendicationPeriod> period = periodRepository.findBySemesterIdAndExamPeriod(semesterId, examPeriod);
+    public Boolean isPeriodOpen(Long semesterId, Exam exam) {
+        if (exam == null) return true;
+        List<RevendicationPeriod> period = periodRepository.findBySemesterIdAndExamPeriod(semesterId, exam);
         if (period.isEmpty()){
             return false;
         }
@@ -38,30 +38,30 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
     }
 
     @Override
-    public String getPeriodStatusMessage(Long semesterId, ExamPeriod examPeriod) {
-        if (examPeriod == null) return "No revendication period specified - entry allowed";
+    public String getPeriodStatusMessage(Long semesterId, Exam exam) {
+        if (exam == null) return "No revendication period specified - entry allowed";
 
-        List<RevendicationPeriod> period = periodRepository.findBySemesterIdAndExamPeriod(semesterId, examPeriod);
+        List<RevendicationPeriod> period = periodRepository.findBySemesterIdAndExamPeriod(semesterId, exam);
         if (period.isEmpty()) {
-            return "Revendication period for " + examPeriod + " not found";
+            return "Revendication period for " + exam + " not found";
         }
 
         RevendicationPeriod periodDb = period.getFirst();
         LocalDate today = LocalDate.now();
 
         if (!Boolean.TRUE.equals(periodDb.getIsActive())) {
-            return "Revendication period '" + examPeriod + "' is disabled by administrator";
+            return "Revendication period '" + exam + "' is disabled by administrator";
         }
 
         if (periodDb.getStartDate() != null && today.isBefore(periodDb.getStartDate())) {
-            return "Revendication period '" + examPeriod + "' opens on " + periodDb.getStartDate();
+            return "Revendication period '" + exam + "' opens on " + periodDb.getStartDate();
         }
 
         if (periodDb.getEndDate() != null && today.isAfter(periodDb.getEndDate())) {
-            return "Revendication period '" + examPeriod + "' closed on " + periodDb.getEndDate();
+            return "Revendication period '" + exam + "' closed on " + periodDb.getEndDate();
         }
 
-        return "Revendication period '" + examPeriod + "' is open";
+        return "Revendication period '" + exam + "' is open";
     }
 
     @Override

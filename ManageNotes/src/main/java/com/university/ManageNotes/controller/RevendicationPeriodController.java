@@ -1,11 +1,13 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,37 +22,34 @@ public class RevendicationPeriodController {
 
     @GetMapping("/revendication-period")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all grading windows")
+    @Operation(summary = "Get all the periods of revendication")
     public ResponseEntity<List<RevendicationPeriodResponse>> getAllRevendicationPeriod() {
-        return ResponseEntity.ok(revendicationPeriodService.getAllPeriod());
+        return new ResponseEntity<>(revendicationPeriodService.getAllPeriod(), HttpStatus.OK);
     }
 
-    @PostMapping("/revendication-period/new")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Create a new grading window")
+    @PostMapping("/admin/revendication-period")
+    @Operation(summary = "Create a new revendication period", description = "This endpoint allows the admin to define the period through which revendications are evalued")
     public ResponseEntity<RevendicationPeriodResponse> createRevendicatioPeriod(@Valid @RequestBody RevendicationPeriodRequest request) {
-        return ResponseEntity.ok(revendicationPeriodService.createPeriod(request));
+        return new ResponseEntity<>(revendicationPeriodService.createPeriod(request), HttpStatus.CREATED);
     }
 
-    @PutMapping("/revendication-period/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/revendication-period/{id}")
     @Operation(summary = "Update a grading window")
-    public ResponseEntity<RevendicationPeriodResponse> updateRevendicationPeriod(@PathVariable Long id, @Valid @RequestBody RevendicationPeriodRequest request) {
-        return ResponseEntity.ok(revendicationPeriodService.updatePeriod(id, request));
+    public ResponseEntity<RevendicationPeriodRequest> updateRevendicationPeriod(@PathVariable Long id, @Valid @RequestBody RevendicationPeriodRequest request) {
+        return new ResponseEntity<>(revendicationPeriodService.updatePeriod(id, request), HttpStatus.OK);
     }
 
-    @DeleteMapping("/revendication-period/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/revendication-period/{id}")
     @Operation(summary = "Delete a grading window")
     public ResponseEntity<MessageResponse> deleteRevendicationPeriod(@PathVariable Long id) {
         revendicationPeriodService.deletePeriod(id);
-        return ResponseEntity.ok(MessageResponse.success("Grading window deleted successfully"));
+        return new ResponseEntity<>(new MessageResponse("Grading window deleted successfully"), HttpStatus.OK);
     }
 
     @GetMapping("/revendication-period/active")
     @Operation(summary = "Get all isActive grading windows")
     public ResponseEntity<List<RevendicationPeriodResponse>> getActiveRevendicationPeriod() {
-        return ResponseEntity.ok(revendicationPeriodService.getActivePeriods());
+        return new ResponseEntity<>(revendicationPeriodService.getActivePeriods(), HttpStatus.OK);
     }
 
 }

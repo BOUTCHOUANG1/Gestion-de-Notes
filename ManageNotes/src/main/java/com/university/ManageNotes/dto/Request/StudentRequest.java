@@ -1,10 +1,8 @@
 package com.university.ManageNotes.dto.Request;
 
-import com.university.ManageNotes.model.StudentCycle;
+import com.university.ManageNotes.model.Roles;
+import com.university.ManageNotes.model.enums.StudentCycle;
 import com.university.ManageNotes.model.TeachingLevel;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -13,6 +11,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentRequest {
+    private String username;
+    private String password;
+    private Roles appRole;
     private String firstName;
     private String lastName;
     private String email;

@@ -1,9 +1,9 @@
-package com.university.ManageNotes.service;
+package com.university.ManageNotes.data;
 
-import com.university.ManageNotes.model.AppRole;
+import com.university.ManageNotes.model.enums.AppRole;
 import com.university.ManageNotes.model.Users;
-import com.university.ManageNotes.repository.UserRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;

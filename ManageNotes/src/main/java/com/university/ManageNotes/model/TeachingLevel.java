@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.university.ManageNotes.model.enums.StudentLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

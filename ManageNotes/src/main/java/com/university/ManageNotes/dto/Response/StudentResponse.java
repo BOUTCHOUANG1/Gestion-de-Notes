@@ -1,9 +1,7 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.dto.Request.StudentRequest;
-import com.university.ManageNotes.model.Revendication;
-import com.university.ManageNotes.model.Roles;
-import com.university.ManageNotes.model.StudentCycle;
+import com.university.ManageNotes.model.enums.StudentCycle;
 import com.university.ManageNotes.model.TeachingLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -27,11 +26,11 @@ public class StudentResponse {
     private String speciality;
     private LocalDate dateOfBirth;
     private String placeOfBirth;
-    private List<Revendication> revendications;
+    private List<GradeResponse> grades;
     private Instant createdDate;
     private Instant lastModifiedDate;
     private Boolean isActive;
-    private Roles role;
+    private Long semesterId;
 
     private List<StudentRequest> content;
     private Integer pageNumber;

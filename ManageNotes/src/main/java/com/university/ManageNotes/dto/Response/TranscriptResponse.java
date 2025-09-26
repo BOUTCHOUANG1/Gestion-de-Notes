@@ -1,9 +1,10 @@
 package com.university.ManageNotes.dto.Response;
 
 import com.university.ManageNotes.model.*;
+import com.university.ManageNotes.model.enums.StudentCycle;
+import com.university.ManageNotes.model.enums.TranscriptStatus;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 

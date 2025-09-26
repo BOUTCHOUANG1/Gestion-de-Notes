@@ -1,6 +1,5 @@
 package com.university.ManageNotes.dto.Request;
 
-import com.university.ManageNotes.model.Subject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +11,5 @@ import java.util.Set;
 @NoArgsConstructor
 public class DepartmentRequest {
     private String departmentName;
-    private Set<Subject> subjects;
+    private Set<Long> subjectIds;
 }

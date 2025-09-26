@@ -1,6 +1,6 @@
 package com.university.ManageNotes.data;
 
-import com.university.ManageNotes.model.AppRole;
+import com.university.ManageNotes.model.enums.AppRole;
 import com.university.ManageNotes.model.Users;
 import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

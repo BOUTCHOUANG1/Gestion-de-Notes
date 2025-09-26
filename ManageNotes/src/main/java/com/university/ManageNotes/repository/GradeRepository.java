@@ -1,9 +1,7 @@
 package com.university.ManageNotes.repository;
 
-import com.university.ManageNotes.model.Grades;
-import com.university.ManageNotes.model.Semester;
+import com.university.ManageNotes.model.*;
 import com.university.ManageNotes.model.TeachingLevel;
-import com.university.ManageNotes.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +24,12 @@ public interface GradeRepository extends JpaRepository<Grades, Long> {
         @Param("studentId") Long studentId,
         @Param("teachingLevel") TeachingLevel teachingLevel,
         @Param("semester") Semester semester);
+
+    List<Grades> findByStudentAndSemester(Student student, Semester semester);
+    
+    List<Grades> findByExaminer(Teacher teacher);
+    
+    List<Grades> findBySemester(Semester semester);
+    
+    boolean existsByStudentAndSubjectAndExamAndSemester(Student student, Subject subject, Exam exam, Semester semester);
 }
