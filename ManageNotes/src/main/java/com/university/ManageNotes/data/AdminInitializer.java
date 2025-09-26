@@ -1,78 +1,80 @@
 package com.university.ManageNotes.data;
 
 import com.university.ManageNotes.model.enums.AppRole;
+import com.university.ManageNotes.model.Roles;
 import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.RoleRepository;
 import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
-@org.springframework.core.annotation.Order(1)
+@Order(1)
 public class AdminInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SequenceService sequenceService;
 
     @Override
     public void run(String... args) throws Exception {
+        createDefaultAdmin();
+    }
+    
+    private void createDefaultAdmin() {
         try {
-            // Always reset sequence first
-            sequenceService.resetUserSequence();
-            Thread.sleep(100); // Small delay to ensure sequence is set
-            createOrUpdateAdmin();
-        } catch (Exception e) {
-            System.err.println("Admin creation failed, retrying: " + e.getMessage());
-            try {
-                // Force sequence reset and retry
-                sequenceService.resetUserSequence();
-                Thread.sleep(200);
-                createOrUpdateAdmin();
-            } catch (Exception ex) {
-                System.err.println("CRITICAL: Admin user creation failed completely: " + ex.getMessage());
-                // Last resort - create with explicit high ID
-                createAdminWithExplicitId();
+            Users admin = userRepository.findByUsername("admin").orElse(null);
+            
+            if (admin == null) {
+                // Create new admin
+                admin = new Users();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin"));
+                admin.setEmail("admin@university.edu");
+                admin.setFirstName("System");
+                admin.setLastName("Administrator");
+                admin.setIsActive(true);
+                
+                // Create or get ADMIN role
+                Roles adminRole = getOrCreateAdminRole();
+                admin.setRoles(Set.of(adminRole));
+                
+                userRepository.save(admin);
+                System.out.println("✅ Default admin user created successfully");
+                System.out.println("   Username: admin");
+                System.out.println("   Password: admin");
+            } else {
+                // Update existing admin password
+                admin.setPassword(passwordEncoder.encode("admin"));
+                admin.setIsActive(true);
+                
+                // Ensure admin has ADMIN role
+                Roles adminRole = getOrCreateAdminRole();
+                admin.setRoles(Set.of(adminRole));
+                
+                userRepository.save(admin);
+                System.out.println("✅ Admin user updated successfully");
+                System.out.println("   Username: admin");
+                System.out.println("   Password: admin123");
             }
-        }
-    }
-    
-    private void createOrUpdateAdmin() {
-        Users admin = userRepository.findByUsername("admin").orElse(null);
-        
-        if (admin == null) {
-            // Create new admin if doesn't exist
-            admin = new Users();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setAppRole(AppRole.ADMIN);
-            admin.setEmail("admin@example.com");
-            admin.setFirstName("System");
-            admin.setLastName("Administrator");
-            admin.setActive(true);
-            admin.setMustChangePassword(false);
-            admin.setPhone("+1111111111");
-            admin.setDepartment("Administration");
-            System.out.println("✅ Admin user created with password: admin");
-        } else {
-            // Update existing admin
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setActive(true);
-            System.out.println("✅ Admin user updated with password: admin");
-        }
-
-        userRepository.save(admin);
-    }
-    
-    private void createAdminWithExplicitId() {
-        try {
-            // Last resort: use native SQL to create admin with explicit ID
-            System.out.println("🚨 Using fallback method to create admin user");
-            // This will be handled by the existing database admin user
         } catch (Exception e) {
-            System.err.println("🚨 FATAL: Cannot create admin user at all: " + e.getMessage());
+            System.err.println("❌ Failed to create/update admin user: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+    
+    private Roles getOrCreateAdminRole() {
+        return roleRepository.findByAppRole(AppRole.ROLE_ADMIN)
+            .orElseGet(() -> {
+                Roles adminRole = new Roles();
+                adminRole.setAppRole(AppRole.ROLE_ADMIN);
+                return roleRepository.save(adminRole);
+            });
     }
 }
