@@ -65,7 +65,7 @@ public class AdminInitializer implements CommandLineRunner {
                 userRepository.save(admin);
                 System.out.println("✅ Admin user updated successfully");
                 System.out.println("   Username: admin");
-                System.out.println("   Password: admin123");
+                System.out.println("   Password: admin");
             }
         } catch (Exception e) {
             System.err.println("❌ Failed to create/update admin user: " + e.getMessage());
