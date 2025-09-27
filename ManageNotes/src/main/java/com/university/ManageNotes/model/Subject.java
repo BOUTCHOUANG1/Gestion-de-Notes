@@ -38,8 +38,12 @@ public class Subject{
      @Column(length = 500)
      private String description;
 
-     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-     @JoinColumn(name = "subjectLevel_id")
+     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+     @JoinTable(
+         name = "subject_teaching_levels",
+         joinColumns = @JoinColumn(name = "subject_id"),
+         inverseJoinColumns = @JoinColumn(name = "teaching_level_id")
+     )
      private List<TeachingLevel> subjectsLevel = new ArrayList<>();
 
      @Enumerated(EnumType.STRING)
@@ -60,6 +64,5 @@ public class Subject{
      @OneToMany(mappedBy = "subject")
      private List<Grades> grades;
 
-     @OneToMany(mappedBy = "subject")
-     private List<Revendication> revendication = new ArrayList<>();
+
 }

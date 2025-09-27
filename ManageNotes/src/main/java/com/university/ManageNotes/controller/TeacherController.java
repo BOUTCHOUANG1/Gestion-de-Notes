@@ -25,15 +25,9 @@ public class TeacherController {
     private final TeacherService teacherService;
     private final GradeService gradeService;
 
-    @PutMapping("/admin/teacher/{id}")
-    @Operation(summary = "Update Teacher information (Admin only)", description = "Allows admin to update teacher details such as name, email, and department.")
-    public ResponseEntity<TeacherRequest> updateTeacher(
-            @PathVariable Long id, 
-            @Valid @RequestBody TeacherRequest request) {
-        return new ResponseEntity<>(teacherService.updateTeacher(id, request), HttpStatus.OK);
-    }
 
-    @GetMapping("/profile")
+
+    @GetMapping("/teacher/profile")
     @Operation(summary = "Get current Teacher profile", description = "This endpoint provide the informations of the current logged in Teacher")
     public ResponseEntity<TeacherResponse> getTeacherDetails(Authentication authentication) {
         TeacherResponse teacherProfileReponse = teacherService.teacherProfile(authentication);

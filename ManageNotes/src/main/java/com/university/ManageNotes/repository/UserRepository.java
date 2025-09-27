@@ -1,9 +1,6 @@
 package com.university.ManageNotes.repository;
 
 import com.university.ManageNotes.model.Users;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,9 +10,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<Users, Long> {
     Optional<Users> findByUsername(String username);
 
-    boolean existsByEmail(@NotBlank @Email @Size(max = 50) String email);
+    boolean existsByEmail(String email);
 
-    boolean existsByUsername(@NotBlank(message = "Username is required") @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters") String username);
+    boolean existsByUsername(String username);
 
-    Optional<Users> findByUserName(String name);
+
 }

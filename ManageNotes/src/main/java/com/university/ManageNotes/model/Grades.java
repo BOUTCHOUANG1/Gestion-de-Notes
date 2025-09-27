@@ -52,7 +52,7 @@ public class Grades{
     @JoinColumn(name = "exam_id")
     private Exam exam;
 
-    @OneToMany(mappedBy = "grades", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+    @OneToMany(mappedBy = "grade", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
     orphanRemoval = true)
     private List<Revendication> revendication = new ArrayList<>();
 

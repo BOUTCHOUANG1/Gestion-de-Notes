@@ -17,5 +17,5 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     Optional<Subject> findBySubjectCode(String code);
 
-    boolean existsByIdTeacherAndLevel(Long idTeacher, List<TeachingLevel> level);
+    boolean existsByTeacherIdAndSubjectsLevel(Long teacherId, List<TeachingLevel> level);
 }

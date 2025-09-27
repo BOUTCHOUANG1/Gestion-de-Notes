@@ -27,11 +27,4 @@ public class AdminController {
             @Valid @RequestBody TeacherRequest request) {
         return new ResponseEntity<>(teacherService.updateTeacher(id, request), HttpStatus.OK);
     }
-
-    @GetMapping("/profile")
-    @Operation(summary = "Get current Teacher profile", description = "This endpoint provide the informations of the current logged in Teacher")
-    public ResponseEntity<TeacherResponse> getTeacherDetails(Authentication authentication) {
-        TeacherResponse teacherProfileReponse = teacherService.teacherProfile(authentication);
-        return new ResponseEntity<>(teacherProfileReponse, HttpStatus.OK);
-    }
 }

@@ -36,7 +36,7 @@ public class StudentController {
         return new ResponseEntity<>(studentService.updateStudent(id, request), HttpStatus.OK);
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/student/profile")
     @Operation(summary = "Get current Student profile", description = "This endpoint provide the informations of the current logged in Student")
     public ResponseEntity<StudentResponse> getStudentDetails(Authentication authentication) {
         StudentResponse studentProfileReponse = studentService.studentProfile(authentication);

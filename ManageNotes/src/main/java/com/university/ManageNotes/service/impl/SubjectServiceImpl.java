@@ -114,7 +114,7 @@ public class SubjectServiceImpl implements SubjectService {
 
         // Check if teacher is already assigned to a subject at this level
         if (subject.getTeacher().getId() != null &&
-                subjectRepository.existsByIdTeacherAndLevel(subjectFromDb.getTeacher().getId(),
+                subjectRepository.existsByTeacherIdAndSubjectsLevel(subjectFromDb.getTeacher().getId(),
                         subjectFromDb.getSubjectsLevel())) {
             throw  new APIException("Teacher is already assigned to a subject at this level");
         }

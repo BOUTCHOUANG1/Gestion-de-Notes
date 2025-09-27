@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Component
@@ -40,6 +41,8 @@ public class AdminInitializer implements CommandLineRunner {
                 admin.setFirstName("System");
                 admin.setLastName("Administrator");
                 admin.setIsActive(true);
+                admin.setCreatedDate(Instant.now());
+                admin.setLastModifiedDate(Instant.now());
                 
                 // Create or get ADMIN role
                 Roles adminRole = getOrCreateAdminRole();
@@ -53,6 +56,7 @@ public class AdminInitializer implements CommandLineRunner {
                 // Update existing admin password
                 admin.setPassword(passwordEncoder.encode("admin"));
                 admin.setIsActive(true);
+                admin.setLastModifiedDate(Instant.now());
                 
                 // Ensure admin has ADMIN role
                 Roles adminRole = getOrCreateAdminRole();
