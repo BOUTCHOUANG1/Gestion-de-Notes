@@ -26,8 +26,6 @@ public class Department {
     private Long departmentId;
 
     @Column(unique = true)
-    @NotBlank(message = "Department name is required")
-    @Size(min = 5, message = "Department name must be at least 5 characters long")
     private String departmentName;
 
     @CreatedDate

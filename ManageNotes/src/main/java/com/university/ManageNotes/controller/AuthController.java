@@ -35,7 +35,6 @@ public class AuthController {
     }
 
     @PostMapping("/admin/register")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Register a user information", description = "This endpoint is an Admin priviledge to Register a particular user")
     public ResponseEntity<MessageResponse> register(@Valid @RequestBody SignupRequest signupRequest) {
         return new ResponseEntity<>(authService.register(signupRequest), HttpStatus.CREATED);

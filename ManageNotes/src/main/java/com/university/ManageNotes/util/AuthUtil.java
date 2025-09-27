@@ -1,7 +1,7 @@
 package com.university.ManageNotes.util;
 
-import com.nathan.sbecommerce.model.Users;
-import com.nathan.sbecommerce.repository.UserRepository;
+import com.university.ManageNotes.model.Users;
+import com.university.ManageNotes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +27,7 @@ public class AuthUtil {
         Users user = userRepository.findByUserName(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + authentication.getName()));
 
-        return user.getUserId();
+        return user.getId();
     }
 
     public Users loggedInUser(){

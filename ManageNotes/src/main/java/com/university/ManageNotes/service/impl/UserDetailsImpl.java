@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Data
 @Service
 public class UserDetailsImpl implements UserDetails {

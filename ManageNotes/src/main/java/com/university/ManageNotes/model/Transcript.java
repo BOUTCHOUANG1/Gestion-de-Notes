@@ -32,8 +32,6 @@ public class Transcript {
     @JoinColumn(name = "semester_id")
     private Semester semester;
 
-    @NotBlank(message = "GPA is required")
-    @Min(value = 0, message = "GPA must be a positive number")
     private Double gpa;
 
     @Enumerated(EnumType.STRING)

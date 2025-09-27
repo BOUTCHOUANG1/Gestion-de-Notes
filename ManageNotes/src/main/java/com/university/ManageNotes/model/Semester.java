@@ -24,8 +24,6 @@ public class Semester {
     private Long semesterId;
 
     @Column(unique = true)
-    @NotBlank(message = "Semester name is required")
-    @Size(min = 5, message = "Semester name must be at least 5 characters long")
     private String name;
 
     @Column(name = "start_date")

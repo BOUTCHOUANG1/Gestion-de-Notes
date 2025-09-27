@@ -23,19 +23,13 @@ public class Grades{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gradeId;
 
-    @Min(value = 0, message = "CC score must be greater than or equal to 0")
-    @Max(value = 30, message = "CC score must be less than or equal to 30")
     private Double ccScore;
     
-    @Min(value = 0, message = "SN score must be greater than or equal to 0")
-    @Max(value = 70, message = "SN score must be less than or equal to 70")
     private Double snScore;
     
     // Calculated field - total score on 100
     private Double totalScore;
 
-    @NotBlank(message = "Comments are required")
-    @Size(min = 5, max = 255, message = "Comments must be between 5 and 255 characters long")
     private String comments;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
