@@ -65,7 +65,7 @@ public class WebSecurityConfig {
         http
                 .cors(corsConfig -> corsConfig.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowedHeaders(Collections.singletonList("*"));
                     config.setExposedHeaders(Arrays.asList("Authorization"));
@@ -88,9 +88,12 @@ public class WebSecurityConfig {
                         .requestMatchers("/v3/api-docs/swagger-config", "/swagger-ui/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs").permitAll()
                         .requestMatchers("/files/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
+                        //.requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").permitAll()
+                        //.requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/api/teacher/**").permitAll()
+                        //.requestMatchers("/api/student/**").hasRole("STUDENT")
+                        .requestMatchers("/api/student/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
