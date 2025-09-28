@@ -14,7 +14,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "grade_claims")
+@Table(name = "revendication")
 public class Revendication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

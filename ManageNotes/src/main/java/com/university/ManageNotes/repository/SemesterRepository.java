@@ -11,4 +11,6 @@ public interface SemesterRepository extends JpaRepository<Semester, Long> {
     boolean existsByName(String name);
     
     Optional<Semester> findByActiveTrue();
+    
+    Optional<Semester> findByName(String name);
 }

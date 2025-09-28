@@ -35,10 +35,10 @@ public class SignupRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    private Set<Roles> role;
+    private String role; // "ADMIN", "TEACHER", "STUDENT"
 
     // Student fields
-    private TeachingLevel level;  // Single level for students
+    private Long levelId;  // Single level ID for students
     private String matricule;
     private String speciality;
     private StudentCycle cycle;
@@ -46,8 +46,8 @@ public class SignupRequest {
     private String placeOfBirth;
 
     // Teacher fields
-    private List<TeachingLevel> levels;
-    private Department department;
+    private List<Long> levelIds;
+    private Long departmentId;
     private String phone;
-    private List<Subject> subjects;
+    private List<Long> subjectIds;
 }

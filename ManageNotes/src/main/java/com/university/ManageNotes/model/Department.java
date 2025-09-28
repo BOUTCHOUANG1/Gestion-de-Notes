@@ -25,8 +25,8 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long departmentId;
 
-    @Column(unique = true)
-    private String departmentName;
+    @Column(name = "name", unique = true)
+    private String name;
 
     @CreatedDate
     @Column(name ="creation_date",nullable = false,updatable = false)

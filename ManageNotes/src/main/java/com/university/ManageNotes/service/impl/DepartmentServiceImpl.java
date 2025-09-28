@@ -39,8 +39,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = modelMapper.map(request, Department.class);
 
         // Check if department name already exists
-        if (departmentRepository.existsByDepartmentName(department.getDepartmentName())) {
-            throw new APIException("Department with name '" + department.getDepartmentName() + "' already exists");
+        if (departmentRepository.existsByName(department.getName())) {
+            throw new APIException("Department with name '" + department.getName() + "' already exists");
         }
 
         // Handle subjects if provided
@@ -107,13 +107,13 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", departmentId));
 
         // Update department name
-        if (departmentUpdate.getDepartmentName() != null) {
+        if (departmentUpdate.getName() != null) {
             // Check if new name already exists (excluding current department)
-            if (departmentRepository.existsByDepartmentNameAndDepartmentIdNot(
-                    departmentUpdate.getDepartmentName(), departmentId)) {
-                throw new APIException("Department with name '" + departmentUpdate.getDepartmentName() + "' already exists");
+            if (departmentRepository.existsByNameAndDepartmentIdNot(
+                    departmentUpdate.getName(), departmentId)) {
+                throw new APIException("Department with name '" + departmentUpdate.getName() + "' already exists");
             }
-            departmentDb.setDepartmentName(departmentUpdate.getDepartmentName());
+            departmentDb.setName(departmentUpdate.getName());
         }
 
         // Update subjects if provided

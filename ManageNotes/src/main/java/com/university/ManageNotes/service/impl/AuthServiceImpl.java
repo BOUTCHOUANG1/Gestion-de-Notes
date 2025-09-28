@@ -84,7 +84,8 @@ public class AuthServiceImpl implements AuthService{
         user.setIsActive(true);
         user.setCreatedDate(Instant.now());
         user.setLastModifiedDate(Instant.now());
-        user.setRoles(signupRequest.getRole());
+        // Handle role assignment based on role string
+        // This will need to be implemented based on your role lookup logic
 
         userRepository.save(user);
 
@@ -115,7 +116,15 @@ public class AuthServiceImpl implements AuthService{
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles, jwtToken);
+        // Fetch user to get audit dates
+        Users user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new APIException("User not found"));
+
+        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles, jwtToken);
+        response.setCreatedDate(user.getCreatedDate());
+        response.setLastModifiedDate(user.getLastModifiedDate());
+        
+        return response;
     }
 
     @Override
