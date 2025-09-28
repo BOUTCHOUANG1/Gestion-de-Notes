@@ -27,9 +27,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -39,12 +41,6 @@ public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final ModelMapper modelMapper;
-    private final StudentRepository studentRepository;
-    private final SubjectRepository subjectRepository;
-    private final GradeRepository gradeRepository;
-    private final TeacherRepository teacherRepository;
-    private final DepartmentRepository departmentRepository;
 
     @Override
     public MessageResponse changePassword(String username, String newPassword) {
@@ -86,6 +82,8 @@ public class AuthServiceImpl implements AuthService{
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setMustChangePassword(true);
         user.setIsActive(true);
+        user.setCreatedDate(Instant.now());
+        user.setLastModifiedDate(Instant.now());
         user.setRoles(signupRequest.getRole());
 
         userRepository.save(user);
@@ -103,26 +101,21 @@ public class AuthServiceImpl implements AuthService{
             Map<String, Object> map = new HashMap<>();
             map.put("message", "Bad credentials");
             map.put("status", false);
-            return new LoginResponse(null, null, List.of("Bad credentials"));
+            return new LoginResponse(null, null, List.of("Bad credentials"), null);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+        String jwtToken = jwtUtils.generateJwtToken(authentication);
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
-
-        ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,
-                        jwtCookie.toString())
-                .body(response);
-
-        return new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+        return new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles, jwtToken);
     }
 
     @Override
@@ -139,9 +132,7 @@ public class AuthServiceImpl implements AuthService{
             Users admin = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Admin", "adminId", userDetails.getId()));
 
-            Users userEntity = modelMapper.map(userResponse, Users.class);
-            userRepository.save(userEntity);
-           return getAdminResponse(admin);
+            return getAdminResponse(admin);
         } else {
             throw new APIException("User role not recognized");
         }
@@ -153,7 +144,7 @@ public class AuthServiceImpl implements AuthService{
         userResponse.setFirstName(admin.getFirstName());
         userResponse.setLastName(admin.getLastName());
         userResponse.setEmail(admin.getEmail());
-        userResponse.setRoles((Roles) admin.getRoles());
+        userResponse.setRoles(admin.getRoles());
         userResponse.setIsActive(admin.getIsActive());
         return userResponse;
     }

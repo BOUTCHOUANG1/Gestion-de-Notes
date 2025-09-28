@@ -5,7 +5,6 @@ import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.LoginResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {

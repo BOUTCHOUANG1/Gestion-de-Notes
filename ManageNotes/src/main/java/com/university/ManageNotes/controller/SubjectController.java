@@ -84,4 +84,10 @@ public class SubjectController {
         return new ResponseEntity<>(subjectService.getAllSubjectsByTeacher
                 (teacherId, pageNumber, pageSize, sortBy, sortOrder), HttpStatus.CREATED);
     }
+
+    @GetMapping("/subjects")
+    @Operation(summary = "Get all subjects", description = "Get list of all subjects")
+    public ResponseEntity<SubjectResponse> getAllSubjects() {
+        return new ResponseEntity<>(subjectService.getAllSubjects(0, 10, "name", "asc"), HttpStatus.OK);
+    }
 }

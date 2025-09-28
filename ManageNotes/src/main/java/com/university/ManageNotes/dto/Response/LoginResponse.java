@@ -15,15 +15,18 @@ public class LoginResponse {
 
     private List<String> roles;
 
+    private String token;
+
     private Instant createdDate;
 
     private Instant lastModifiedDate;
 
 
-    public LoginResponse(Long id, String username, List<String> roles) {
+    public LoginResponse(Long id, String username, List<String> roles, String token) {
         this.id = id;
         this.username = username;
         this.roles = roles;
+        this.token = token;
     }
 }
 
