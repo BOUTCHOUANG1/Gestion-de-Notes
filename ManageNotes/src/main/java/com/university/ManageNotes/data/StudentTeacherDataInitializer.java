@@ -1,8 +1,20 @@
 package com.university.ManageNotes.data;
 
-import com.university.ManageNotes.model.*;
-import com.university.ManageNotes.model.enums.*;
-import com.university.ManageNotes.repository.*;
+import com.university.ManageNotes.model.Department;
+import com.university.ManageNotes.model.Roles;
+import com.university.ManageNotes.model.Student;
+import com.university.ManageNotes.model.Subject;
+import com.university.ManageNotes.model.Teacher;
+import com.university.ManageNotes.model.TeachingLevel;
+import com.university.ManageNotes.model.enums.AppRole;
+import com.university.ManageNotes.model.enums.StudentCycle;
+import com.university.ManageNotes.model.enums.StudentLevel;
+import com.university.ManageNotes.repository.DepartmentRepository;
+import com.university.ManageNotes.repository.RoleRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.TeacherRepository;
+import com.university.ManageNotes.repository.TeachingLevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -28,20 +40,19 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        long studentCount = studentRepository.count();
-        long teacherCount = teacherRepository.count();
-        
-        System.out.println("📊 Current data: Students=" + studentCount + ", Teachers=" + teacherCount);
-        
-        if (studentCount == 0 && teacherCount == 0) {
-            System.out.println("🚀 Starting student and teacher data initialization...");
-            initializeTeachingLevels();
-            initializeTeachers();
-            initializeStudents();
-            assignSubjectsToTeachers();
-            System.out.println("✅ Student and teacher test data initialized successfully");
-        } else {
-            System.out.println("ℹ️ Student and teacher test data already exists, skipping initialization");
+        try {
+            long studentCount = studentRepository.count();
+            long teacherCount = teacherRepository.count();
+            
+            System.out.println("📊 Current data: Students=" + studentCount + ", Teachers=" + teacherCount);
+            
+            if (studentCount > 0 && teacherCount > 0) {
+                System.out.println("🔄 Checking subject assignments...");
+                assignSubjectsToTeachers();
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error in StudentTeacherDataInitializer: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
