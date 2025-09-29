@@ -13,7 +13,7 @@ public class LoginResponse {
 
     private String username;
 
-    private List<String> roles;
+    private String role;
 
     private String token;
 
@@ -22,10 +22,10 @@ public class LoginResponse {
     private Instant lastModifiedDate;
 
 
-    public LoginResponse(Long id, String username, List<String> roles, String token) {
+    public LoginResponse(Long id, String username, String role, String token) {
         this.id = id;
         this.username = username;
-        this.roles = roles;
+        this.role = role;
         this.token = token;
     }
 }

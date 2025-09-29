@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService{
             Map<String, Object> map = new HashMap<>();
             map.put("message", "Bad credentials");
             map.put("status", false);
-            return new LoginResponse(null, null, List.of("Bad credentials"), null);
+            return new LoginResponse(null, null, "Bad credentials", null);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -111,15 +111,16 @@ public class AuthServiceImpl implements AuthService{
         String jwtToken = jwtUtils.generateJwtToken(authentication);
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+        String role = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER");
 
         // Fetch user to get audit dates
         Users user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new APIException("User not found"));
 
-        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles, jwtToken);
+        LoginResponse response = new LoginResponse(userDetails.getId(), userDetails.getUsername(), role, jwtToken);
         response.setCreatedDate(user.getCreatedDate());
         response.setLastModifiedDate(user.getLastModifiedDate());
         
