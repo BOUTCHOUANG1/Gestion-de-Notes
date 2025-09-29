@@ -15,7 +15,6 @@ import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.TeacherRepository;
 import com.university.ManageNotes.repository.TeachingLevelRepository;
-import com.university.ManageNotes.repository.TeachingLevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -280,19 +279,19 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
     }
 
     private Roles getOrCreateTeacherRole() {
-        return roleRepository.findByAppRole(AppRole.ROLE_TEACHER)
+        return roleRepository.findByAppRole(AppRole.TEACHER)
             .orElseGet(() -> {
                 Roles teacherRole = new Roles();
-                teacherRole.setAppRole(AppRole.ROLE_TEACHER);
+                teacherRole.setAppRole(AppRole.TEACHER);
                 return roleRepository.save(teacherRole);
             });
     }
 
     private Roles getOrCreateStudentRole() {
-        return roleRepository.findByAppRole(AppRole.ROLE_STUDENT)
+        return roleRepository.findByAppRole(AppRole.STUDENT)
             .orElseGet(() -> {
                 Roles studentRole = new Roles();
-                studentRole.setAppRole(AppRole.ROLE_STUDENT);
+                studentRole.setAppRole(AppRole.STUDENT);
                 return roleRepository.save(studentRole);
             });
     }

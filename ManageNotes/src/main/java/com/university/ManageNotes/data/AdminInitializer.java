@@ -74,10 +74,10 @@ public class AdminInitializer implements CommandLineRunner {
     }
     
     private Roles getOrCreateAdminRole() {
-        return roleRepository.findByAppRole(AppRole.ROLE_ADMIN)
+        return roleRepository.findByAppRole(AppRole.ADMIN)
             .orElseGet(() -> {
                 Roles adminRole = new Roles();
-                adminRole.setAppRole(AppRole.ROLE_ADMIN);
+                adminRole.setAppRole(AppRole.ADMIN);
                 return roleRepository.save(adminRole);
             });
     }

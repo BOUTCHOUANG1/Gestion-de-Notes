@@ -114,7 +114,7 @@ public class AuthServiceImpl implements AuthService{
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .orElse("ROLE_USER");
+                .orElse("USER");
 
         // Fetch user to get audit dates
         Users user = userRepository.findById(userDetails.getId())
@@ -137,7 +137,7 @@ public class AuthServiceImpl implements AuthService{
 
         UserResponse userResponse = new UserResponse();
 
-        if (roles.contains(AppRole.ROLE_ADMIN)) {
+        if (roles.contains("ADMIN")) {
             Users admin = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Admin", "adminId", userDetails.getId()));
 
