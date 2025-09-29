@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -198,6 +199,17 @@ public class UniversityDataInitializer implements CommandLineRunner {
         subject.setSemester(semester);
         subject.setStudentcycle(cycle);
         subject.setDescription(description);
+        
+        // Subject levels will be set during teacher assignment
+        // subject.setSubjectLevel(null);
+        
         subjectRepository.save(subject);
+    }
+    
+    private List<TeachingLevel> determineSubjectLevels(String code) {
+        List<TeachingLevel> levels = new ArrayList<>();
+        // This is a simplified approach - in reality you'd have proper level assignment
+        // For now, we'll leave it empty and let the teacher assignment handle it
+        return levels;
     }
 }

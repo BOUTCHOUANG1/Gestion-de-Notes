@@ -113,10 +113,11 @@ public class SubjectServiceImpl implements SubjectService {
         }
 
         // Check if teacher is already assigned to a subject at this level
-        if (subject.getTeacher().getId() != null &&
-                subjectRepository.existsByTeacherIdAndSubjectsLevel(subjectFromDb.getTeacher().getId(),
-                        subjectFromDb.getSubjectsLevel())) {
-            throw  new APIException("Teacher is already assigned to a subject at this level");
+        if (subject.getTeacher() != null && subject.getTeacher().getId() != null &&
+                subject.getSubjectLevel() != null) {
+            if (subjectRepository.existsByTeacherAndSubjectLevel(subject.getTeacher(), subject.getSubjectLevel())) {
+                throw new APIException("Teacher is already assigned to a subject at this level");
+            }
         }
         return modelMapper.map(subjectRepository.save(subject), SubjectRequest.class);
     }
@@ -135,8 +136,8 @@ public class SubjectServiceImpl implements SubjectService {
         subjectFromDb.setDescription(request.getDescription());
 
         // Set level and cycle
-        if (subject.getSubjectsLevel() != null) {
-            subjectFromDb.setSubjectsLevel(subject.getSubjectsLevel());
+        if (subject.getSubjectLevel() != null) {
+            subjectFromDb.setSubjectLevel(subject.getSubjectLevel());
         }
 
         if (subject.getStudentcycle() != null) {

@@ -18,7 +18,8 @@ import java.util.List;
 @Table(name = "subjects",
         uniqueConstraints = {
         @UniqueConstraint(columnNames = "subject_name"),
-        @UniqueConstraint(columnNames = "subject_code")
+        @UniqueConstraint(columnNames = "subject_code"),
+        @UniqueConstraint(columnNames = {"teacher_id", "teaching_level_id"})
 })
 public class Subject{
     @Id
@@ -31,20 +32,16 @@ public class Subject{
 
      private BigDecimal credits;
 
-     @OneToOne
+     @ManyToOne
      @JoinColumn(name = "teacher_id")
      private Teacher teacher;
 
      @Column(length = 500)
      private String description;
 
-     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-     @JoinTable(
-         name = "subject_teaching_levels",
-         joinColumns = @JoinColumn(name = "subject_id"),
-         inverseJoinColumns = @JoinColumn(name = "teaching_level_id")
-     )
-     private List<TeachingLevel> subjectsLevel = new ArrayList<>();
+     @OneToOne
+     @JoinColumn(name = "teaching_level_id")
+     private TeachingLevel subjectLevel;
 
      @Enumerated(EnumType.STRING)
      private StudentCycle Studentcycle;

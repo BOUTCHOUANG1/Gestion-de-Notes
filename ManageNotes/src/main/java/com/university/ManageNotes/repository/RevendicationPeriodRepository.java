@@ -7,10 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface RevendicationPeriodRepository extends JpaRepository<RevendicationPeriod, Long> {
     
     boolean existsByExamAndSemester(Exam exam, Semester semester);
+    
+    Optional<RevendicationPeriod> findByExamAndSemester(Exam exam, Semester semester);
     
     List<RevendicationPeriod> findBySemesterAndIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
         Semester semester, LocalDate startDate, LocalDate endDate);

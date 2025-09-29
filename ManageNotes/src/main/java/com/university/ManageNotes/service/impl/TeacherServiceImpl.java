@@ -43,7 +43,7 @@ public class TeacherServiceImpl implements TeacherService {
         teacherFromDb.setUsername(teacher.getUsername());
         teacherFromDb.setDepartment(teacher.getDepartment());
         teacherFromDb.setPhoneNumber(teacher.getPhoneNumber());
-        teacherFromDb.setTeachingLevel(teacher.getTeachingLevel());
+        teacherFromDb.setTeachingLevels(teacher.getTeachingLevels());
         teacherFromDb.setRole(teacher.getRole());
         teacherFromDb.setIsActive(teacher.getIsActive());
         return modelMapper.map(teacherRepository.save(teacherFromDb), TeacherRequest.class);

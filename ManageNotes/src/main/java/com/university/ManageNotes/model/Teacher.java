@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -18,7 +18,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false)
 @Table(name = "teachers")
 public class Teacher extends Users {
     @Column(length = 9)
@@ -27,17 +26,14 @@ public class Teacher extends Users {
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Subject> subjects;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "departmentId")
+    @ToString.Exclude
     private Department department;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-        name = "teacher_teaching_levels",
-        joinColumns = @JoinColumn(name = "teacher_id"),
-        inverseJoinColumns = @JoinColumn(name = "teaching_level_id")
-    )
-    private List<TeachingLevel> teachingLevel = new ArrayList<>();
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teacher_id")
+    private List<TeachingLevel> teachingLevels = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "examiner")

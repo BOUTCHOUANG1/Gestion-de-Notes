@@ -20,11 +20,10 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "students",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "place_of_birth"),
                 @UniqueConstraint(columnNames = "matricule")
         })
 public class Student extends Users {
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "level_id")
     private TeachingLevel studentLevel;
 

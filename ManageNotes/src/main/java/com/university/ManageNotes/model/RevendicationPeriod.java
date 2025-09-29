@@ -15,13 +15,14 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "revendication_period")
+@Table(name = "revendication_period", 
+       uniqueConstraints = @UniqueConstraint(columnNames = {"exam_period_id", "semester_id"}))
 public class RevendicationPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long revendicationPeriodId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "exam_period_id")
     private Exam exam;
 
@@ -29,10 +30,10 @@ public class RevendicationPeriod {
     @JoinColumn(name = "semester_id")
     private Semester semester;
 
-    @NotBlank(message = "The start date of the revendication period is required")
+    @Column(nullable = false)
     private LocalDate startDate;
 
-    @NotBlank(message = "The start date of the revendication period is required")
+    @Column(nullable = false)
     private LocalDate endDate;
 
     private String color;

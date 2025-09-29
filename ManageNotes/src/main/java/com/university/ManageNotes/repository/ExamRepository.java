@@ -9,4 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Long> {
+    boolean existsByAssessmentType(AssessmentType assessmentType);
+    Optional<Exam> findByAssessmentType(AssessmentType assessmentType);
 }

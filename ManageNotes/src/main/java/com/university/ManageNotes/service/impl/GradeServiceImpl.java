@@ -169,8 +169,11 @@ public class GradeServiceImpl implements GradeService {
         
         // Filter grades for student's level subjects only
         grades = grades.stream()
-            .filter(grade -> grade.getSubject().getSubjectsLevel().stream()
-                .anyMatch(level -> level.getStudentLevel().equals(student.getStudentLevel().getStudentLevel())))
+            .filter(grade -> grade.getSubject()
+                    .getSubjectLevel()
+                    .getStudentLevel()
+                    .equals(student.getStudentLevel()
+                            .getStudentLevel()))
             .toList();
         
         // Map to response DTOs
@@ -215,9 +218,10 @@ public class GradeServiceImpl implements GradeService {
         // Check if teacher teaches this subject at student's level
         return subject.getTeacher() != null &&
                subject.getTeacher().getId().equals(teacher.getId()) &&
-               subject.getSubjectsLevel().stream()
-                   .anyMatch(level -> level.getStudentLevel()
-                           .equals(student.getStudentLevel().getStudentLevel()));
+               subject.getSubjectLevel()
+                   .getStudentLevel()
+                   .equals(student.getStudentLevel()
+                           .getStudentLevel());
     }
     
     private void calculateGradeMetrics(Grades grade) {

@@ -45,7 +45,7 @@ public class Users{
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = true;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Roles role;
 

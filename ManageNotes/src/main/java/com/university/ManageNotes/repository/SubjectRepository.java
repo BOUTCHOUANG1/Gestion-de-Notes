@@ -1,6 +1,8 @@
 package com.university.ManageNotes.repository;
 
+import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Subject;
+import com.university.ManageNotes.model.Teacher;
 import com.university.ManageNotes.model.TeachingLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,5 +19,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     Optional<Subject> findBySubjectCode(String code);
 
-    boolean existsByTeacherIdAndSubjectsLevel(Long teacherId, List<TeachingLevel> level);
+    boolean existsByTeacherAndSubjectLevel(Teacher teacher, TeachingLevel subjectLevel);
+    
+    List<Subject> findByDepartment(Department department);
 }
