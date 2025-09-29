@@ -15,6 +15,7 @@ import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.TeacherRepository;
 import com.university.ManageNotes.repository.TeachingLevelRepository;
+import com.university.ManageNotes.repository.TeachingLevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -46,7 +47,14 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
             
             System.out.println("📊 Current data: Students=" + studentCount + ", Teachers=" + teacherCount);
             
-            if (studentCount > 0 && teacherCount > 0) {
+            if (studentCount == 0 || teacherCount == 0) {
+                System.out.println("🚀 Starting student and teacher initialization...");
+                initializeTeachingLevels();
+                initializeTeachers();
+                initializeStudents();
+                assignSubjectsToTeachers();
+                System.out.println("✅ Student and teacher initialization completed");
+            } else {
                 System.out.println("🔄 Checking subject assignments...");
                 assignSubjectsToTeachers();
             }
