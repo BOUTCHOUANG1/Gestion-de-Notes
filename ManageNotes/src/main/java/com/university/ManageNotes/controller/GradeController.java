@@ -1,8 +1,7 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
-import com.university.ManageNotes.dto.Response.*;
-
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,12 +10,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -46,6 +40,4 @@ public class GradeController {
     public ResponseEntity<MessageResponse> deleteGrade(@PathVariable Long gradeId) {
         return new ResponseEntity<>(gradeService.deleteGrade(gradeId), HttpStatus.OK);
     }
-
-
 }

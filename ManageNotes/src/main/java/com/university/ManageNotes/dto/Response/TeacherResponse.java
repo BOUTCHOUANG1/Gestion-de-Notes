@@ -1,5 +1,6 @@
 package com.university.ManageNotes.dto.Response;
 
+import com.university.ManageNotes.dto.Request.TeacherRequest;
 import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Roles;
 import com.university.ManageNotes.model.Subject;
@@ -30,4 +31,11 @@ public class TeacherResponse {
     private Instant lastModifiedDate;
     private Roles appRole;
     private Boolean isActive;
+
+    private List<TeacherRequest> content;
+    private Integer pageNumber;
+    private Integer pageSize;
+    private Long totalElements;
+    private Integer totalPages;
+    private Boolean lastPage;
 }

@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Set;
+
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class AdminInitializer implements CommandLineRunner {
                 
                 // Create or get ADMIN role
                 Roles adminRole = getOrCreateAdminRole();
-                admin.setRoles(Set.of(adminRole));
+                admin.setRole(adminRole);
                 
                 userRepository.save(admin);
                 System.out.println("✅ Default admin user created successfully");
@@ -60,7 +60,7 @@ public class AdminInitializer implements CommandLineRunner {
                 
                 // Ensure admin has ADMIN role
                 Roles adminRole = getOrCreateAdminRole();
-                admin.setRoles(Set.of(adminRole));
+                admin.setRole(adminRole);
                 
                 userRepository.save(admin);
                 System.out.println("✅ Admin user updated successfully");

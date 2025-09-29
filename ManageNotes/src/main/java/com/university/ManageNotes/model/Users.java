@@ -45,13 +45,9 @@ public class Users{
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @Getter
-    @Setter
-    private Set<Roles> roles = new HashSet<>();
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Roles role;
 
     @CreatedDate
     @Column(name ="creation_date",nullable = false,updatable = false)

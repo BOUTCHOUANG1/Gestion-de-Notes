@@ -31,7 +31,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -153,7 +152,7 @@ public class AuthServiceImpl implements AuthService{
         userResponse.setFirstName(admin.getFirstName());
         userResponse.setLastName(admin.getLastName());
         userResponse.setEmail(admin.getEmail());
-        userResponse.setRoles(admin.getRoles());
+        userResponse.setRole(admin.getRole());
         userResponse.setIsActive(admin.getIsActive());
         return userResponse;
     }

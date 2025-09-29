@@ -14,4 +14,6 @@ public interface TeacherService {
 
     TeacherResponse teacherProfile(Authentication authentication);
 
+    TeacherResponse getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
 }
