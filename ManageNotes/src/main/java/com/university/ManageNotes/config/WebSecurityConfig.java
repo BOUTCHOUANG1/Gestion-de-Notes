@@ -80,15 +80,15 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/logout", "/api/auth/public-change-password", "/api/auth/reset-password").permitAll()
-                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/register").hasAuthority("ADMIN")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/configuration/**").permitAll()
                         .requestMatchers("/api-docs/**", "/api-docs", "/api-docs/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs/swagger-config", "/swagger-ui/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs").permitAll()
                         .requestMatchers("/files/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/teacher/**").hasAuthority("TEACHER")
+                        .requestMatchers("/api/student/**").hasAuthority("STUDENT")
                         .anyRequest().authenticated()
                 );
 
