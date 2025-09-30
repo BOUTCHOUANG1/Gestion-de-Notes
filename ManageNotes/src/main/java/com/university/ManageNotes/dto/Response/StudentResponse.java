@@ -30,9 +30,10 @@ public class StudentResponse {
     private Instant createdDate;
     private Instant lastModifiedDate;
     private Boolean isActive;
+    private String role;
     private Long semesterId;
 
-    private List<StudentRequest> content;
+    private Set<StudentResponse> content;
     private Integer pageNumber;
     private Integer pageSize;
     private Long totalElements;

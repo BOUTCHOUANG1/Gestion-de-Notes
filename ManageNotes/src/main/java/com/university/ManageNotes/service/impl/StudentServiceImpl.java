@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,8 +79,8 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", userDetails.getId()));
 
-        // Map entity to response DTO
-        StudentResponse response = modelMapper.map(student, StudentResponse.class);
+        // Map entity to response DTO manually to avoid password exposure
+        StudentResponse response = mapToStudentResponse(student);
         
         // Map grades to response DTOs
         if (student.getGrades() != null && !student.getGrades().isEmpty()) {
@@ -104,18 +105,37 @@ public class StudentServiceImpl implements StudentService {
             throw new APIException("No students found");
         }
 
-        List<StudentRequest> studentRequests = students.stream()
-                .map(student -> modelMapper.map(student, StudentRequest.class))
-                .collect(Collectors.toList());
+        Set<StudentResponse> studentResponses = students.stream()
+                .map(this::mapToStudentResponse)
+                .collect(Collectors.toSet());
 
         StudentResponse response = new StudentResponse();
-        response.setContent(studentRequests);
+        response.setContent(studentResponses);
         response.setPageNumber(studentPage.getNumber());
         response.setPageSize(studentPage.getSize());
         response.setTotalElements(studentPage.getTotalElements());
         response.setTotalPages(studentPage.getTotalPages());
         response.setLastPage(studentPage.isLast());
+        
+        return response;
+    }
 
+    private StudentResponse mapToStudentResponse(Student student) {
+        StudentResponse response = new StudentResponse();
+        response.setId(student.getId());
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setStudentLevel(student.getStudentLevel());
+        response.setCycle(student.getCycle());
+        response.setMatricule(student.getMatricule());
+        response.setSpeciality(student.getSpeciality());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setPlaceOfBirth(student.getPlaceOfBirth());
+        response.setCreatedDate(student.getCreatedDate());
+        response.setLastModifiedDate(student.getLastModifiedDate());
+        response.setIsActive(student.getIsActive());
+        response.setRole(student.getRole().getAppRole().name());
         return response;
     }
 }

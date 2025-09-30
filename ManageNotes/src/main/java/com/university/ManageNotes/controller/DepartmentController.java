@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class DepartmentController {
 
     @GetMapping("/admin/department")
     @Operation(summary = "Get All department", description = "This endpoint retrieves all the departments in a paginated format")
-    public ResponseEntity<DepartmentResponse> getAllDepartment(@RequestParam(name = "pageNumber",
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartment(@RequestParam(name = "pageNumber",
                                                            defaultValue = AppConstant.PAGE_NUMBER,
                                                            required = false) Integer pageNumber,
                                                @RequestParam(name = "pageSize",
@@ -41,7 +44,8 @@ public class DepartmentController {
                                                @RequestParam(name = "sortOrder",
                                                        defaultValue = AppConstant.SORT_DIR,
                                                        required = false) String sortOrder) {
-        return new ResponseEntity<>(departmentService.getAllDepartments(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
+        DepartmentResponse response = departmentService.getAllDepartments(pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
     }
 
     @PutMapping("/admin/department/{departmentId}")

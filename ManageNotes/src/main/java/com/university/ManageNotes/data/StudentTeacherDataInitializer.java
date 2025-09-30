@@ -87,7 +87,7 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
     }
 
     private void createTeachersForDepartment(Department dept, Roles teacherRole) {
-        switch (dept.getName()) {
+        switch (dept.getDepartmentName()) {
             case "Computer Science":
                 createTeacher("prof.smith", "John", "Smith", "john.smith@university.edu", 
                             "123456789", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL2));

@@ -5,6 +5,8 @@ import com.university.ManageNotes.dto.Response.StudentResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface StudentService {
     @Transactional
     StudentRequest updateStudent(Long studentId, StudentRequest request);

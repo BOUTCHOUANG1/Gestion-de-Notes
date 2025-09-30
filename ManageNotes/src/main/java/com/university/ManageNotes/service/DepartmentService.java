@@ -3,6 +3,7 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.DepartmentRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
 
+import java.util.List;
 
 public interface DepartmentService{
 

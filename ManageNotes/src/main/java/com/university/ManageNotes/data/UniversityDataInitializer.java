@@ -92,7 +92,7 @@ public class UniversityDataInitializer implements CommandLineRunner {
 
     private Department createDepartment(String name) {
         Department dept = new Department();
-        dept.setName(name);
+        dept.setDepartmentName(name);
         dept.setCreatedDate(Instant.now());
         dept.setLastModifiedDate(Instant.now());
         return departmentRepository.save(dept);

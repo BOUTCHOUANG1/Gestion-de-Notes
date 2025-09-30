@@ -3,6 +3,8 @@ package com.university.ManageNotes.service;
 import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 
+import java.util.List;
+
 
 public interface SubjectService {
 

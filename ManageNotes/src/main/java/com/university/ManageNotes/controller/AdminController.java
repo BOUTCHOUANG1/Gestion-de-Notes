@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -34,21 +37,23 @@ public class AdminController {
 
     @GetMapping("/admin/teachers")
     @Operation(summary = "Get all teachers (Admin only)", description = "Retrieve all teachers with pagination")
-    public ResponseEntity<TeacherResponse> getAllTeachers(
+    public ResponseEntity<List<TeacherResponse>> getAllTeachers(
             @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_TEACHER_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder) {
-        return new ResponseEntity<>(teacherService.getAllTeachers(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
+        TeacherResponse response = teacherService.getAllTeachers(pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
     }
 
     @GetMapping("/admin/students")
     @Operation(summary = "Get all students (Admin only)", description = "Retrieve all students with pagination")
-    public ResponseEntity<StudentResponse> getAllStudents(
+    public ResponseEntity<List<StudentResponse>> getAllStudents(
             @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_STUDENT_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder) {
-        return new ResponseEntity<>(studentService.getAllStudents(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
+        StudentResponse response = studentService.getAllStudents(pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
     }
 }

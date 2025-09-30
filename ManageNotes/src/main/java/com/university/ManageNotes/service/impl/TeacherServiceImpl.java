@@ -2,6 +2,8 @@ package com.university.ManageNotes.service.impl;
 
 import com.university.ManageNotes.config.AppConstant;
 import com.university.ManageNotes.dto.Request.TeacherRequest;
+import com.university.ManageNotes.dto.Response.DepartmentResponse;
+import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,19 +59,7 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacher = teacherRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
 
-        TeacherRequest request = modelMapper.map(teacher, TeacherRequest.class);
-
-        TeacherResponse response = new TeacherResponse();
-
-        response.setFirstName(request.getFirstName());
-        response.setLastName(request.getLastName());
-        response.setEmail(request.getEmail());
-        response.setUsername(request.getUsername());
-        response.setDepartment(request.getDepartment());
-        response.setPhoneNumber(request.getPhoneNumber());
-        response.setTeachingLevel((Set<TeachingLevel>) request.getTeachingLevel());
-        response.setIsActive(teacher.getIsActive());
-        return response;
+        return mapToTeacherResponse(teacher);
     }
 
     @Override
@@ -84,18 +75,47 @@ public class TeacherServiceImpl implements TeacherService {
             throw new APIException("No teachers found");
         }
 
-        List<TeacherRequest> teacherRequests = teachers.stream()
-                .map(teacher -> modelMapper.map(teacher, TeacherRequest.class))
-                .collect(Collectors.toList());
+        Set<TeacherResponse> teacherResponses = teachers.stream()
+                .map(this::mapToTeacherResponse)
+                .collect(Collectors.toSet());
 
         TeacherResponse response = new TeacherResponse();
-        response.setContent(teacherRequests);
+        response.setContent(teacherResponses);
         response.setPageNumber(teacherPage.getNumber());
         response.setPageSize(teacherPage.getSize());
         response.setTotalElements(teacherPage.getTotalElements());
         response.setTotalPages(teacherPage.getTotalPages());
         response.setLastPage(teacherPage.isLast());
+        
+        return response;
+    }
 
+    private TeacherResponse mapToTeacherResponse(Teacher teacher) {
+        TeacherResponse response = new TeacherResponse();
+        response.setTeacherId(teacher.getId());
+        response.setUsername(teacher.getUsername());
+        response.setFirstName(teacher.getFirstName());
+        response.setLastName(teacher.getLastName());
+        response.setPhoneNumber(teacher.getPhoneNumber());
+        response.setEmail(teacher.getEmail());
+        
+        // Map subjects to SubjectResponse DTOs
+        if (teacher.getSubjects() != null && !teacher.getSubjects().isEmpty()) {
+            response.setSubjects(teacher.getSubjects().stream()
+                .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+                .collect(Collectors.toList()));
+        }
+        
+        // Map department to DepartmentResponse DTO
+        if (teacher.getDepartment() != null) {
+            response.setDepartment(modelMapper.map(teacher.getDepartment(), DepartmentResponse.class));
+        }
+        
+        response.setTeachingLevel(new HashSet<>(teacher.getTeachingLevels()));
+        response.setCreatedDate(teacher.getCreatedDate());
+        response.setLastModifiedDate(teacher.getLastModifiedDate());
+        response.setRole(teacher.getRole().getAppRole().name());
+        response.setIsActive(teacher.getIsActive());
         return response;
     }
 }

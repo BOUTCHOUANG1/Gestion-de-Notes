@@ -39,8 +39,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = modelMapper.map(request, Department.class);
 
         // Check if department name already exists
-        if (departmentRepository.existsByName(department.getName())) {
-            throw new APIException("Department with name '" + department.getName() + "' already exists");
+        if (departmentRepository.existsByDepartmentName(department.getDepartmentName())) {
+            throw new APIException("Department with name '" + department.getDepartmentName() + "' already exists");
         }
 
         // Handle subjects if provided
@@ -73,27 +73,35 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new APIException("No departments found");
         }
 
-        // Map departments to requests for content
-        List<DepartmentRequest> departmentRequests = departments.stream()
-                .map(dept -> modelMapper.map(dept, DepartmentRequest.class))
-                .collect(Collectors.toList());
-
-        // Map all subjects to responses for the subjects field
-        Set<SubjectResponse> allSubjectResponses = departments.stream()
-                .flatMap(dept -> dept.getSubjects().stream())
-                .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+        Set<DepartmentResponse> departmentResponses = departments.stream()
+                .map(this::mapToDepartmentResponse)
                 .collect(Collectors.toSet());
 
-        // Build response
         DepartmentResponse response = new DepartmentResponse();
-        response.setContent(departmentRequests);
-        response.setSubjects(allSubjectResponses);
+        response.setContent(departmentResponses);
         response.setPageNumber(departmentPage.getNumber());
         response.setPageSize(departmentPage.getSize());
         response.setTotalElements(departmentPage.getTotalElements());
         response.setTotalPages(departmentPage.getTotalPages());
         response.setLastPage(departmentPage.isLast());
+        
+        return response;
+    }
 
+    private DepartmentResponse mapToDepartmentResponse(Department department) {
+        DepartmentResponse response = new DepartmentResponse();
+        response.setDepartmentId(department.getDepartmentId());
+        response.setDepartmentName(department.getDepartmentName());
+        response.setCreatedDate(department.getCreatedDate());
+        response.setLastModifiedDate(department.getLastModifiedDate());
+        
+        // Map subjects to response DTOs
+        if (department.getSubjects() != null && !department.getSubjects().isEmpty()) {
+            response.setSubjects(department.getSubjects().stream()
+                .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+                .collect(Collectors.toSet()));
+        }
+        
         return response;
     }
 
@@ -107,13 +115,13 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", departmentId));
 
         // Update department name
-        if (departmentUpdate.getName() != null) {
+        if (departmentUpdate.getDepartmentName() != null) {
             // Check if new name already exists (excluding current department)
-            if (departmentRepository.existsByNameAndDepartmentIdNot(
-                    departmentUpdate.getName(), departmentId)) {
-                throw new APIException("Department with name '" + departmentUpdate.getName() + "' already exists");
+            if (departmentRepository.existsByDepartmentNameAndDepartmentIdNot(
+                    departmentUpdate.getDepartmentName(), departmentId)) {
+                throw new APIException("Department with name '" + departmentUpdate.getDepartmentName() + "' already exists");
             }
-            departmentDb.setName(departmentUpdate.getName());
+            departmentDb.setDepartmentName(departmentUpdate.getDepartmentName());
         }
 
         // Update subjects if provided

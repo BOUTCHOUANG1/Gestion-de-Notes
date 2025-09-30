@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,18 +46,18 @@ public class SubjectServiceImpl implements SubjectService {
             throw new APIException("No subjects found");
         }
 
-        List<SubjectRequest> subjectRequests = subjectList.stream()
-                .map(sub -> modelMapper.map(sub, SubjectRequest.class))
-                .toList();
+        Set<SubjectResponse> subjectResponses = subjectList.stream()
+                .map(sub -> modelMapper.map(sub, SubjectResponse.class))
+                .collect(Collectors.toSet());
 
         SubjectResponse subjectResponse = new SubjectResponse();
-
-        subjectResponse.setContent(subjectRequests);
+        subjectResponse.setContent(subjectResponses);
         subjectResponse.setPageNumber(subjectPage.getNumber());
         subjectResponse.setPageSize(subjectPage.getSize());
         subjectResponse.setTotalElements(subjectPage.getTotalElements());
         subjectResponse.setTotalPages(subjectPage.getTotalPages());
         subjectResponse.setLastPage(subjectPage.isLast());
+        
         return subjectResponse;
     }
 
@@ -86,13 +88,13 @@ public class SubjectServiceImpl implements SubjectService {
             throw new APIException("No subjects found");
         }
 
-        List<SubjectRequest> subjectRequests = subjectList.stream()
-                .map(sub -> modelMapper.map(sub, SubjectRequest.class))
-                .toList();
+        Set<SubjectResponse> subjectResponses = subjectList.stream()
+                .map(sub -> modelMapper.map(sub, SubjectResponse.class))
+                .collect(Collectors.toSet());
 
         SubjectResponse subjectResponse = new SubjectResponse();
 
-        subjectResponse.setContent(subjectRequests);
+        subjectResponse.setContent(subjectResponses);
         subjectResponse.setPageNumber(subjectPage.getNumber());
         subjectResponse.setPageSize(subjectPage.getSize());
         subjectResponse.setTotalElements(subjectPage.getTotalElements());

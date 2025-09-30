@@ -23,19 +23,21 @@ public class Teacher extends Users {
     @Column(length = 9)
     private String phoneNumber;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Subject> subjects;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "departmentId")
-    @ToString.Exclude
     private Department department;
 
+    @ToString.Exclude
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "teacher_id")
     private List<TeachingLevel> teachingLevels = new ArrayList<>();
 
-
+    @ToString.Exclude
     @OneToMany(mappedBy = "examiner")
     private List<Grades> gradesEntered = new ArrayList<>();
 }

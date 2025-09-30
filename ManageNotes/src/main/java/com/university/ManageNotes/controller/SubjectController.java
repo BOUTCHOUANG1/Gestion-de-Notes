@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class SubjectController {
 
     @GetMapping("/admin/subjects")
     @Operation(summary = "View all subject", description = "Admin can view all the subjects")
-    public ResponseEntity<SubjectResponse> getAllSubject(
+    public ResponseEntity<List<SubjectResponse>> getAllSubject(
             @RequestParam(name = "pageNumber",
                     defaultValue = AppConstant.PAGE_NUMBER,
                     required = false) Integer pageNumber,
@@ -38,8 +41,8 @@ public class SubjectController {
                     defaultValue = AppConstant.SORT_DIR,
                     required = false) String sortOrder
     ) {
-        return new ResponseEntity<>(subjectService.getAllSubjects
-                (pageNumber, pageSize, sortBy, sortOrder), HttpStatus.FOUND);
+        SubjectResponse response = subjectService.getAllSubjects(pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
     }
 
 

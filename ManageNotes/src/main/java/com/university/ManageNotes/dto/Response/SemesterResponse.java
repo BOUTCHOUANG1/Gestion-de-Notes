@@ -1,9 +1,12 @@
 package com.university.ManageNotes.dto.Response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,7 +27,13 @@ public class SemesterResponse {
     private Instant lastModifiedDate;
     
     // Using Response DTOs instead of entities and Set to avoid duplicates
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Set<SubjectResponse> subjects;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Set<GradeResponse> grades;
     
     // Pagination support

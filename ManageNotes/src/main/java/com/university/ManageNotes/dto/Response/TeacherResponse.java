@@ -1,10 +1,9 @@
 package com.university.ManageNotes.dto.Response;
 
-import com.university.ManageNotes.dto.Request.TeacherRequest;
-import com.university.ManageNotes.model.Department;
-import com.university.ManageNotes.model.Roles;
-import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.model.TeachingLevel;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,14 +24,14 @@ public class TeacherResponse {
     private String phoneNumber;
     private String email;
     private List<SubjectResponse> subjects;
-    private Department department;
+    private DepartmentResponse department;
     private Set<TeachingLevel> teachingLevel;
     private Instant createdDate;
     private Instant lastModifiedDate;
-    private Roles appRole;
+    private String role;
     private Boolean isActive;
 
-    private List<TeacherRequest> content;
+    private Set<TeacherResponse> content;
     private Integer pageNumber;
     private Integer pageSize;
     private Long totalElements;

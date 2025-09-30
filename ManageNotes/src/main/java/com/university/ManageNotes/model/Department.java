@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +26,7 @@ public class Department {
     private Long departmentId;
 
     @Column(name = "name", unique = true)
-    private String name;
+    private String departmentName;
 
     @CreatedDate
     @Column(name ="creation_date",nullable = false,updatable = false)
@@ -38,9 +37,10 @@ public class Department {
     private Instant lastModifiedDate;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Teacher teacher;
+    @OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Teacher> teachers = new HashSet<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Subject> subjects = new HashSet<>();
 }

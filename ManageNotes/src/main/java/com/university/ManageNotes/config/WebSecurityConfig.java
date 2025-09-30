@@ -87,8 +87,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/v3/api-docs").permitAll()
                         .requestMatchers("/files/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/teacher/**").hasAuthority("TEACHER")
-                        .requestMatchers("/api/student/**").hasAuthority("STUDENT")
+                        .requestMatchers("/api/teacher/**").hasAnyAuthority("TEACHER", "ADMIN")
+                        .requestMatchers("/api/student/**").hasAnyAuthority("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
                 );
 

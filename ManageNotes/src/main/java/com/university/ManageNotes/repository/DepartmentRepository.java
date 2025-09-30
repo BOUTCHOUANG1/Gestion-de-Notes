@@ -4,7 +4,7 @@ import com.university.ManageNotes.model.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
-    boolean existsByName(String name);
+    boolean existsByDepartmentName(String departmentName);
     
-    boolean existsByNameAndDepartmentIdNot(String name, Long departmentId);
+    boolean existsByDepartmentNameAndDepartmentIdNot(String departmentName, Long departmentId);
 }
