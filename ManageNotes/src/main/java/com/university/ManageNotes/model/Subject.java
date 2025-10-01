@@ -18,8 +18,7 @@ import java.util.List;
 @Table(name = "subjects",
         uniqueConstraints = {
         @UniqueConstraint(columnNames = "subject_name"),
-        @UniqueConstraint(columnNames = "subject_code"),
-        @UniqueConstraint(columnNames = {"teacher_id", "teaching_level_id"})
+        @UniqueConstraint(columnNames = "subject_code")
 })
 public class Subject{
     @Id
@@ -39,7 +38,7 @@ public class Subject{
      @Column(length = 500)
      private String description;
 
-     @OneToOne
+     @ManyToOne
      @JoinColumn(name = "teaching_level_id")
      private TeachingLevel subjectLevel;
 
@@ -51,7 +50,7 @@ public class Subject{
      private Semester semester;
 
      @ManyToOne
-     @JoinColumn(name = "departmentId")
+     @JoinColumn(name = "department_id")
      private Department department;
 
      @ManyToOne
@@ -59,7 +58,7 @@ public class Subject{
      private Transcript transcript;
 
      @OneToMany(mappedBy = "subject")
-     private List<Grades> grades;
+     private List<Grades> grades = new ArrayList<>();
 
 
 }

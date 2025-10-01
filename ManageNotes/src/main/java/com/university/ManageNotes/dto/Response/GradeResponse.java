@@ -4,14 +4,18 @@ import com.university.ManageNotes.dto.Request.*;
 import com.university.ManageNotes.model.*;
 import com.university.ManageNotes.model.enums.AssessmentType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.Instant;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"student", "subject", "examiner", "semester", "revendication"})
 public class GradeResponse {
     private Long gradeId;
-    private Double score;
+    private Double ccScore;
+    private Double snScore;
+    private Double totalScore;
     private Double maxValue;
     private String comments;
     private StudentRequest student;

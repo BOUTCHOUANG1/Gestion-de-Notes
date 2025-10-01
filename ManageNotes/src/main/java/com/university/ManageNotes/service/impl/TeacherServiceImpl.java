@@ -3,13 +3,17 @@ package com.university.ManageNotes.service.impl;
 import com.university.ManageNotes.config.AppConstant;
 import com.university.ManageNotes.dto.Request.TeacherRequest;
 import com.university.ManageNotes.dto.Response.DepartmentResponse;
+import com.university.ManageNotes.dto.Response.StudentResponse;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
+import com.university.ManageNotes.model.Student;
 import com.university.ManageNotes.model.Teacher;
 import com.university.ManageNotes.model.TeachingLevel;
+import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.repository.TeacherRepository;
+import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import com.university.ManageNotes.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,16 +24,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
-
+    private final StudentRepository studentRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -102,13 +104,28 @@ public class TeacherServiceImpl implements TeacherService {
         // Map subjects to SubjectResponse DTOs
         if (teacher.getSubjects() != null && !teacher.getSubjects().isEmpty()) {
             response.setSubjects(teacher.getSubjects().stream()
-                .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+                .map(subject -> {
+                    SubjectResponse subjectResponse = new SubjectResponse();
+                    subjectResponse.setSubjectId(subject.getSubjectId());
+                    subjectResponse.setSubjectName(subject.getSubjectName());
+                    subjectResponse.setSubjectCode(subject.getSubjectCode());
+                    subjectResponse.setCredits(subject.getCredits());
+                    subjectResponse.setDescription(subject.getDescription());
+                    subjectResponse.setSubjectsLevel(subject.getSubjectLevel() != null ? Set.of(subject.getSubjectLevel()) : null);
+                    subjectResponse.setStudentCycle(subject.getStudentcycle());
+                    subjectResponse.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
+                    return subjectResponse;
+                })
                 .collect(Collectors.toList()));
         }
         
         // Map department to DepartmentResponse DTO
         if (teacher.getDepartment() != null) {
-            response.setDepartment(modelMapper.map(teacher.getDepartment(), DepartmentResponse.class));
+            DepartmentResponse departmentResponse = new DepartmentResponse();
+            departmentResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
+            departmentResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
+            departmentResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
+            response.setDepartment(departmentResponse);
         }
         
         response.setTeachingLevel(new HashSet<>(teacher.getTeachingLevels()));
@@ -116,6 +133,46 @@ public class TeacherServiceImpl implements TeacherService {
         response.setLastModifiedDate(teacher.getLastModifiedDate());
         response.setRole(teacher.getRole().getAppRole().name());
         response.setIsActive(teacher.getIsActive());
+        return response;
+    }
+
+    @Override
+    public Map<String, List<StudentResponse>> getStudentsByTeachingLevels(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        
+        Teacher teacher = teacherRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
+        
+        Map<String, List<StudentResponse>> studentsByLevel = new HashMap<>();
+        
+        for (TeachingLevel teachingLevel : teacher.getTeachingLevels()) {
+            List<Student> students = studentRepository.findByStudentLevel(teachingLevel);
+            
+            List<StudentResponse> studentResponses = students.stream()
+                    .map(this::mapToStudentResponse)
+                    .collect(Collectors.toList());
+            
+            studentsByLevel.put(teachingLevel.getStudentLevel().name(), studentResponses);
+        }
+        
+        return studentsByLevel;
+    }
+    
+    private StudentResponse mapToStudentResponse(Student student) {
+        StudentResponse response = new StudentResponse();
+        response.setId(student.getId());
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setMatricule(student.getMatricule());
+        response.setSpeciality(student.getSpeciality());
+        response.setCycle(student.getCycle());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setPlaceOfBirth(student.getPlaceOfBirth());
+        response.setCreatedDate(student.getCreatedDate());
+        response.setLastModifiedDate(student.getLastModifiedDate());
+        response.setIsActive(student.getIsActive());
+        response.setStudentLevel(student.getStudentLevel());
         return response;
     }
 }

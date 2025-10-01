@@ -32,7 +32,7 @@ public class Grades{
 
     private String comments;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private Student student;
 
@@ -48,7 +48,7 @@ public class Grades{
     @JoinColumn(name = "semester_id")
     private Semester semester;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "exam_id")
     private Exam exam;
 

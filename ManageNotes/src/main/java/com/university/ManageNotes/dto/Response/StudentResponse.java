@@ -31,7 +31,6 @@ public class StudentResponse {
     private Instant lastModifiedDate;
     private Boolean isActive;
     private String role;
-    private Long semesterId;
 
     private Set<StudentResponse> content;
     private Integer pageNumber;

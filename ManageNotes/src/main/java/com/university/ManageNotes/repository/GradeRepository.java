@@ -14,6 +14,8 @@ public interface GradeRepository extends JpaRepository<Grades, Long> {
 
     List<Grades> findByStudentAndSemester(Student student, Semester semester);
     
+    List<Grades> findByStudent(Student student);
+    
     List<Grades> findByExaminer(Teacher teacher);
 
     boolean existsByStudentAndSubjectAndExamAndSemester(Student student, Subject subject, Exam exam, Semester semester);

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Order(2)
 public class UniversityDataInitializer implements CommandLineRunner {
@@ -99,7 +99,7 @@ public class UniversityDataInitializer implements CommandLineRunner {
     }
 
     private void createCSSubjects(Department dept, Semester sem1, Semester sem2) {
-        // Semester 1 - Total: 30 credits
+        // Level 1 - Semester 1
         createSubject("Programming Fundamentals", "CS101", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Introduction to programming concepts and problem-solving");
         createSubject("Mathematics for CS", "MATH101", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Mathematical foundations for computer science");
         createSubject("Computer Systems", "CS102", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Introduction to computer hardware and systems");
@@ -107,90 +107,139 @@ public class UniversityDataInitializer implements CommandLineRunner {
         createSubject("English Communication", "ENG101", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Academic writing and communication skills");
         createSubject("Physics I", "PHY101", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Mechanics and thermodynamics");
 
-        // Semester 2 - Total: 30 credits
+        // Level 2 - Semester 2
         createSubject("Data Structures", "CS201", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Arrays, linked lists, trees, and graphs");
         createSubject("Object-Oriented Programming", "CS202", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "OOP principles and design patterns");
         createSubject("Linear Algebra", "MATH201", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Vectors, matrices, and linear transformations");
         createSubject("Database Systems", "CS203", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Database design and SQL");
         createSubject("Statistics", "STAT201", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Probability and statistical analysis");
         createSubject("Web Development", "CS204", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "HTML, CSS, JavaScript fundamentals");
+        
+        // Level 3 - Advanced Bachelor
+        createSubject("Algorithms", "CS301", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Algorithm design and analysis");
+        createSubject("Software Engineering", "CS302", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Software development methodologies");
+        
+        // Level 4 - Master's
+        createSubject("Machine Learning", "CS401", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Introduction to ML algorithms");
+        createSubject("Advanced Databases", "CS402", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Advanced database concepts");
+        
+        // Level 5 - Advanced Master's
+        createSubject("AI Research", "CS501", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Artificial Intelligence research methods");
+        createSubject("Thesis Project", "CS502", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Master's thesis project");
     }
 
     private void createMathSubjects(Department dept, Semester sem1, Semester sem2) {
-        // Semester 1 - Total: 30 credits
+        // Level 1
         createSubject("Calculus I", "MATH111", new BigDecimal("8"), dept, sem1, StudentCycle.BACHELOR, "Limits, derivatives, and applications");
         createSubject("Linear Algebra I", "MATH112", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Vector spaces and linear transformations");
         createSubject("Mathematical Logic", "MATH113", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Propositional and predicate logic");
         createSubject("Introduction to Proofs", "MATH114", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Mathematical reasoning and proof techniques");
-        createSubject("Computer Programming", "CS111", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Programming for mathematicians");
-        createSubject("Academic Writing", "ENG111", new BigDecimal("2"), dept, sem1, StudentCycle.BACHELOR, "Mathematical writing and communication");
 
-        // Semester 2 - Total: 30 credits
+        // Level 2
         createSubject("Calculus II", "MATH211", new BigDecimal("8"), dept, sem2, StudentCycle.BACHELOR, "Integration and series");
         createSubject("Abstract Algebra", "MATH212", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Groups, rings, and fields");
         createSubject("Differential Equations", "MATH213", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Ordinary differential equations");
         createSubject("Probability Theory", "STAT211", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Probability distributions and theory");
-        createSubject("Numerical Analysis", "MATH214", new BigDecimal("3"), dept, sem2, StudentCycle.BACHELOR, "Computational mathematics");
-        createSubject("Mathematical Software", "MATH215", new BigDecimal("2"), dept, sem2, StudentCycle.BACHELOR, "MATLAB, Mathematica, and R");
+        
+        // Level 3
+        createSubject("Real Analysis", "MATH311", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Advanced calculus and analysis");
+        createSubject("Complex Analysis", "MATH312", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Functions of complex variables");
+        
+        // Level 4
+        createSubject("Advanced Analysis", "MATH411", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Measure theory and functional analysis");
+        createSubject("Topology", "MATH412", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "General and algebraic topology");
+        
+        // Level 5
+        createSubject("Mathematical Research Methods", "MATH511", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Mathematical research methodology");
+        createSubject("Mathematics Master's Thesis", "MATH512", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Independent research project");
     }
 
     private void createPhysicsSubjects(Department dept, Semester sem1, Semester sem2) {
-        // Semester 1 - Total: 30 credits
+        // Level 1
         createSubject("Classical Mechanics", "PHY111", new BigDecimal("8"), dept, sem1, StudentCycle.BACHELOR, "Newton's laws and mechanical systems");
         createSubject("Calculus for Physics", "MATH121", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Mathematical methods in physics");
         createSubject("Laboratory Physics I", "PHY112", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Experimental techniques and measurements");
         createSubject("Introduction to Modern Physics", "PHY113", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Quantum mechanics and relativity");
-        createSubject("Vector Analysis", "MATH122", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Vector calculus for physics");
-        createSubject("Scientific Computing", "CS121", new BigDecimal("3"), dept, sem1, StudentCycle.BACHELOR, "Programming for scientific applications");
 
-        // Semester 2 - Total: 30 credits
+        // Level 2
         createSubject("Electromagnetism", "PHY211", new BigDecimal("8"), dept, sem2, StudentCycle.BACHELOR, "Electric and magnetic fields");
         createSubject("Physics Thermodynamics", "PHY212", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Heat, work, and statistical mechanics");
         createSubject("Laboratory Physics II", "PHY213", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Advanced experimental methods");
         createSubject("Waves and Optics", "PHY214", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Wave phenomena and optical systems");
-        createSubject("Mathematical Physics", "MATH221", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Differential equations in physics");
-        createSubject("Electronics", "PHY215", new BigDecimal("3"), dept, sem2, StudentCycle.BACHELOR, "Circuit analysis and electronic devices");
+        
+        // Level 3
+        createSubject("Quantum Mechanics", "PHY311", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Advanced quantum theory");
+        createSubject("Statistical Physics", "PHY312", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Statistical mechanics and thermodynamics");
+        
+        // Level 4
+        createSubject("Advanced Quantum", "PHY411", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Quantum field theory");
+        createSubject("Solid State Physics", "PHY412", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Physics of condensed matter");
+        
+        // Level 5
+        createSubject("Physics Research Project", "PHY511", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Independent physics research");
+        createSubject("Advanced Physics Topics", "PHY512", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Specialized physics topics");
     }
 
     private void createBusinessSubjects(Department dept, Semester sem1, Semester sem2) {
-        // Semester 1 - Total: 30 credits
+        // Level 1
         createSubject("Principles of Management", "BUS111", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Management theories and practices");
         createSubject("Financial Accounting", "ACC111", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Basic accounting principles");
         createSubject("Business Mathematics", "MATH131", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Mathematical applications in business");
         createSubject("Microeconomics", "ECO111", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Individual and firm behavior");
-        createSubject("Business Communication", "ENG131", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Professional writing and presentation");
-        createSubject("Introduction to Business", "BUS112", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Business fundamentals and ethics");
 
-        // Semester 2 - Total: 30 credits
+        // Level 2
         createSubject("Marketing Principles", "MKT211", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Marketing strategies and consumer behavior");
         createSubject("Managerial Accounting", "ACC211", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Cost accounting and budgeting");
         createSubject("Macroeconomics", "ECO211", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "National and international economics");
         createSubject("Business Statistics", "STAT231", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Statistical analysis for business");
-        createSubject("Organizational Behavior", "BUS211", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Human behavior in organizations");
-        createSubject("Business Law", "LAW211", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Legal environment of business");
+        
+        // Level 3
+        createSubject("Strategic Management", "BUS311", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Corporate strategy and planning");
+        createSubject("International Business", "BUS312", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Global business operations");
+        
+        // Level 4
+        createSubject("Advanced Finance", "FIN411", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Corporate finance and investments");
+        createSubject("Operations Research", "BUS411", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Quantitative business methods");
+        
+        // Level 5
+        createSubject("Business Research Methods", "BUS511", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Research methodology in business");
+        createSubject("MBA Capstone Project", "BUS512", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Integrated business project");
     }
 
     private void createEngineeringSubjects(Department dept, Semester sem1, Semester sem2) {
-        // Semester 1 - Total: 30 credits
+        // Level 1
         createSubject("Engineering Mathematics I", "MATH141", new BigDecimal("7"), dept, sem1, StudentCycle.BACHELOR, "Calculus and differential equations");
         createSubject("Engineering Physics", "PHY141", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Physics principles for engineers");
         createSubject("Engineering Drawing", "ENG141", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Technical drawing and CAD");
         createSubject("Materials Science", "ENG142", new BigDecimal("5"), dept, sem1, StudentCycle.BACHELOR, "Properties of engineering materials");
-        createSubject("Programming for Engineers", "CS141", new BigDecimal("4"), dept, sem1, StudentCycle.BACHELOR, "Programming and computational methods");
-        createSubject("Engineering Ethics", "ENG143", new BigDecimal("2"), dept, sem1, StudentCycle.BACHELOR, "Professional ethics and responsibility");
-        createSubject("Workshop Practice", "ENG144", new BigDecimal("2"), dept, sem1, StudentCycle.BACHELOR, "Hands-on manufacturing techniques");
 
-        // Semester 2 - Total: 30 credits
+        // Level 2
         createSubject("Engineering Mathematics II", "MATH241", new BigDecimal("7"), dept, sem2, StudentCycle.BACHELOR, "Linear algebra and complex analysis");
         createSubject("Mechanics of Materials", "ENG241", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Stress, strain, and material behavior");
         createSubject("Engineering Thermodynamics", "ENG242", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Energy systems and heat transfer");
         createSubject("Electrical Circuits", "EEE241", new BigDecimal("5"), dept, sem2, StudentCycle.BACHELOR, "Circuit analysis and design");
-        createSubject("Engineering Statistics", "STAT241", new BigDecimal("4"), dept, sem2, StudentCycle.BACHELOR, "Statistical methods in engineering");
-        createSubject("Engineering Design", "ENG243", new BigDecimal("3"), dept, sem2, StudentCycle.BACHELOR, "Design process and methodology");
+        
+        // Level 3
+        createSubject("Control Systems", "ENG341", new BigDecimal("6"), dept, sem1, StudentCycle.BACHELOR, "Automatic control theory");
+        createSubject("Fluid Mechanics", "ENG342", new BigDecimal("6"), dept, sem2, StudentCycle.BACHELOR, "Fluid statics and dynamics");
+        
+        // Level 4
+        createSubject("Advanced Engineering", "ENG441", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Advanced engineering principles");
+        createSubject("Project Management", "ENG442", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Engineering project management");
+        
+        // Level 5
+        createSubject("Engineering Research Methods", "ENG541", new BigDecimal("6"), dept, sem1, StudentCycle.MASTER, "Engineering research methodology");
+        createSubject("Engineering Master's Project", "ENG542", new BigDecimal("6"), dept, sem2, StudentCycle.MASTER, "Capstone engineering project");
     }
 
     private void createSubject(String name, String code, BigDecimal credits, Department dept, 
                               Semester semester, StudentCycle cycle, String description) {
+        // Check if subject already exists
+        if (subjectRepository.findAll().stream().anyMatch(s -> s.getSubjectName().equals(name))) {
+            System.out.println("ℹ️ Subject already exists: " + name);
+            return;
+        }
+        
         Subject subject = new Subject();
         subject.setSubjectName(name);
         subject.setSubjectCode(code);
@@ -204,6 +253,7 @@ public class UniversityDataInitializer implements CommandLineRunner {
         // subject.setSubjectLevel(null);
         
         subjectRepository.save(subject);
+        System.out.println("✅ Created subject: " + name);
     }
     
     private List<TeachingLevel> determineSubjectLevels(String code) {

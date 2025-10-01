@@ -25,7 +25,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Order(3)
 public class StudentTeacherDataInitializer implements CommandLineRunner {
@@ -54,7 +54,7 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                 assignSubjectsToTeachers();
                 System.out.println("✅ Student and teacher initialization completed");
             } else {
-                System.out.println("🔄 Checking subject assignments...");
+                System.out.println("🔄 Ensuring all teachers have subjects assigned...");
                 assignSubjectsToTeachers();
             }
         } catch (Exception e) {
@@ -94,7 +94,9 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                 createTeacher("prof.johnson", "Sarah", "Johnson", "sarah.johnson@university.edu", 
                             "123456790", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL2, StudentLevel.LEVEL3));
                 createTeacher("prof.williams", "Michael", "Williams", "michael.williams@university.edu", 
-                            "123456791", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL3));
+                            "123456791", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL3, StudentLevel.LEVEL4));
+                createTeacher("prof.brown", "Emily", "Brown", "emily.brown@university.edu", 
+                            "123456792", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL4, StudentLevel.LEVEL5));
                 break;
                 
             case "Mathematics":
@@ -102,6 +104,8 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                             "123456793", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL2));
                 createTeacher("prof.miller", "Jennifer", "Miller", "jennifer.miller@university.edu", 
                             "123456794", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL2, StudentLevel.LEVEL3));
+                createTeacher("prof.wilson", "David", "Wilson", "david.wilson@university.edu", 
+                            "123456795", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL4, StudentLevel.LEVEL5));
                 break;
                 
             case "Physics":
@@ -109,6 +113,8 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                             "123456796", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL2));
                 createTeacher("prof.taylor", "James", "Taylor", "james.taylor@university.edu", 
                             "123456797", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL2, StudentLevel.LEVEL3));
+                createTeacher("prof.anderson", "Maria", "Anderson", "maria.anderson@university.edu", 
+                            "123456798", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL4, StudentLevel.LEVEL5));
                 break;
                 
             case "Business Administration":
@@ -116,6 +122,8 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                             "123456799", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL2));
                 createTeacher("prof.jackson", "Amanda", "Jackson", "amanda.jackson@university.edu", 
                             "123456800", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL2, StudentLevel.LEVEL3));
+                createTeacher("prof.white", "Richard", "White", "richard.white@university.edu", 
+                            "123456801", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL4, StudentLevel.LEVEL5));
                 break;
                 
             case "Engineering":
@@ -123,6 +131,8 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
                             "123456802", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL1, StudentLevel.LEVEL2));
                 createTeacher("prof.martin", "Kevin", "Martin", "kevin.martin@university.edu", 
                             "123456803", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL2, StudentLevel.LEVEL3));
+                createTeacher("prof.garcia", "Carlos", "Garcia", "carlos.garcia@university.edu", 
+                            "123456804", dept, teacherRole, Arrays.asList(StudentLevel.LEVEL4, StudentLevel.LEVEL5));
                 break;
         }
     }
@@ -162,43 +172,110 @@ public class StudentTeacherDataInitializer implements CommandLineRunner {
     private void assignSubjectsToTeachers() {
         List<Teacher> teachers = teacherRepository.findAll();
         List<Subject> allSubjects = subjectRepository.findAll();
+        List<TeachingLevel> allLevels = teachingLevelRepository.findAll();
         
-        for (Teacher teacher : teachers) {
-            List<Subject> deptSubjects = allSubjects.stream()
-                .filter(s -> s.getDepartment().equals(teacher.getDepartment()))
-                .toList();
-            
-            // Assign subjects based on level matching
-            for (TeachingLevel teachingLevel : teacher.getTeachingLevels()) {
-                Optional<Subject> availableSubject = deptSubjects.stream()
-                    .filter(s -> s.getTeacher() == null)
-                    .filter(s -> subjectMatchesLevel(s, teachingLevel.getStudentLevel()))
-                    .findFirst();
-                    
-                if (availableSubject.isPresent()) {
-                    Subject subject = availableSubject.get();
-                    subject.setTeacher(teacher);
-                    subject.setSubjectLevel(teachingLevel);
+        System.out.println("🎯 Assigning subjects to " + teachers.size() + " teachers...");
+        System.out.println("📚 Found " + allSubjects.size() + " subjects and " + allLevels.size() + " teaching levels");
+        
+        // First, assign teaching levels to subjects based on their codes
+        for (Subject subject : allSubjects) {
+            if (subject.getSubjectLevel() == null) {
+                TeachingLevel matchingLevel = findMatchingLevelForSubject(subject, allLevels);
+                if (matchingLevel != null) {
+                    subject.setSubjectLevel(matchingLevel);
                     subjectRepository.save(subject);
-                    System.out.println("✅ Assigned " + subject.getSubjectName() + " to " + teacher.getUsername() + " at level " + teachingLevel.getStudentLevel());
-                } else {
-                    System.out.println("⚠️ No available subject found for teacher " + teacher.getUsername() + " at level " + teachingLevel.getStudentLevel());
+                    System.out.println("🎯 Assigned level " + matchingLevel.getStudentLevel() + " to subject " + subject.getSubjectName());
                 }
             }
         }
+        
+        // Then assign teachers to subjects
+        for (Teacher teacher : teachers) {
+            List<Subject> deptSubjects = allSubjects.stream()
+                .filter(s -> s.getDepartment().equals(teacher.getDepartment()))
+                .filter(s -> s.getSubjectLevel() != null)
+                .toList();
+            
+            System.out.println("👨🏫 Processing teacher: " + teacher.getUsername() + " with " + teacher.getTeachingLevels().size() + " teaching levels");
+            
+            // Assign exactly one subject per level the teacher teaches
+            for (TeachingLevel teachingLevel : teacher.getTeachingLevels()) {
+                // Check if teacher already has a subject for this level
+                boolean hasSubjectForLevel = teacher.getSubjects() != null && 
+                    teacher.getSubjects().stream()
+                        .anyMatch(s -> s.getSubjectLevel() != null && 
+                                 s.getSubjectLevel().getStudentLevel().equals(teachingLevel.getStudentLevel()));
+                
+                if (!hasSubjectForLevel) {
+                    Optional<Subject> availableSubject = deptSubjects.stream()
+                        .filter(s -> s.getTeacher() == null)
+                        .filter(s -> s.getSubjectLevel().getStudentLevel().equals(teachingLevel.getStudentLevel()))
+                        .findFirst();
+                        
+                    if (availableSubject.isPresent()) {
+                        Subject subject = availableSubject.get();
+                        subject.setTeacher(teacher);
+                        
+                        // Update bidirectional relationship
+                        if (teacher.getSubjects() == null) {
+                            teacher.setSubjects(new ArrayList<>());
+                        }
+                        teacher.getSubjects().add(subject);
+                        
+                        subjectRepository.save(subject);
+                        System.out.println("✅ Assigned " + subject.getSubjectName() + " to " + teacher.getUsername() + " at level " + teachingLevel.getStudentLevel());
+                    } else {
+                        System.out.println("⚠️ No available subject found for teacher " + teacher.getUsername() + " at level " + teachingLevel.getStudentLevel());
+                    }
+                } else {
+                    System.out.println("ℹ️ Teacher " + teacher.getUsername() + " already has a subject for level " + teachingLevel.getStudentLevel());
+                }
+            }
+            
+            // Save teacher with updated subjects
+            teacherRepository.save(teacher);
+            System.out.println("💾 Saved teacher " + teacher.getUsername() + " with " + 
+                (teacher.getSubjects() != null ? teacher.getSubjects().size() : 0) + " subjects");
+        }
+        
+        System.out.println("✅ Subject assignment completed");
     }
 
-    private boolean subjectMatchesLevel(Subject subject, StudentLevel level) {
+    private TeachingLevel findMatchingLevelForSubject(Subject subject, List<TeachingLevel> allLevels) {
         String code = subject.getSubjectCode();
-        if (code == null) return false;
+        if (code == null) return null;
         
-        return switch (level) {
-            case LEVEL1 -> code.contains("101") || code.contains("111") || code.contains("121") || code.contains("131") || code.contains("141");
-            case LEVEL2 -> code.contains("201") || code.contains("211") || code.contains("221") || code.contains("231") || code.contains("241");
-            case LEVEL3 -> code.contains("301") || code.contains("311") || code.contains("321") || code.contains("331") || code.contains("341");
-            case LEVEL4 -> code.contains("401") || code.contains("411") || code.contains("421") || code.contains("431") || code.contains("441");
-            case LEVEL5 -> code.contains("501") || code.contains("511") || code.contains("521") || code.contains("531") || code.contains("541");
-        };
+        StudentLevel targetLevel;
+        
+        if (code.contains("101") || code.contains("111") || code.contains("121") || 
+            code.contains("131") || code.contains("141") || code.contains("102") || 
+            code.contains("112") || code.contains("113") || code.contains("114") ||
+            code.contains("142") || code.contains("143") || code.contains("144")) {
+            targetLevel = StudentLevel.LEVEL1;
+        } else if (code.contains("201") || code.contains("211") || code.contains("221") || 
+                   code.contains("231") || code.contains("241") || code.contains("202") || 
+                   code.contains("203") || code.contains("204") || code.contains("212") || 
+                   code.contains("213") || code.contains("214") || code.contains("215") ||
+                   code.contains("242") || code.contains("243")) {
+            targetLevel = StudentLevel.LEVEL2;
+        } else if (code.contains("301") || code.contains("311") || code.contains("321") || 
+                   code.contains("331") || code.contains("341") || code.contains("312")) {
+            targetLevel = StudentLevel.LEVEL3;
+        } else if (code.contains("401") || code.contains("411") || code.contains("421") || 
+                   code.contains("431") || code.contains("441") || code.contains("412")) {
+            targetLevel = StudentLevel.LEVEL4;
+        } else if (code.contains("501") || code.contains("511") || code.contains("521") || 
+                   code.contains("531") || code.contains("541") || code.contains("512")) {
+            targetLevel = StudentLevel.LEVEL5;
+        } else {
+            return null;
+        }
+        
+        final StudentLevel finalTargetLevel = targetLevel;
+        return allLevels.stream()
+            .filter(level -> level.getStudentLevel().equals(finalTargetLevel))
+            .findFirst()
+            .orElse(null);
     }
 
     private void initializeStudents() {

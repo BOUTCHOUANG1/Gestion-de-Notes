@@ -28,7 +28,7 @@ public class Transcript {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "semester_id")
     private Semester semester;
 

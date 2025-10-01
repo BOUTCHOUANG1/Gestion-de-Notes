@@ -97,8 +97,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         
         // Map subjects to response DTOs
         if (department.getSubjects() != null && !department.getSubjects().isEmpty()) {
-            response.setSubjects(department.getSubjects().stream()
-                .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+            response.setDepartmentSubjects(department.getSubjects().stream()
+                .map(subject -> {
+                    SubjectResponse subjectResponse = modelMapper.map(subject, SubjectResponse.class);
+                    subjectResponse.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
+                    return subjectResponse;
+                })
                 .collect(Collectors.toSet()));
         }
         

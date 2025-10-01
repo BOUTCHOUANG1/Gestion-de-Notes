@@ -18,6 +18,8 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"teacher", "semester", "department", "content"})
+@ToString(exclude = {"teacher", "semester", "department", "content"})
 public class SubjectResponse {
     private Long subjectId;
     private String subjectName;
@@ -27,12 +29,9 @@ public class SubjectResponse {
     private TeacherResponse teacher;
     private Set<TeachingLevel> subjectsLevel;
     private StudentCycle studentCycle;
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    private Long departmentId;
     @JsonIgnore
     private SemesterResponse semester;
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private DepartmentResponse department;
 

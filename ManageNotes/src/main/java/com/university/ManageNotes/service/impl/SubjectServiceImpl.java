@@ -47,7 +47,11 @@ public class SubjectServiceImpl implements SubjectService {
         }
 
         Set<SubjectResponse> subjectResponses = subjectList.stream()
-                .map(sub -> modelMapper.map(sub, SubjectResponse.class))
+                .map(sub -> {
+                    SubjectResponse response = modelMapper.map(sub, SubjectResponse.class);
+                    response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
+                    return response;
+                })
                 .collect(Collectors.toSet());
 
         SubjectResponse subjectResponse = new SubjectResponse();
@@ -89,7 +93,11 @@ public class SubjectServiceImpl implements SubjectService {
         }
 
         Set<SubjectResponse> subjectResponses = subjectList.stream()
-                .map(sub -> modelMapper.map(sub, SubjectResponse.class))
+                .map(sub -> {
+                    SubjectResponse response = modelMapper.map(sub, SubjectResponse.class);
+                    response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
+                    return response;
+                })
                 .collect(Collectors.toSet());
 
         SubjectResponse subjectResponse = new SubjectResponse();

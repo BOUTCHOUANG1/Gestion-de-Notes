@@ -2,6 +2,7 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.TeacherRequest;
 import com.university.ManageNotes.dto.Response.GradeResponse;
+import com.university.ManageNotes.dto.Response.StudentResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.service.GradeService;
 import com.university.ManageNotes.service.TeacherService;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -38,5 +40,12 @@ public class TeacherController {
     @Operation(summary = "Get teacher's grades", description = "Get all grades entered by current teacher")
     public ResponseEntity<List<GradeResponse>> getTeacherGrades() {
         return new ResponseEntity<>(gradeService.getTeacherGrades(), HttpStatus.OK);
+    }
+
+    @GetMapping("/teacher/my-students")
+    @Operation(summary = "Get students by teaching levels", description = "Get all students grouped by the levels the teacher teaches")
+    public ResponseEntity<Map<String, List<StudentResponse>>> getStudentsByTeachingLevels(Authentication authentication) {
+        Map<String, List<StudentResponse>> studentsByLevel = teacherService.getStudentsByTeachingLevels(authentication);
+        return new ResponseEntity<>(studentsByLevel, HttpStatus.OK);
     }
 }

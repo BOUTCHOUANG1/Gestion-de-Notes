@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Order(4)
 public class ExamRevendicationDataInitializer implements CommandLineRunner {
@@ -62,16 +62,25 @@ public class ExamRevendicationDataInitializer implements CommandLineRunner {
 
     private void initializeRevendicationPeriods() {
         List<Semester> semesters = semesterRepository.findAll();
-        List<Exam> exams = examRepository.findAll();
         
         for (Semester semester : semesters) {
-            for (Exam exam : exams) {
-                createRevendicationPeriod(exam, semester);
+            if (semester.getName().toLowerCase().contains("1") || semester.getName().toLowerCase().contains("first")) {
+                // Semester 1: CC_1 and SN_1 only
+                createRevendicationPeriodForSemester(AssessmentType.CC_1, semester);
+                createRevendicationPeriodForSemester(AssessmentType.SN_1, semester);
+            } else {
+                // Semester 2: CC_2 and SN_2 only
+                createRevendicationPeriodForSemester(AssessmentType.CC_2, semester);
+                createRevendicationPeriodForSemester(AssessmentType.SN_2, semester);
             }
         }
     }
 
-    private void createRevendicationPeriod(Exam exam, Semester semester) {
+    private void createRevendicationPeriodForSemester(AssessmentType assessmentType, Semester semester) {
+        // Find the exam for this assessment type
+        Exam exam = examRepository.findByAssessmentType(assessmentType)
+                .orElseThrow(() -> new RuntimeException("Exam not found for assessment type: " + assessmentType));
+        
         // Check if revendication period already exists
         if (revendicationPeriodRepository.existsByExamAndSemester(exam, semester)) {
             return;
@@ -82,18 +91,18 @@ public class ExamRevendicationDataInitializer implements CommandLineRunner {
         period.setSemester(semester);
         
         // Set revendication period dates based on assessment type and semester
-        LocalDate[] dates = calculateRevendicationDates(exam.getAssessmentType(), semester);
+        LocalDate[] dates = calculateRevendicationDates(assessmentType, semester);
         period.setStartDate(dates[0]);
         period.setEndDate(dates[1]);
         
         // Set color based on assessment type
-        period.setColor(getColorForAssessmentType(exam.getAssessmentType()));
+        period.setColor(getColorForAssessmentType(assessmentType));
         period.setIsActive(true);
         period.setCreatedDate(Instant.now());
         period.setLastModifiedDate(Instant.now());
         
         revendicationPeriodRepository.save(period);
-        System.out.println("✅ Created revendication period for " + exam.getAssessmentType() + " in " + semester.getName());
+        System.out.println("✅ Created revendication period for " + assessmentType + " in " + semester.getName());
     }
 
     private LocalDate[] calculateRevendicationDates(AssessmentType assessmentType, Semester semester) {

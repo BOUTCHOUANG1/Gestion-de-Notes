@@ -24,12 +24,12 @@ public class Teacher extends Users {
     private String phoneNumber;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Subject> subjects;
 
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "departmentId")
+    @JoinColumn(name = "department_id")
     private Department department;
 
     @ToString.Exclude

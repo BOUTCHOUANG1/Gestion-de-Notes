@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Order(1)
 public class AdminInitializer implements CommandLineRunner {

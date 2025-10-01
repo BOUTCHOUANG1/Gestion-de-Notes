@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
     Optional<Transcript> findByStudentAndSemester(Student student, Semester semester);
     boolean existsByStudentAndSemester(Student student, Semester semester);
+    boolean existsByStudent(Student student);
 }

@@ -16,7 +16,6 @@ public class DepartmentResponse {
     
     // List for paginated operations
     private Set<DepartmentResponse> content;
-    private Set<SubjectResponse> subjects; // All subjects from all departments
     private Integer pageNumber;
     private Integer pageSize;
     private Long totalElements;

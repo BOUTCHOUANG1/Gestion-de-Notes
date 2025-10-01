@@ -41,6 +41,6 @@ public class Department {
     private Set<Teacher> teachers = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Subject> subjects = new HashSet<>();
 }

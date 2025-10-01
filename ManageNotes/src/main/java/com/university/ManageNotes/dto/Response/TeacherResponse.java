@@ -4,10 +4,8 @@ import com.university.ManageNotes.model.TeachingLevel;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,6 +14,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"subjects", "department", "content"})
 public class TeacherResponse {
     private Long teacherId;
     private String username;

@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Order(5)
 public class GradeTranscriptDataInitializer implements CommandLineRunner {
@@ -25,6 +27,7 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
     private final SemesterRepository semesterRepository;
     private final TeacherRepository teacherRepository;
     private final TranscriptRepository transcriptRepository;
+    private final EntityManager entityManager;
 
     @Override
     public void run(String... args) throws Exception {
@@ -33,8 +36,16 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
         
         System.out.println("📊 Current data: Grades=" + gradeCount + ", Transcripts=" + transcriptCount);
         
-        // Always try to initialize if data is missing
-        if (gradeCount == 0) {
+        // Check if we need to regenerate grades due to subject reassignments
+        List<Subject> subjectsWithTeachers = subjectRepository.findAll().stream()
+            .filter(s -> s.getTeacher() != null)
+            .toList();
+        
+        if (gradeCount == 0 || subjectsWithTeachers.size() > 2) {
+            if (gradeCount > 0 && subjectsWithTeachers.size() > 2) {
+                System.out.println("🔄 Detected new teacher assignments, regenerating grades...");
+                gradeRepository.deleteAll();
+            }
             System.out.println("🚀 Starting grades initialization...");
             initializeGrades();
             System.out.println("✅ Grades initialization completed");
@@ -51,7 +62,8 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
         }
     }
 
-    private void initializeGrades() {
+    @Transactional
+    protected void initializeGrades() {
         List<Student> students = studentRepository.findAll();
         List<Subject> subjects = subjectRepository.findAll();
         List<Exam> exams = examRepository.findAll();
@@ -67,30 +79,31 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
                 continue;
             }
             
+            // Get ALL subjects for student's level (not just one)
             List<Subject> levelSubjects = subjects.stream()
                 .filter(s -> s.getSubjectLevel() != null && 
                            s.getSubjectLevel().getStudentLevel().equals(student.getStudentLevel().getStudentLevel()))
+                .filter(s -> s.getTeacher() != null) // Only subjects with teachers
                 .toList();
                 
             if (levelSubjects.isEmpty()) {
-                System.out.println("⚠️ No subjects found for student " + student.getUsername() + " at level " + student.getStudentLevel().getStudentLevel());
+                System.out.println("⚠️ No subjects with teachers found for student " + student.getUsername() + " at level " + student.getStudentLevel().getStudentLevel());
                 continue;
             }
 
             System.out.println("📚 Creating grades for student " + student.getUsername() + " with " + levelSubjects.size() + " subjects");
 
+            // Create grades for ALL subjects at student's level
             for (Subject subject : levelSubjects) {
-                if (subject.getTeacher() != null) {
-                    for (Semester semester : semesters) {
-                        for (Exam exam : exams) {
-                            // Check if grade already exists
-                            if (!gradeRepository.existsByStudentAndSubjectAndExamAndSemester(student, subject, exam, semester)) {
-                                createGrade(student, subject, exam, semester, subject.getTeacher(), random);
-                            }
+                System.out.println("📝 Processing subject: " + subject.getSubjectName() + " taught by " + subject.getTeacher().getUsername());
+                
+                for (Semester semester : semesters) {
+                    for (Exam exam : exams) {
+                        // Check if grade already exists
+                        if (!gradeRepository.existsByStudentAndSubjectAndExamAndSemester(student, subject, exam, semester)) {
+                            createGrade(student, subject, exam, semester, subject.getTeacher(), random);
                         }
                     }
-                } else {
-                    System.out.println("⚠️ Subject " + subject.getSubjectName() + " has no teacher assigned");
                 }
             }
         }
@@ -99,14 +112,20 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
     private void createGrade(Student student, Subject subject, Exam exam, Semester semester, 
                            Teacher teacher, Random random) {
         Grades grade = new Grades();
-        grade.setStudent(student);
-        grade.setSubject(subject);
+        
+        // Use EntityManager.getReference to get proxy entities
+        Student studentRef = entityManager.getReference(Student.class, student.getId());
+        Subject subjectRef = entityManager.getReference(Subject.class, subject.getSubjectId());
+        Teacher teacherRef = entityManager.getReference(Teacher.class, teacher.getId());
+        
+        grade.setStudent(studentRef);
+        grade.setSubject(subjectRef);
         grade.setExam(exam);
         grade.setSemester(semester);
-        grade.setExaminer(teacher);
+        grade.setExaminer(teacherRef);
         
-        // Generate realistic grades - 70% pass, 30% fail
-        boolean shouldPass = random.nextDouble() < 0.7;
+        // Generate realistic grades - 75% pass, 25% fail
+        boolean shouldPass = random.nextDouble() < 0.75;
         double score = generateScore(exam.getAssessmentType(), shouldPass, random);
         
         // Set scores based on assessment type
@@ -118,8 +137,15 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
             grade.setCcScore(0.0); // Initialize CC score
         }
         
-        // Calculate total score
-        grade.setTotalScore(grade.getCcScore() + grade.getSnScore());
+        // Calculate total score (CC + SN for complete subject grade)
+        double totalScore = grade.getCcScore() + grade.getSnScore();
+        grade.setTotalScore(totalScore);
+        
+        // Calculate GPA and pass/fail status
+        double gpa = convertToGPA((totalScore / 100.0) * 100);
+        grade.setGpa(gpa);
+        grade.setHasPassed(totalScore >= 50.0);
+        
         grade.setComments(generateComment(score, exam.getAssessmentType()));
         grade.setCreatedDate(Instant.now());
         grade.setLastModifiedDate(Instant.now());
@@ -130,19 +156,31 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
     private double generateScore(AssessmentType assessmentType, boolean shouldPass, Random random) {
         return switch (assessmentType) {
             case CC_1, CC_2 -> {
-                // CC: 0-30 points, pass >= 18
+                // CC: 0-30 points, pass >= 15 (50% of 30)
                 if (shouldPass) {
-                    yield 18 + random.nextDouble() * 12; // 18-30
+                    // Generate scores between 15-30 with distribution favoring higher scores
+                    double baseScore = 15 + random.nextDouble() * 15;
+                    // Add some excellent performers (20% chance for 25-30)
+                    if (random.nextDouble() < 0.2) {
+                        baseScore = 25 + random.nextDouble() * 5;
+                    }
+                    yield Math.min(30.0, baseScore);
                 } else {
-                    yield random.nextDouble() * 18; // 0-18
+                    yield random.nextDouble() * 15; // 0-15
                 }
             }
             case SN_1, SN_2 -> {
-                // SN: 0-70 points, pass >= 42
+                // SN: 0-70 points, pass >= 35 (50% of 70)
                 if (shouldPass) {
-                    yield 42 + random.nextDouble() * 28; // 42-70
+                    // Generate scores between 35-70 with distribution favoring higher scores
+                    double baseScore = 35 + random.nextDouble() * 35;
+                    // Add some excellent performers (20% chance for 60-70)
+                    if (random.nextDouble() < 0.2) {
+                        baseScore = 60 + random.nextDouble() * 10;
+                    }
+                    yield Math.min(70.0, baseScore);
                 } else {
-                    yield random.nextDouble() * 42; // 0-42
+                    yield random.nextDouble() * 35; // 0-35
                 }
             }
         };
@@ -168,45 +206,51 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
 
     private void initializeTranscripts() {
         List<Student> students = studentRepository.findAll();
-        List<Semester> semesters = semesterRepository.findAll();
         
-        System.out.println("📄 Initializing transcripts for " + students.size() + " students and " + semesters.size() + " semesters");
+        System.out.println("📄 Initializing transcripts for " + students.size() + " students");
 
         int transcriptCount = 0;
         for (Student student : students) {
-            for (Semester semester : semesters) {
-                if (createTranscript(student, semester)) {
-                    transcriptCount++;
-                }
+            if (createTranscript(student)) {
+                transcriptCount++;
             }
         }
         
         System.out.println("✅ Created " + transcriptCount + " transcripts");
     }
 
-    private boolean createTranscript(Student student, Semester semester) {
-        // Check if student has grades for this semester
-        List<Grades> studentGrades = gradeRepository.findByStudentAndSemester(student, semester);
+    private boolean createTranscript(Student student) {
+        // Check if student already has a transcript
+        if (transcriptRepository.existsByStudent(student)) {
+            return false;
+        }
         
-        if (!studentGrades.isEmpty() && !transcriptRepository.existsByStudentAndSemester(student, semester)) {
+        // Get all grades for the student across all semesters
+        List<Grades> allStudentGrades = gradeRepository.findByStudent(student);
+        
+        if (!allStudentGrades.isEmpty()) {
             Transcript transcript = new Transcript();
             transcript.setStudent(student);
-            transcript.setSemester(semester);
+            // Set to current active semester or first semester
+            Semester activeSemester = semesterRepository.findByActiveTrue().orElse(
+                semesterRepository.findAll().get(0)
+            );
+            transcript.setSemester(activeSemester);
             transcript.setCreatedDate(Instant.now());
             transcript.setLastModifiedDate(Instant.now());
             
-            // Calculate GPA
-            double gpa = calculateGPA(studentGrades);
+            // Calculate GPA from all grades
+            double gpa = calculateGPA(allStudentGrades);
             transcript.setGpa(gpa);
             
             // Set status based on performance
             transcript.setStatus(gpa >= 2.0 ? TranscriptStatus.PASSED : TranscriptStatus.FAILED);
             
             transcriptRepository.save(transcript);
-            System.out.println("✅ Created transcript for " + student.getUsername() + " - " + semester.getName() + " (GPA: " + String.format("%.2f", gpa) + ")");
+            System.out.println("✅ Created transcript for " + student.getUsername() + " (GPA: " + String.format("%.2f", gpa) + ")");
             return true;
-        } else if (studentGrades.isEmpty()) {
-            System.out.println("⚠️ No grades found for " + student.getUsername() + " in " + semester.getName());
+        } else {
+            System.out.println("⚠️ No grades found for " + student.getUsername());
         }
         return false;
     }
@@ -228,10 +272,16 @@ public class GradeTranscriptDataInitializer implements CommandLineRunner {
     }
     
     private double convertToGPA(double percentage) {
-        if (percentage >= 90) return 4.0;
-        if (percentage >= 80) return 3.0;
-        if (percentage >= 70) return 2.0;
-        if (percentage >= 60) return 1.0;
-        return 0.0;
+        if (percentage >= 90) return 4.0;  // A+
+        if (percentage >= 85) return 3.7;  // A
+        if (percentage >= 80) return 3.3;  // A-
+        if (percentage >= 75) return 3.0;  // B+
+        if (percentage >= 70) return 2.7;  // B
+        if (percentage >= 65) return 2.3;  // B-
+        if (percentage >= 60) return 2.0;  // C+
+        if (percentage >= 55) return 1.7;  // C
+        if (percentage >= 50) return 1.3;  // C-
+        if (percentage >= 45) return 1.0;  // D
+        return 0.0;  // F
     }
 }
