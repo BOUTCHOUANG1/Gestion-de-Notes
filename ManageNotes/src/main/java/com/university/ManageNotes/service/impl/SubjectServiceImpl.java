@@ -2,6 +2,7 @@ package com.university.ManageNotes.service.impl;
 
 import com.university.ManageNotes.dto.Request.SubjectRequest;
 import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.Subject;
@@ -48,8 +49,24 @@ public class SubjectServiceImpl implements SubjectService {
 
         Set<SubjectResponse> subjectResponses = subjectList.stream()
                 .map(sub -> {
-                    SubjectResponse response = modelMapper.map(sub, SubjectResponse.class);
+                    SubjectResponse response = new SubjectResponse();
+                    response.setSubjectId(sub.getSubjectId());
+                    response.setSubjectName(sub.getSubjectName());
+                    response.setSubjectCode(sub.getSubjectCode());
+                    response.setCredits(sub.getCredits());
+                    response.setDescription(sub.getDescription());
+                    response.setStudentCycle(sub.getStudentcycle());
                     response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
+                    
+                    if (sub.getTeacher() != null) {
+                        TeacherResponse teacherResponse = new TeacherResponse();
+                        teacherResponse.setTeacherId(sub.getTeacher().getId());
+                        teacherResponse.setFirstName(sub.getTeacher().getFirstName());
+                        teacherResponse.setLastName(sub.getTeacher().getLastName());
+                        teacherResponse.setEmail(sub.getTeacher().getEmail());
+                        response.setTeacher(teacherResponse);
+                    }
+                    
                     return response;
                 })
                 .collect(Collectors.toSet());
@@ -94,8 +111,24 @@ public class SubjectServiceImpl implements SubjectService {
 
         Set<SubjectResponse> subjectResponses = subjectList.stream()
                 .map(sub -> {
-                    SubjectResponse response = modelMapper.map(sub, SubjectResponse.class);
+                    SubjectResponse response = new SubjectResponse();
+                    response.setSubjectId(sub.getSubjectId());
+                    response.setSubjectName(sub.getSubjectName());
+                    response.setSubjectCode(sub.getSubjectCode());
+                    response.setCredits(sub.getCredits());
+                    response.setDescription(sub.getDescription());
+                    response.setStudentCycle(sub.getStudentcycle());
                     response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
+                    
+                    if (sub.getTeacher() != null) {
+                        TeacherResponse teacherResponse = new TeacherResponse();
+                        teacherResponse.setTeacherId(sub.getTeacher().getId());
+                        teacherResponse.setFirstName(sub.getTeacher().getFirstName());
+                        teacherResponse.setLastName(sub.getTeacher().getLastName());
+                        teacherResponse.setEmail(sub.getTeacher().getEmail());
+                        response.setTeacher(teacherResponse);
+                    }
+                    
                     return response;
                 })
                 .collect(Collectors.toSet());
