@@ -33,7 +33,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         // Only allow unauthenticated access to the public endpoints
         return path.equals("/api/auth/login") ||
-                path.equals("/api/auth/logout");
+                path.equals("/api/auth/logout") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.equals("/favicon.ico");
     }
 
     @Override
@@ -66,9 +69,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
+        logger.debug("Authorization header: {}", headerAuth);
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            String token = headerAuth.substring(7);
+            logger.debug("Extracted JWT token: {}", token.substring(0, Math.min(20, token.length())) + "...");
+            return token;
         }
 
         return null;
