@@ -10,6 +10,7 @@ import com.university.ManageNotes.model.Student;
 import com.university.ManageNotes.repository.StudentRepository;
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import com.university.ManageNotes.service.StudentService;
+import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final ModelMapper modelMapper;
+    private final ResponseMapper responseMapper;
 
     @Override
     public StudentRequest updateStudent(Long studentId, StudentRequest request) {
@@ -85,7 +87,7 @@ public class StudentServiceImpl implements StudentService {
         // Map grades to response DTOs
         if (student.getGrades() != null && !student.getGrades().isEmpty()) {
             response.setGrades(student.getGrades().stream()
-                .map(grade -> modelMapper.map(grade, GradeResponse.class))
+                .map(responseMapper::toGradeResponse)
                 .collect(Collectors.toList()));
         }
 

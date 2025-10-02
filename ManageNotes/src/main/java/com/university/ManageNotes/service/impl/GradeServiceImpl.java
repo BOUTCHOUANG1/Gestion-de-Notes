@@ -182,7 +182,21 @@ public class GradeServiceImpl implements GradeService {
             .collect(Collectors.toList());
             
         // Build student response with grades
-        StudentResponse response = modelMapper.map(student, StudentResponse.class);
+        StudentResponse response = new StudentResponse();
+        response.setId(student.getId());
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setMatricule(student.getMatricule());
+        response.setSpeciality(student.getSpeciality());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setPlaceOfBirth(student.getPlaceOfBirth());
+        response.setCycle(student.getCycle());
+        response.setStudentLevel(student.getStudentLevel());
+        response.setCreatedDate(student.getCreatedDate());
+        response.setLastModifiedDate(student.getLastModifiedDate());
+        response.setIsActive(student.getIsActive());
+        response.setRole(student.getRole() != null ? student.getRole().getAppRole().name() : null);
         response.setGrades(gradeResponses);
         
         return response;
