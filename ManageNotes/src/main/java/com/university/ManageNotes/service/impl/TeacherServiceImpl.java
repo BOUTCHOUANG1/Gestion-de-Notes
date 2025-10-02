@@ -71,18 +71,20 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacher = teacherRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
         
-        // Force initialization of lazy collections within transaction
-        if (teacher.getTeachingLevels() != null) {
-            teacher.getTeachingLevels().size();
+        // Use basic mapping without loading department subjects to avoid circular reference
+        TeacherResponse response = responseMapper.toTeacherResponseBasic(teacher);
+        
+        // Add department info without subjects
+        if (teacher.getDepartment() != null) {
+            DepartmentResponse deptResponse = new DepartmentResponse();
+            deptResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
+            deptResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
+            deptResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
+            deptResponse.setLastModifiedDate(teacher.getDepartment().getLastModifiedDate());
+            response.setDepartment(deptResponse);
         }
-        if (teacher.getDepartment() != null && teacher.getDepartment().getSubjects() != null) {
-            teacher.getDepartment().getSubjects().size();
-        }
-        if (teacher.getSubjects() != null) {
-            teacher.getSubjects().size();
-        }
-
-        return mapToTeacherResponse(teacher);
+        
+        return response;
     }
 
     @Override
@@ -141,7 +143,7 @@ public class TeacherServiceImpl implements TeacherService {
         Map<String, List<StudentResponse>> studentsByLevel = new HashMap<>();
         
         for (TeachingLevel teachingLevel : teacher.getTeachingLevels()) {
-            List<Student> students = studentRepository.findByStudentLevel(teachingLevel);
+            List<Student> students = studentRepository.findByStudentLevelEnum(teachingLevel.getStudentLevel());
             
             List<StudentResponse> studentResponses = students.stream()
                     .map(this::mapToStudentResponse)
@@ -154,6 +156,21 @@ public class TeacherServiceImpl implements TeacherService {
     }
     
     private StudentResponse mapToStudentResponse(Student student) {
-        return modelMapper.map(student, StudentResponse.class);
+        StudentResponse response = new StudentResponse();
+        response.setId(student.getId());
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setMatricule(student.getMatricule());
+        response.setSpeciality(student.getSpeciality());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setPlaceOfBirth(student.getPlaceOfBirth());
+        response.setCycle(student.getCycle());
+        response.setStudentLevel(student.getStudentLevel());
+        response.setCreatedDate(student.getCreatedDate());
+        response.setLastModifiedDate(student.getLastModifiedDate());
+        response.setIsActive(student.getIsActive());
+        response.setRole(student.getRole() != null ? student.getRole().getAppRole().name() : null);
+        return response;
     }
 }

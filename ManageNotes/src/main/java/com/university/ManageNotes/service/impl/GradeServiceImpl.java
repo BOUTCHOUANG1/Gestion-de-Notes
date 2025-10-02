@@ -200,7 +200,33 @@ public class GradeServiceImpl implements GradeService {
     }
     
     private GradeResponse mapToGradeResponse(Grades grade) {
-        return modelMapper.map(grade, GradeResponse.class);
+        GradeResponse response = modelMapper.map(grade, GradeResponse.class);
+        
+        if (grade.getStudent() != null) {
+            response.setStudent(modelMapper.map(grade.getStudent(), GradeResponse.SimpleStudentResponse.class));
+        }
+        
+        if (grade.getSubject() != null) {
+            GradeResponse.SimpleSubjectResponse subjectResponse = modelMapper.map(grade.getSubject(), GradeResponse.SimpleSubjectResponse.class);
+            if (grade.getSubject().getCredits() != null) {
+                subjectResponse.setCredits(grade.getSubject().getCredits().doubleValue());
+            }
+            response.setSubject(subjectResponse);
+        }
+        
+        if (grade.getExaminer() != null) {
+            response.setExaminer(modelMapper.map(grade.getExaminer(), GradeResponse.SimpleTeacherResponse.class));
+        }
+        
+        if (grade.getSemester() != null) {
+            response.setSemester(modelMapper.map(grade.getSemester(), GradeResponse.SimpleSemesterResponse.class));
+        }
+        
+        if (grade.getExam() != null) {
+            response.setExam(grade.getExam().getAssessmentType());
+        }
+        
+        return response;
     }
 
     // Helper methods

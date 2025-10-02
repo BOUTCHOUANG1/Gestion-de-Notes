@@ -82,4 +82,68 @@ public class ResponseMapper {
         
         return response;
     }
+
+    public GradeResponse toGradeResponse(Grades grade) {
+        if (grade == null) return null;
+        
+        GradeResponse response = new GradeResponse();
+        response.setGradeId(grade.getGradeId());
+        response.setCcScore(grade.getCcScore());
+        response.setSnScore(grade.getSnScore());
+        response.setTotalScore(grade.getTotalScore());
+        response.setComments(grade.getComments());
+        response.setHasPassed(grade.getHasPassed());
+        response.setGpa(grade.getGpa());
+        response.setCreatedDate(grade.getCreatedDate());
+        response.setLastModifiedDate(grade.getLastModifiedDate());
+        
+        // Map student
+        if (grade.getStudent() != null) {
+            GradeResponse.SimpleStudentResponse studentResponse = new GradeResponse.SimpleStudentResponse();
+            studentResponse.setId(grade.getStudent().getId());
+            studentResponse.setUsername(grade.getStudent().getUsername());
+            studentResponse.setFirstName(grade.getStudent().getFirstName());
+            studentResponse.setLastName(grade.getStudent().getLastName());
+            studentResponse.setEmail(grade.getStudent().getEmail());
+            studentResponse.setMatricule(grade.getStudent().getMatricule());
+            response.setStudent(studentResponse);
+        }
+        
+        // Map subject
+        if (grade.getSubject() != null) {
+            GradeResponse.SimpleSubjectResponse subjectResponse = new GradeResponse.SimpleSubjectResponse();
+            subjectResponse.setId(grade.getSubject().getSubjectId());
+            subjectResponse.setSubjectName(grade.getSubject().getSubjectName());
+            subjectResponse.setSubjectCode(grade.getSubject().getSubjectCode());
+            subjectResponse.setCredits(grade.getSubject().getCredits().doubleValue());
+            response.setSubject(subjectResponse);
+        }
+        
+        // Map examiner (teacher)
+        if (grade.getExaminer() != null) {
+            GradeResponse.SimpleTeacherResponse teacherResponse = new GradeResponse.SimpleTeacherResponse();
+            teacherResponse.setId(grade.getExaminer().getId());
+            teacherResponse.setUsername(grade.getExaminer().getUsername());
+            teacherResponse.setFirstName(grade.getExaminer().getFirstName());
+            teacherResponse.setLastName(grade.getExaminer().getLastName());
+            teacherResponse.setEmail(grade.getExaminer().getEmail());
+            response.setExaminer(teacherResponse);
+        }
+        
+        // Map semester
+        if (grade.getSemester() != null) {
+            GradeResponse.SimpleSemesterResponse semesterResponse = new GradeResponse.SimpleSemesterResponse();
+            semesterResponse.setId(grade.getSemester().getSemesterId());
+            semesterResponse.setName(grade.getSemester().getName());
+            semesterResponse.setActive(grade.getSemester().getActive());
+            response.setSemester(semesterResponse);
+        }
+        
+        // Map exam (assessment type)
+        if (grade.getExam() != null) {
+            response.setExam(grade.getExam().getAssessmentType());
+        }
+        
+        return response;
+    }
 }
