@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict F83iihGzfNbsTQlWee1qyIb0nG0cuOvfISpKtQg9mZ7x5y7GDrf38PTtf96CXEY
+\restrict lx3Ur1y9P8NVkX5xqREGdpoPmBTcATrW3P98HpfYyMusfdOCghKnzE7XHXbKoMP
 
 -- Dumped from database version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 -- Dumped by pg_dump version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 
--- Started on 2025-10-01 22:39:18 WAT
+-- Started on 2025-10-02 13:42:01 WAT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2715,10 +2715,10 @@ COPY public.revendication (revendication_id, creation_date, description, last_mo
 --
 
 COPY public.revendication_period (revendication_period_id, color, creation_date, end_date, is_active, last_modified_date, start_date, exam_period_id, semester_id) FROM stdin;
-1	#4CAF50	2025-10-01 10:34:53.927606+01	2024-10-23	t	2025-10-01 10:34:53.92761+01	2024-10-08	1	1
 2	#FF9800	2025-10-01 10:34:53.931276+01	2024-10-23	t	2025-10-01 10:34:53.931277+01	2024-10-08	3	1
 3	#2196F3	2025-10-01 10:34:53.933503+01	2025-04-29	t	2025-10-01 10:34:53.933504+01	2025-04-14	2	2
 4	#F44336	2025-10-01 10:34:53.936063+01	2025-04-29	t	2025-10-01 10:34:53.936063+01	2025-04-14	4	2
+1	#4CAF50	2025-10-01 10:34:53.927606+01	2024-10-25	t	2025-10-01 10:34:53.92761+01	2024-10-10	1	1
 \.
 
 
@@ -2742,8 +2742,8 @@ COPY public.roles (role_id, role_name) FROM stdin;
 --
 
 COPY public.semester (semester_id, is_active, creation_date, end_date, last_modified_date, name, start_date) FROM stdin;
-1	t	2025-10-01 10:34:53.883739+01	2025-02-23	2025-10-01 10:34:53.883743+01	Semester 1 - 2024/2025	2024-09-08
 2	f	2025-10-01 10:34:53.896134+01	2025-06-02	2025-10-01 10:34:53.896135+01	Semester 2 - 2024/2025	2025-03-15
+1	t	2025-10-01 10:34:53.883739+01	2025-02-23	2025-10-01 10:34:53.883743+01	Semester 1 - 2024/2025 Updated	2024-09-08
 \.
 
 
@@ -3059,7 +3059,7 @@ COPY public.users (id, creation_date, email, first_name, is_active, last_modifie
 -- Name: departments_department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.departments_department_id_seq', 5, true);
+SELECT pg_catalog.setval('public.departments_department_id_seq', 7, true);
 
 
 --
@@ -3113,7 +3113,7 @@ SELECT pg_catalog.setval('public.roles_role_id_seq', 3, true);
 -- Name: semester_semester_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.semester_semester_id_seq', 2, true);
+SELECT pg_catalog.setval('public.semester_semester_id_seq', 4, true);
 
 
 --
@@ -3575,11 +3575,11 @@ ALTER TABLE ONLY public.subjects
     ADD CONSTRAINT fksjy6ghvvelraa2w9mhv3bbnys FOREIGN KEY (teacher_id) REFERENCES public.teachers(id);
 
 
--- Completed on 2025-10-01 22:39:18 WAT
+-- Completed on 2025-10-02 13:42:01 WAT
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict F83iihGzfNbsTQlWee1qyIb0nG0cuOvfISpKtQg9mZ7x5y7GDrf38PTtf96CXEY
+\unrestrict lx3Ur1y9P8NVkX5xqREGdpoPmBTcATrW3P98HpfYyMusfdOCghKnzE7XHXbKoMP
 
