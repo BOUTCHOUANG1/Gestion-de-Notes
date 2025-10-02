@@ -33,6 +33,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         // Only allow unauthenticated access to the public endpoints
         return path.equals("/api/auth/login") ||
+                path.equals("/api/auth/signin") ||
                 path.equals("/api/auth/logout") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||

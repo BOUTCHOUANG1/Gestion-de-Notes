@@ -79,8 +79,8 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/logout", "/api/auth/public-change-password", "/api/auth/reset-password").permitAll()
-                        .requestMatchers("/api/auth/register").hasAuthority("ADMIN")
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/configuration/**").permitAll()
                         .requestMatchers("/api-docs/**", "/api-docs", "/api-docs/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs/swagger-config", "/swagger-ui/swagger-config").permitAll()
