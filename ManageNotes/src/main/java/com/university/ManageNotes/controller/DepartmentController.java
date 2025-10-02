@@ -44,8 +44,7 @@ public class DepartmentController {
                                                @RequestParam(name = "sortOrder",
                                                        defaultValue = AppConstant.SORT_DIR,
                                                        required = false) String sortOrder) {
-        DepartmentResponse response = departmentService.getAllDepartments(pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
+        return new ResponseEntity<>(departmentService.getAllDepartments(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
     }
 
     @PutMapping("/admin/department/{departmentId}")

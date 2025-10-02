@@ -8,14 +8,19 @@ import com.university.ManageNotes.dto.Response.SubjectResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
+import com.university.ManageNotes.model.Department;
 import com.university.ManageNotes.model.Student;
 import com.university.ManageNotes.model.Teacher;
 import com.university.ManageNotes.model.TeachingLevel;
+import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.TeacherRepository;
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import com.university.ManageNotes.service.TeacherService;
+import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +38,10 @@ import java.util.stream.Collectors;
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final StudentRepository studentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final SubjectRepository subjectRepository;
     private final ModelMapper modelMapper;
+    private final ResponseMapper responseMapper;
 
     @Override
     public TeacherRequest updateTeacher(Long teacherId, TeacherRequest request) {
@@ -55,84 +64,70 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    @Transactional
     public TeacherResponse teacherProfile(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         Teacher teacher = teacherRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
+        
+        // Force initialization of lazy collections within transaction
+        if (teacher.getTeachingLevels() != null) {
+            teacher.getTeachingLevels().size();
+        }
+        if (teacher.getDepartment() != null && teacher.getDepartment().getSubjects() != null) {
+            teacher.getDepartment().getSubjects().size();
+        }
+        if (teacher.getSubjects() != null) {
+            teacher.getSubjects().size();
+        }
 
         return mapToTeacherResponse(teacher);
     }
 
     @Override
-    public TeacherResponse getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase(AppConstant.SORT_DIR) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Teacher> teacherPage = teacherRepository.findAll(pageable);
-
-        List<Teacher> teachers = teacherPage.getContent();
-        if (teachers.isEmpty()) {
+    @Transactional(readOnly = true)
+    public List<TeacherResponse> getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        List<Teacher> allTeachers = teacherRepository.findAllWithDepartmentSubjects();
+        
+        if (allTeachers.isEmpty()) {
             throw new APIException("No teachers found");
         }
 
-        Set<TeacherResponse> teacherResponses = teachers.stream()
-                .map(this::mapToTeacherResponse)
-                .collect(Collectors.toSet());
+        // Manual pagination and sorting
+        Comparator<Teacher> comparator = getComparator(sortBy, sortOrder);
+        List<Teacher> sortedTeachers = allTeachers.stream()
+                .sorted(comparator)
+                .skip((long) pageNumber * pageSize)
+                .limit(pageSize)
+                .collect(Collectors.toList());
 
-        TeacherResponse response = new TeacherResponse();
-        response.setContent(teacherResponses);
-        response.setPageNumber(teacherPage.getNumber());
-        response.setPageSize(teacherPage.getSize());
-        response.setTotalElements(teacherPage.getTotalElements());
-        response.setTotalPages(teacherPage.getTotalPages());
-        response.setLastPage(teacherPage.isLast());
-        
-        return response;
+        return sortedTeachers.stream()
+                .map(this::mapToTeacherResponse)
+                .collect(Collectors.toList());
+    }
+    
+    private Comparator<Teacher> getComparator(String sortBy, String sortOrder) {
+        Comparator<Teacher> comparator = switch (sortBy.toLowerCase()) {
+            case "firstname" -> Comparator.comparing(Teacher::getFirstName, Comparator.nullsLast(String::compareToIgnoreCase));
+            case "lastname" -> Comparator.comparing(Teacher::getLastName, Comparator.nullsLast(String::compareToIgnoreCase));
+            case "email" -> Comparator.comparing(Teacher::getEmail, Comparator.nullsLast(String::compareToIgnoreCase));
+            default -> Comparator.comparing(Teacher::getId);
+        };
+        return sortOrder.equalsIgnoreCase("desc") ? comparator.reversed() : comparator;
     }
 
     private TeacherResponse mapToTeacherResponse(Teacher teacher) {
-        TeacherResponse response = new TeacherResponse();
-        response.setTeacherId(teacher.getId());
-        response.setUsername(teacher.getUsername());
-        response.setFirstName(teacher.getFirstName());
-        response.setLastName(teacher.getLastName());
-        response.setPhoneNumber(teacher.getPhoneNumber());
-        response.setEmail(teacher.getEmail());
+        TeacherResponse response = responseMapper.toTeacherResponseBasic(teacher);
         
-        // Map subjects to SubjectResponse DTOs
-        if (teacher.getSubjects() != null && !teacher.getSubjects().isEmpty()) {
-            response.setSubjects(teacher.getSubjects().stream()
-                .map(subject -> {
-                    SubjectResponse subjectResponse = new SubjectResponse();
-                    subjectResponse.setSubjectId(subject.getSubjectId());
-                    subjectResponse.setSubjectName(subject.getSubjectName());
-                    subjectResponse.setSubjectCode(subject.getSubjectCode());
-                    subjectResponse.setCredits(subject.getCredits());
-                    subjectResponse.setDescription(subject.getDescription());
-                    subjectResponse.setSubjectsLevel(subject.getSubjectLevel() != null ? Set.of(subject.getSubjectLevel()) : null);
-                    subjectResponse.setStudentCycle(subject.getStudentcycle());
-                    subjectResponse.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
-                    return subjectResponse;
-                })
-                .collect(Collectors.toList()));
-        }
-        
-        // Map department to DepartmentResponse DTO
         if (teacher.getDepartment() != null) {
-            DepartmentResponse departmentResponse = new DepartmentResponse();
-            departmentResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
-            departmentResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
-            departmentResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
-            response.setDepartment(departmentResponse);
+            Department dept = teacher.getDepartment();
+            // Manually load subjects
+            List<com.university.ManageNotes.model.Subject> subjects = subjectRepository.findByDepartment(dept);
+            dept.setSubjects(new java.util.HashSet<>(subjects));
+            response.setDepartment(responseMapper.toDepartmentResponse(dept));
         }
         
-        response.setTeachingLevel(new HashSet<>(teacher.getTeachingLevels()));
-        response.setCreatedDate(teacher.getCreatedDate());
-        response.setLastModifiedDate(teacher.getLastModifiedDate());
-        response.setRole(teacher.getRole().getAppRole().name());
-        response.setIsActive(teacher.getIsActive());
         return response;
     }
 
@@ -159,20 +154,6 @@ public class TeacherServiceImpl implements TeacherService {
     }
     
     private StudentResponse mapToStudentResponse(Student student) {
-        StudentResponse response = new StudentResponse();
-        response.setId(student.getId());
-        response.setFirstName(student.getFirstName());
-        response.setLastName(student.getLastName());
-        response.setEmail(student.getEmail());
-        response.setMatricule(student.getMatricule());
-        response.setSpeciality(student.getSpeciality());
-        response.setCycle(student.getCycle());
-        response.setDateOfBirth(student.getDateOfBirth());
-        response.setPlaceOfBirth(student.getPlaceOfBirth());
-        response.setCreatedDate(student.getCreatedDate());
-        response.setLastModifiedDate(student.getLastModifiedDate());
-        response.setIsActive(student.getIsActive());
-        response.setStudentLevel(student.getStudentLevel());
-        return response;
+        return modelMapper.map(student, StudentResponse.class);
     }
 }

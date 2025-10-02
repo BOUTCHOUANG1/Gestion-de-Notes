@@ -11,8 +11,10 @@ import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.service.DepartmentService;
+import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import java.util.HashSet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final SubjectRepository subjectRepository;
     private final ModelMapper modelMapper;
+    private final ResponseMapper responseMapper;
 
     @Override
     @Transactional
@@ -61,7 +64,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public DepartmentResponse getAllDepartments(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public List<DepartmentResponse> getAllDepartments(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase(AppConstant.SORT_DIR) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -73,40 +76,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new APIException("No departments found");
         }
 
-        Set<DepartmentResponse> departmentResponses = departments.stream()
+        return departments.stream()
                 .map(this::mapToDepartmentResponse)
-                .collect(Collectors.toSet());
-
-        DepartmentResponse response = new DepartmentResponse();
-        response.setContent(departmentResponses);
-        response.setPageNumber(departmentPage.getNumber());
-        response.setPageSize(departmentPage.getSize());
-        response.setTotalElements(departmentPage.getTotalElements());
-        response.setTotalPages(departmentPage.getTotalPages());
-        response.setLastPage(departmentPage.isLast());
-        
-        return response;
+                .collect(Collectors.toList());
     }
 
     private DepartmentResponse mapToDepartmentResponse(Department department) {
-        DepartmentResponse response = new DepartmentResponse();
-        response.setDepartmentId(department.getDepartmentId());
-        response.setDepartmentName(department.getDepartmentName());
-        response.setCreatedDate(department.getCreatedDate());
-        response.setLastModifiedDate(department.getLastModifiedDate());
-        
-        // Map subjects to response DTOs
-        if (department.getSubjects() != null && !department.getSubjects().isEmpty()) {
-            response.setDepartmentSubjects(department.getSubjects().stream()
-                .map(subject -> {
-                    SubjectResponse subjectResponse = modelMapper.map(subject, SubjectResponse.class);
-                    subjectResponse.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
-                    return subjectResponse;
-                })
-                .collect(Collectors.toSet()));
-        }
-        
-        return response;
+        // Manually load subjects
+        java.util.List<Subject> subjects = subjectRepository.findByDepartment(department);
+        department.setSubjects(new HashSet<>(subjects));
+        return responseMapper.toDepartmentResponse(department);
     }
 
     @Override

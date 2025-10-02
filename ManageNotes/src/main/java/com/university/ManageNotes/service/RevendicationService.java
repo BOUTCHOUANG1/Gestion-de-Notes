@@ -11,7 +11,7 @@ public interface RevendicationService {
     
     RevendicationRequest createRevendication(RevendicationRequest req);
     
-    RevendicationResponse getRevendicationForTeacher(Integer pageNumber,
+    List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber,
                                                      Integer pageSize,
                                                      String sortBy, String sortOrder);
 

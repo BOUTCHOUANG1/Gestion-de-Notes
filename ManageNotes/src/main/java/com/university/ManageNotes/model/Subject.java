@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.university.ManageNotes.model.enums.StudentCycle;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -31,6 +32,7 @@ public class Subject{
 
      private BigDecimal credits;
 
+     @JsonIgnore
      @ManyToOne
      @JoinColumn(name = "teacher_id")
      private Teacher teacher;

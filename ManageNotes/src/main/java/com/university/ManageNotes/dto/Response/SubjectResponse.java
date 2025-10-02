@@ -18,8 +18,8 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = {"teacher", "semester", "department", "content"})
-@ToString(exclude = {"teacher", "semester", "department", "content"})
+@EqualsAndHashCode(exclude = {"teacher", "semester", "department"})
+@ToString(exclude = {"teacher", "semester", "department"})
 public class SubjectResponse {
     private Long subjectId;
     private String subjectName;
@@ -34,13 +34,6 @@ public class SubjectResponse {
     private SemesterResponse semester;
     @JsonIgnore
     private DepartmentResponse department;
-
-    private Set<SubjectResponse> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private Boolean lastPage;
     private Instant createdDate;
     private Instant lastModifiedDate;
 }

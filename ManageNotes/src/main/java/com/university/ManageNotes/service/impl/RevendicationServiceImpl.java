@@ -86,7 +86,7 @@ public class RevendicationServiceImpl implements RevendicationService {
     }
 
     @Override
-    public RevendicationResponse getRevendicationForTeacher(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         // Get current teacher
         Teacher currentTeacher = getCurrentTeacher();
         
@@ -104,21 +104,9 @@ public class RevendicationServiceImpl implements RevendicationService {
             throw new APIException("No pending revendications found");
         }
 
-        // Map to request DTOs for content
-        List<RevendicationRequest> revendicationRequests = revendications.stream()
-                .map(rev -> modelMapper.map(rev, RevendicationRequest.class))
+        return revendications.stream()
+                .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
                 .collect(Collectors.toList());
-
-        // Build paginated response
-        RevendicationResponse response = new RevendicationResponse();
-        response.setContent(revendicationRequests);
-        response.setPageNumber(revendicationPage.getNumber());
-        response.setPageSize(revendicationPage.getSize());
-        response.setTotalElements(revendicationPage.getTotalElements());
-        response.setTotalPages(revendicationPage.getTotalPages());
-        response.setLastPage(revendicationPage.isLast());
-
-        return response;
     }
 
     @Override

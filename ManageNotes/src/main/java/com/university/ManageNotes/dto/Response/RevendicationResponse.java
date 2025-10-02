@@ -23,13 +23,4 @@ public class RevendicationResponse {
     private RequestStatus status;
     private Instant createdDate;
     private Instant lastModifiedDate;
-
-    private List<RevendicationRequest> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private Boolean lastPage;
-
-
 }

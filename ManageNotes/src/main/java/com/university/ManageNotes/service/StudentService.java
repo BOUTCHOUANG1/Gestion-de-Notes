@@ -13,5 +13,5 @@ public interface StudentService {
 
     StudentResponse studentProfile(Authentication authentication);
 
-    StudentResponse getAllStudents(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    List<StudentResponse> getAllStudents(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }

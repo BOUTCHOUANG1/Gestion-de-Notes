@@ -31,7 +31,7 @@ public class RevendicationController {
 
     @GetMapping("/teacher/revendications")
     @Operation(summary = "Get pending revendications (Teacher)", description = "Teacher views pending revendications for their subjects")
-    public ResponseEntity<RevendicationResponse> getRevendicationsForTeacher(
+    public ResponseEntity<List<RevendicationResponse>> getRevendicationsForTeacher(
             @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_REVENDICATION_BY, required = false) String sortBy,

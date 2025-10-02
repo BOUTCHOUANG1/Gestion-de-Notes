@@ -14,7 +14,7 @@ public interface TeacherService {
 
     TeacherResponse teacherProfile(Authentication authentication);
 
-    TeacherResponse getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    List<TeacherResponse> getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
     
     Map<String, List<StudentResponse>> getStudentsByTeachingLevels(Authentication authentication);
 

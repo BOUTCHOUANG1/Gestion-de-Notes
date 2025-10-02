@@ -28,7 +28,7 @@ public class SemesterServiceImpl implements SemesterService {
         List<Semester> semesters = semesterRepository.findAll();
         
         return semesters.stream()
-            .map(semester -> modelMapper.map(semester, SemesterResponse.class))
+            .map(this::mapToResponse)
             .collect(Collectors.toList());
     }
 
@@ -37,14 +37,18 @@ public class SemesterServiceImpl implements SemesterService {
         Semester semester = semesterRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", id));
         
-        return modelMapper.map(semester, SemesterResponse.class);
+        return mapToResponse(semester);
     }
 
     @Override
     @Transactional
     public SemesterRequest createSemester(SemesterRequest request) {
         // Map DTO to Entity
-        Semester semester = modelMapper.map(request, Semester.class);
+        Semester semester = new Semester();
+        semester.setName(request.getName());
+        semester.setStartDate(request.getStartDate());
+        semester.setEndDate(request.getEndDate());
+        semester.setActive(request.getActive() != null ? request.getActive() : false);
         
         // Validate semester name uniqueness
         if (semesterRepository.existsByName(request.getName())) {
@@ -68,7 +72,7 @@ public class SemesterServiceImpl implements SemesterService {
         
         // Save entity and map to request DTO
         Semester savedSemester = semesterRepository.save(semester);
-        return modelMapper.map(savedSemester, SemesterRequest.class);
+        return mapToRequest(savedSemester);
     }
 
     @Override
@@ -113,7 +117,7 @@ public class SemesterServiceImpl implements SemesterService {
         
         // Save entity and map to request DTO
         Semester updatedSemester = semesterRepository.save(existingSemester);
-        return modelMapper.map(updatedSemester, SemesterRequest.class);
+        return mapToRequest(updatedSemester);
     }
 
     @Override
@@ -130,7 +134,7 @@ public class SemesterServiceImpl implements SemesterService {
         semesterRepository.delete(semester);
     }
 
-    // Helper method to validate max 2 semesters per academic year
+    // Helper methods
     private void validateMaxSemestersPerYear(LocalDate startDate) {
         int year = startDate.getYear();
         long semesterCount = semesterRepository.findAll().stream()
@@ -140,5 +144,26 @@ public class SemesterServiceImpl implements SemesterService {
         if (semesterCount >= 2) {
             throw new APIException("Maximum 2 semesters allowed per academic year (" + year + ")");
         }
+    }
+    
+    private SemesterResponse mapToResponse(Semester semester) {
+        SemesterResponse response = new SemesterResponse();
+        response.setSemesterId(semester.getSemesterId());
+        response.setName(semester.getName());
+        response.setStartDate(semester.getStartDate());
+        response.setEndDate(semester.getEndDate());
+        response.setActive(semester.getActive());
+        response.setCreatedDate(semester.getCreatedDate());
+        response.setLastModifiedDate(semester.getLastModifiedDate());
+        return response;
+    }
+    
+    private SemesterRequest mapToRequest(Semester semester) {
+        SemesterRequest request = new SemesterRequest();
+        request.setName(semester.getName());
+        request.setStartDate(semester.getStartDate());
+        request.setEndDate(semester.getEndDate());
+        request.setActive(semester.getActive());
+        return request;
     }
 }

@@ -93,7 +93,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentResponse getAllStudents(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public List<StudentResponse> getAllStudents(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase(AppConstant.SORT_DIR) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -105,19 +105,9 @@ public class StudentServiceImpl implements StudentService {
             throw new APIException("No students found");
         }
 
-        Set<StudentResponse> studentResponses = students.stream()
+        return students.stream()
                 .map(this::mapToStudentResponse)
-                .collect(Collectors.toSet());
-
-        StudentResponse response = new StudentResponse();
-        response.setContent(studentResponses);
-        response.setPageNumber(studentPage.getNumber());
-        response.setPageSize(studentPage.getSize());
-        response.setTotalElements(studentPage.getTotalElements());
-        response.setTotalPages(studentPage.getTotalPages());
-        response.setLastPage(studentPage.isLast());
-        
-        return response;
+                .collect(Collectors.toList());
     }
 
     private StudentResponse mapToStudentResponse(Student student) {

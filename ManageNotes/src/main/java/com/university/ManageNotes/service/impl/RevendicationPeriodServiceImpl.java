@@ -2,6 +2,8 @@ package com.university.ManageNotes.service.impl;
 
 import com.university.ManageNotes.dto.Request.RevendicationPeriodRequest;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
+import com.university.ManageNotes.dto.Response.ExamResponse;
+import com.university.ManageNotes.dto.Response.SemesterResponse;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.Exam;
@@ -34,7 +36,10 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
     @Transactional
     public RevendicationPeriodRequest createPeriod(RevendicationPeriodRequest request) {
         // Map DTO to Entity
-        RevendicationPeriod period = modelMapper.map(request, RevendicationPeriod.class);
+        RevendicationPeriod period = new RevendicationPeriod();
+        period.setStartDate(request.getStartDate());
+        period.setEndDate(request.getEndDate());
+        period.setColor(request.getColor());
         
         // Get active semester
         Semester activeSemester = getActiveSemester();
@@ -60,7 +65,7 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
         
         // Save entity and map to request DTO
         RevendicationPeriod savedPeriod = revendicationPeriodRepository.save(period);
-        return modelMapper.map(savedPeriod, RevendicationPeriodRequest.class);
+        return mapToRequest(savedPeriod);
     }
 
     @Override
@@ -68,7 +73,7 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
         List<RevendicationPeriod> periods = revendicationPeriodRepository.findAll();
         
         return periods.stream()
-            .map(period -> modelMapper.map(period, RevendicationPeriodResponse.class))
+            .map(this::mapToResponse)
             .collect(Collectors.toList());
     }
 
@@ -113,7 +118,7 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
         
         // Save entity and map to request DTO
         RevendicationPeriod updatedPeriod = revendicationPeriodRepository.save(existingPeriod);
-        return modelMapper.map(updatedPeriod, RevendicationPeriodRequest.class);
+        return mapToRequest(updatedPeriod);
     }
 
     @Override
@@ -135,7 +140,7 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
                 activeSemester, today, today);
         
         return activePeriods.stream()
-            .map(period -> modelMapper.map(period, RevendicationPeriodResponse.class))
+            .map(this::mapToResponse)
             .collect(Collectors.toList());
     }
 
@@ -159,9 +164,55 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
         }
     }
 
-    // Helper method
+    // Helper methods
     private Semester getActiveSemester() {
         return semesterRepository.findByActiveTrue()
             .orElseThrow(() -> new APIException("No active semester found. Please activate a semester first."));
+    }
+    
+    private RevendicationPeriodResponse mapToResponse(RevendicationPeriod period) {
+        RevendicationPeriodResponse response = new RevendicationPeriodResponse();
+        response.setRevendicationPeriodId(period.getRevendicationPeriodId());
+        response.setStartDate(period.getStartDate());
+        response.setEndDate(period.getEndDate());
+        response.setColor(period.getColor());
+        response.setIsActive(period.getIsActive());
+        response.setCreatedDate(period.getCreatedDate());
+        response.setLastModifiedDate(period.getLastModifiedDate());
+        
+        // Handle exam mapping if present
+        if (period.getExam() != null) {
+            ExamResponse examResponse = new ExamResponse();
+            examResponse.setExamPeriodId(period.getExam().getExamPeriodId());
+            examResponse.setAssessmentType(period.getExam().getAssessmentType());
+            response.setExam(examResponse);
+        }
+        
+        // Handle semester mapping if present
+        if (period.getSemester() != null) {
+            SemesterResponse semesterResponse = new SemesterResponse();
+            semesterResponse.setSemesterId(period.getSemester().getSemesterId());
+            semesterResponse.setName(period.getSemester().getName());
+            semesterResponse.setStartDate(period.getSemester().getStartDate());
+            semesterResponse.setEndDate(period.getSemester().getEndDate());
+            semesterResponse.setActive(period.getSemester().getActive());
+            response.setSemester(semesterResponse);
+        }
+        
+        return response;
+    }
+    
+    private RevendicationPeriodRequest mapToRequest(RevendicationPeriod period) {
+        RevendicationPeriodRequest request = new RevendicationPeriodRequest();
+        request.setStartDate(period.getStartDate());
+        request.setEndDate(period.getEndDate());
+        request.setColor(period.getColor());
+        request.setIsActive(period.getIsActive());
+        
+        if (period.getExam() != null) {
+            request.setExamId(period.getExam().getExamPeriodId());
+        }
+        
+        return request;
     }
 }

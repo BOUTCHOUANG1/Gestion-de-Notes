@@ -41,8 +41,7 @@ public class SubjectController {
                     defaultValue = AppConstant.SORT_DIR,
                     required = false) String sortOrder
     ) {
-        SubjectResponse response = subjectService.getAllSubjects(pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(new ArrayList<>(response.getContent()), HttpStatus.OK);
+        return new ResponseEntity<>(subjectService.getAllSubjects(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
     }
 
 
@@ -69,7 +68,7 @@ public class SubjectController {
     @GetMapping("/teacher/subject")
     @Operation(summary = "Get subjects assigned to current teacher",
             description = "Return subjects taught by the authenticated teacher")
-    public ResponseEntity<SubjectResponse> getSubjectsByTeacher(@AuthenticationPrincipal UserDetailsImpl userPrincipal,
+    public ResponseEntity<List<SubjectResponse>> getSubjectsByTeacher(@AuthenticationPrincipal UserDetailsImpl userPrincipal,
                                                       @RequestParam(name = "pageNumber",
                                                               defaultValue = AppConstant.PAGE_NUMBER,
                                                               required = false) Integer pageNumber,
@@ -84,13 +83,12 @@ public class SubjectController {
                                                               required = false) String sortOrder
     ) {
         Long teacherId = userPrincipal.getId();
-        return new ResponseEntity<>(subjectService.getAllSubjectsByTeacher
-                (teacherId, pageNumber, pageSize, sortBy, sortOrder), HttpStatus.CREATED);
+        return new ResponseEntity<>(subjectService.getAllSubjectsByTeacher(teacherId, pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
     }
 
     @GetMapping("/subjects")
     @Operation(summary = "Get all subjects", description = "Get list of all subjects")
-    public ResponseEntity<SubjectResponse> getAllSubjects() {
+    public ResponseEntity<List<SubjectResponse>> getAllSubjects() {
         return new ResponseEntity<>(subjectService.getAllSubjects(0, 10, "name", "asc"), HttpStatus.OK);
     }
 }

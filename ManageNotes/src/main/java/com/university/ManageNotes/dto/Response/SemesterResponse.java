@@ -35,12 +35,4 @@ public class SemesterResponse {
     @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Set<GradeResponse> grades;
-    
-    // Pagination support
-    private List<SemesterResponse> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private Boolean lastPage;
 }

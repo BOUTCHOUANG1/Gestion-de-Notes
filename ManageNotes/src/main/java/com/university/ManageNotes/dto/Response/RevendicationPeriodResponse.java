@@ -21,12 +21,4 @@ public class RevendicationPeriodResponse {
     private Boolean isActive;
     private Instant createdDate;
     private Instant lastModifiedDate;
-
-    // Pagination support
-    private List<RevendicationPeriodResponse> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private Boolean lastPage;
 }

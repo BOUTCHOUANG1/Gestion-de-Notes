@@ -1,5 +1,6 @@
 package com.university.ManageNotes.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,7 @@ public class Teacher extends Users {
     private String phoneNumber;
 
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Subject> subjects;
 

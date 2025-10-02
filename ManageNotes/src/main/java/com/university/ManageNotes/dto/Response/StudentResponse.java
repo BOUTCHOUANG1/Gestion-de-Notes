@@ -31,11 +31,4 @@ public class StudentResponse {
     private Instant lastModifiedDate;
     private Boolean isActive;
     private String role;
-
-    private Set<StudentResponse> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private Boolean lastPage;
 }

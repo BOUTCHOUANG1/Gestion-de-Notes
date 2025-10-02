@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DepartmentService{
 
-    DepartmentResponse getAllDepartments(Integer pageNumber,
+    List<DepartmentResponse> getAllDepartments(Integer pageNumber,
                                                Integer pageSize,
                                                String sortBy, String sortOrder);
     DepartmentRequest createDepartment(DepartmentRequest request);

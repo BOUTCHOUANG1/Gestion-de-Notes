@@ -10,6 +10,7 @@ import com.university.ManageNotes.model.Teacher;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.repository.TeacherRepository;
 import com.university.ManageNotes.service.SubjectService;
+import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -29,9 +30,10 @@ public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
     private final TeacherRepository teacherRepository;
     private final ModelMapper modelMapper;
+    private final ResponseMapper responseMapper;
 
     @Override
-    public SubjectResponse getAllSubjects(Integer pageNumber,
+    public List<SubjectResponse> getAllSubjects(Integer pageNumber,
                                    Integer pageSize,
                                    String sortBy, String sortOrder){
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
@@ -47,43 +49,13 @@ public class SubjectServiceImpl implements SubjectService {
             throw new APIException("No subjects found");
         }
 
-        Set<SubjectResponse> subjectResponses = subjectList.stream()
-                .map(sub -> {
-                    SubjectResponse response = new SubjectResponse();
-                    response.setSubjectId(sub.getSubjectId());
-                    response.setSubjectName(sub.getSubjectName());
-                    response.setSubjectCode(sub.getSubjectCode());
-                    response.setCredits(sub.getCredits());
-                    response.setDescription(sub.getDescription());
-                    response.setStudentCycle(sub.getStudentcycle());
-                    response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
-                    
-                    if (sub.getTeacher() != null) {
-                        TeacherResponse teacherResponse = new TeacherResponse();
-                        teacherResponse.setTeacherId(sub.getTeacher().getId());
-                        teacherResponse.setFirstName(sub.getTeacher().getFirstName());
-                        teacherResponse.setLastName(sub.getTeacher().getLastName());
-                        teacherResponse.setEmail(sub.getTeacher().getEmail());
-                        response.setTeacher(teacherResponse);
-                    }
-                    
-                    return response;
-                })
-                .collect(Collectors.toSet());
-
-        SubjectResponse subjectResponse = new SubjectResponse();
-        subjectResponse.setContent(subjectResponses);
-        subjectResponse.setPageNumber(subjectPage.getNumber());
-        subjectResponse.setPageSize(subjectPage.getSize());
-        subjectResponse.setTotalElements(subjectPage.getTotalElements());
-        subjectResponse.setTotalPages(subjectPage.getTotalPages());
-        subjectResponse.setLastPage(subjectPage.isLast());
-        
-        return subjectResponse;
+        return subjectList.stream()
+                .map(responseMapper::toSubjectResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public SubjectResponse getAllSubjectsByTeacher(Long teacherId,
+    public List<SubjectResponse> getAllSubjectsByTeacher(Long teacherId,
                                                          Integer pageNumber,
                                                          Integer pageSize,
                                                          String sortBy, String sortOrder){
@@ -109,39 +81,9 @@ public class SubjectServiceImpl implements SubjectService {
             throw new APIException("No subjects found");
         }
 
-        Set<SubjectResponse> subjectResponses = subjectList.stream()
-                .map(sub -> {
-                    SubjectResponse response = new SubjectResponse();
-                    response.setSubjectId(sub.getSubjectId());
-                    response.setSubjectName(sub.getSubjectName());
-                    response.setSubjectCode(sub.getSubjectCode());
-                    response.setCredits(sub.getCredits());
-                    response.setDescription(sub.getDescription());
-                    response.setStudentCycle(sub.getStudentcycle());
-                    response.setDepartmentId(sub.getDepartment() != null ? sub.getDepartment().getDepartmentId() : null);
-                    
-                    if (sub.getTeacher() != null) {
-                        TeacherResponse teacherResponse = new TeacherResponse();
-                        teacherResponse.setTeacherId(sub.getTeacher().getId());
-                        teacherResponse.setFirstName(sub.getTeacher().getFirstName());
-                        teacherResponse.setLastName(sub.getTeacher().getLastName());
-                        teacherResponse.setEmail(sub.getTeacher().getEmail());
-                        response.setTeacher(teacherResponse);
-                    }
-                    
-                    return response;
-                })
-                .collect(Collectors.toSet());
-
-        SubjectResponse subjectResponse = new SubjectResponse();
-
-        subjectResponse.setContent(subjectResponses);
-        subjectResponse.setPageNumber(subjectPage.getNumber());
-        subjectResponse.setPageSize(subjectPage.getSize());
-        subjectResponse.setTotalElements(subjectPage.getTotalElements());
-        subjectResponse.setTotalPages(subjectPage.getTotalPages());
-        subjectResponse.setLastPage(subjectPage.isLast());
-        return subjectResponse;
+        return subjectList.stream()
+                .map(responseMapper::toSubjectResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

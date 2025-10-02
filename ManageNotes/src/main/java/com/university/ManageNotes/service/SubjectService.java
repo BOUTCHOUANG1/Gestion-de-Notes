@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface SubjectService {
 
-    SubjectResponse getAllSubjects(Integer pageNumber,
+    List<SubjectResponse> getAllSubjects(Integer pageNumber,
                                    Integer pageSize,
                                    String sortBy, String sortOrder);
 
@@ -18,7 +18,7 @@ public interface SubjectService {
 
     SubjectRequest deleteSubject(Long id);
 
-    SubjectResponse getAllSubjectsByTeacher(Long teacherId,
+    List<SubjectResponse> getAllSubjectsByTeacher(Long teacherId,
                                             Integer pageNumber,
                                             Integer pageSize,
                                             String sortBy, String sortOrder);

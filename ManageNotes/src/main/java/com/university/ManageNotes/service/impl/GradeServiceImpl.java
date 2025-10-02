@@ -178,7 +178,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Map to response DTOs
         List<GradeResponse> gradeResponses = grades.stream()
-            .map(grade -> modelMapper.map(grade, GradeResponse.class))
+            .map(this::mapToGradeResponse)
             .collect(Collectors.toList());
             
         // Build student response with grades
@@ -195,8 +195,12 @@ public class GradeServiceImpl implements GradeService {
         List<Grades> grades = gradeRepository.findByExaminer(currentTeacher);
         
         return grades.stream()
-            .map(grade -> modelMapper.map(grade, GradeResponse.class))
+            .map(this::mapToGradeResponse)
             .collect(Collectors.toList());
+    }
+    
+    private GradeResponse mapToGradeResponse(Grades grade) {
+        return modelMapper.map(grade, GradeResponse.class);
     }
 
     // Helper methods
