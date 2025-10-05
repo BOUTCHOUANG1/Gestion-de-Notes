@@ -4,6 +4,7 @@ import com.university.ManageNotes.dto.Response.*;
 import com.university.ManageNotes.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,9 +49,12 @@ public class ResponseMapper {
         response.setIsActive(teacher.getIsActive());
         response.setRole(teacher.getRole() != null ? teacher.getRole().getAppRole().name() : null);
         
-        if (teacher.getTeachingLevels() != null) {
-            response.setTeachingLevel(teacher.getTeachingLevels().stream()
-                .collect(Collectors.toSet()));
+        if (teacher.getTeachingLevels() != null && !teacher.getTeachingLevels().isEmpty()) {
+            try {
+                response.setTeachingLevel(new HashSet<>(teacher.getTeachingLevels()));
+            } catch (Exception e) {
+                response.setTeachingLevel(new HashSet<>());
+            }
         }
         
         return response;

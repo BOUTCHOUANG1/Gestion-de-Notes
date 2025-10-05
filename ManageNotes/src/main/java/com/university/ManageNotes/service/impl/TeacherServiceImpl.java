@@ -90,11 +90,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional(readOnly = true)
     public List<TeacherResponse> getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        List<Teacher> allTeachers = teacherRepository.findAllWithDepartmentSubjects();
-        
-        if (allTeachers.isEmpty()) {
-            throw new APIException("No teachers found");
-        }
+        List<Teacher> allTeachers = teacherRepository.findAll();
 
         // Manual pagination and sorting
         Comparator<Teacher> comparator = getComparator(sortBy, sortOrder);
@@ -123,11 +119,38 @@ public class TeacherServiceImpl implements TeacherService {
         TeacherResponse response = responseMapper.toTeacherResponseBasic(teacher);
         
         if (teacher.getDepartment() != null) {
-            Department dept = teacher.getDepartment();
-            // Manually load subjects
-            List<com.university.ManageNotes.model.Subject> subjects = subjectRepository.findByDepartment(dept);
-            dept.setSubjects(new java.util.HashSet<>(subjects));
-            response.setDepartment(responseMapper.toDepartmentResponse(dept));
+            DepartmentResponse deptResponse = new DepartmentResponse();
+            deptResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
+            deptResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
+            deptResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
+            deptResponse.setLastModifiedDate(teacher.getDepartment().getLastModifiedDate());
+            
+            // Add subjects taught by this teacher
+            List<com.university.ManageNotes.model.Subject> teacherSubjects = subjectRepository.findAll().stream()
+                .filter(s -> s.getTeacher() != null && s.getTeacher().getId().equals(teacher.getId()))
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (!teacherSubjects.isEmpty()) {
+                java.util.Set<SubjectResponse> subjectResponses = teacherSubjects.stream()
+                    .map(subject -> {
+                        SubjectResponse sr = new SubjectResponse();
+                        sr.setSubjectId(subject.getSubjectId());
+                        sr.setSubjectName(subject.getSubjectName());
+                        sr.setSubjectCode(subject.getSubjectCode());
+                        sr.setCredits(subject.getCredits());
+                        sr.setDescription(subject.getDescription());
+                        sr.setStudentCycle(subject.getStudentcycle());
+                        sr.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
+                        if (subject.getSubjectLevel() != null) {
+                            sr.setSubjectsLevel(java.util.Collections.singleton(subject.getSubjectLevel()));
+                        }
+                        return sr;
+                    })
+                    .collect(java.util.stream.Collectors.toSet());
+                deptResponse.setDepartmentSubjects(subjectResponses);
+            }
+            
+            response.setDepartment(deptResponse);
         }
         
         return response;

@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict lx3Ur1y9P8NVkX5xqREGdpoPmBTcATrW3P98HpfYyMusfdOCghKnzE7XHXbKoMP
+\restrict 3Bc7GZ5vjbqGszyvYJj4JMVLjG0uYkSDgBBKtyfwaHVV9p9OIGUZmctPIdiodlm
 
 -- Dumped from database version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 -- Dumped by pg_dump version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 
--- Started on 2025-10-02 13:42:01 WAT
+-- Started on 2025-10-05 20:07:52 WAT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1735,7 +1735,6 @@ COPY public.grades (grade_id, cc_score, comments, creation_date, gpa, has_passed
 1078	23.03799098525574	Good performance	2025-10-01 10:35:11.272748+01	0	f	2025-10-01 10:35:11.272749+01	0	23.03799098525574	2	15	2	44	22
 1079	0	Good performance	2025-10-01 10:35:11.284075+01	1.7	t	2025-10-01 10:35:11.284076+01	57.82755246190887	57.82755246190887	3	15	2	44	22
 1080	0	Excellent work!	2025-10-01 10:35:11.295678+01	2	t	2025-10-01 10:35:11.295678+01	63.02273807767931	63.02273807767931	4	15	2	44	22
-1081	15.215167218654718	Needs improvement	2025-10-01 10:35:11.307867+01	0	f	2025-10-01 10:35:11.307867+01	0	15.215167218654718	1	3	1	45	3
 1082	11.299519698827233	Requires significant improvement	2025-10-01 10:35:11.319351+01	0	f	2025-10-01 10:35:11.319352+01	0	11.299519698827233	2	3	1	45	3
 1083	0	Excellent work!	2025-10-01 10:35:11.330124+01	2	t	2025-10-01 10:35:11.330125+01	64.51294367211227	64.51294367211227	3	3	1	45	3
 1084	0	Satisfactory	2025-10-01 10:35:11.34201+01	1	f	2025-10-01 10:35:11.34201+01	46.20355418819207	46.20355418819207	4	3	1	45	3
@@ -2715,10 +2714,10 @@ COPY public.revendication (revendication_id, creation_date, description, last_mo
 --
 
 COPY public.revendication_period (revendication_period_id, color, creation_date, end_date, is_active, last_modified_date, start_date, exam_period_id, semester_id) FROM stdin;
-2	#FF9800	2025-10-01 10:34:53.931276+01	2024-10-23	t	2025-10-01 10:34:53.931277+01	2024-10-08	3	1
-3	#2196F3	2025-10-01 10:34:53.933503+01	2025-04-29	t	2025-10-01 10:34:53.933504+01	2025-04-14	2	2
-4	#F44336	2025-10-01 10:34:53.936063+01	2025-04-29	t	2025-10-01 10:34:53.936063+01	2025-04-14	4	2
-1	#4CAF50	2025-10-01 10:34:53.927606+01	2024-10-25	t	2025-10-01 10:34:53.92761+01	2024-10-10	1	1
+6	#33FF57	2025-10-05 19:45:15.438259+01	2025-12-27	t	2025-10-05 19:45:15.438259+01	2025-12-20	3	1
+7	#3357FF	2025-10-05 19:45:15.440476+01	2026-04-27	f	2025-10-05 19:45:15.440476+01	2026-04-20	2	2
+8	#FF33F5	2025-10-05 19:45:15.441748+01	2026-06-27	f	2025-10-05 19:45:15.441748+01	2026-06-20	4	2
+5	#FF5733	2025-10-05 19:45:15.433795+01	2025-10-27	t	2025-10-05 19:45:15.433795+01	2025-10-17	1	1
 \.
 
 
@@ -2742,8 +2741,8 @@ COPY public.roles (role_id, role_name) FROM stdin;
 --
 
 COPY public.semester (semester_id, is_active, creation_date, end_date, last_modified_date, name, start_date) FROM stdin;
-2	f	2025-10-01 10:34:53.896134+01	2025-06-02	2025-10-01 10:34:53.896135+01	Semester 2 - 2024/2025	2025-03-15
-1	t	2025-10-01 10:34:53.883739+01	2025-02-23	2025-10-01 10:34:53.883743+01	Semester 1 - 2024/2025 Updated	2024-09-08
+1	t	2025-10-01 10:34:53.883739+01	2026-02-20	2025-10-01 10:34:53.883743+01	Semester 1 - 2025/2026	2025-09-08
+2	f	2025-10-01 10:34:53.896134+01	2026-07-31	2025-10-01 10:34:53.896135+01	Semester 2 - 2025/2026	2026-03-02
 \.
 
 
@@ -2840,6 +2839,7 @@ COPY public.subjects (subject_id, studentcycle, credits, description, subject_co
 24	MASTER	6.00	Description for Advanced Engineering	ENG441	Advanced Engineering	5	1	4	17	\N
 25	MASTER	6.00	Description for Engineering Research Methods	ENG541	Engineering Research Methods	5	1	5	17	\N
 14	MASTER	6.00	Description for Advanced Quantum	PHY411	Advanced Quantum	3	1	4	11	\N
+26	BACHELOR	8.00	Updated description	TEST101	Updated Test Subject	1	1	\N	2	\N
 \.
 
 
@@ -3086,7 +3086,7 @@ SELECT pg_catalog.setval('public.grades_grade_id_seq', 2040, true);
 -- Name: revendication_period_revendication_period_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.revendication_period_revendication_period_id_seq', 4, true);
+SELECT pg_catalog.setval('public.revendication_period_revendication_period_id_seq', 8, true);
 
 
 --
@@ -3113,7 +3113,7 @@ SELECT pg_catalog.setval('public.roles_role_id_seq', 3, true);
 -- Name: semester_semester_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.semester_semester_id_seq', 4, true);
+SELECT pg_catalog.setval('public.semester_semester_id_seq', 10, true);
 
 
 --
@@ -3122,7 +3122,7 @@ SELECT pg_catalog.setval('public.semester_semester_id_seq', 4, true);
 -- Name: subjects_subject_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.subjects_subject_id_seq', 25, true);
+SELECT pg_catalog.setval('public.subjects_subject_id_seq', 26, true);
 
 
 --
@@ -3575,11 +3575,11 @@ ALTER TABLE ONLY public.subjects
     ADD CONSTRAINT fksjy6ghvvelraa2w9mhv3bbnys FOREIGN KEY (teacher_id) REFERENCES public.teachers(id);
 
 
--- Completed on 2025-10-02 13:42:01 WAT
+-- Completed on 2025-10-05 20:07:52 WAT
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict lx3Ur1y9P8NVkX5xqREGdpoPmBTcATrW3P98HpfYyMusfdOCghKnzE7XHXbKoMP
+\unrestrict 3Bc7GZ5vjbqGszyvYJj4JMVLjG0uYkSDgBBKtyfwaHVV9p9OIGUZmctPIdiodlm
 

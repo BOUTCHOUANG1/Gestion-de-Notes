@@ -20,6 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = {"teacher", "semester", "department"})
 @ToString(exclude = {"teacher", "semester", "department"})
+@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
 public class SubjectResponse {
     private Long subjectId;
     private String subjectName;

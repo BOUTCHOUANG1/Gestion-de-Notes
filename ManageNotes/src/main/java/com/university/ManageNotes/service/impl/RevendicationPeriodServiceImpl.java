@@ -98,13 +98,12 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
         }
         
         // Update exam if provided
-        if (request.getExamId() != null) {
+        if (request.getExamId() != null && !request.getExamId().equals(existingPeriod.getExam().getExamPeriodId())) {
             Exam exam = examRepository.findById(request.getExamId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
             
-            // Check for duplicate if exam is being changed
-            if (!existingPeriod.getExam().getExamPeriodId().equals(exam.getExamPeriodId()) &&
-                revendicationPeriodRepository.existsByExamAndSemester(exam, existingPeriod.getSemester())) {
+            // Check for duplicate only if exam is being changed
+            if (revendicationPeriodRepository.existsByExamAndSemester(exam, existingPeriod.getSemester())) {
                 throw new APIException("Revendication period already exists for this exam in the semester");
             }
             

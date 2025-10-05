@@ -81,6 +81,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/configuration/**").permitAll()
                         .requestMatchers("/api-docs/**", "/api-docs", "/api-docs/swagger-config").permitAll()
                         .requestMatchers("/v3/api-docs/swagger-config", "/swagger-ui/swagger-config").permitAll()
