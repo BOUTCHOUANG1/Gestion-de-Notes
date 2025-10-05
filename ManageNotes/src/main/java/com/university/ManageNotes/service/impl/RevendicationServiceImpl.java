@@ -100,9 +100,6 @@ public class RevendicationServiceImpl implements RevendicationService {
             .findByGrade_Subject_TeacherAndStatusOrderByCreatedDateDesc(currentTeacher, RequestStatus.PENDING, pageable);
 
         List<Revendication> revendications = revendicationPage.getContent();
-        if (revendications.isEmpty()) {
-            throw new APIException("No pending revendications found");
-        }
 
         return revendications.stream()
                 .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
