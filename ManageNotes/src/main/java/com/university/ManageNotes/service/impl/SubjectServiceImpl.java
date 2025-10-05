@@ -90,10 +90,8 @@ public class SubjectServiceImpl implements SubjectService {
     public SubjectRequest createSubject(SubjectRequest request) {
         Subject subject = modelMapper.map(request, Subject.class);
 
-        Subject subjectFromDb = this.subjectRepository.findBySubjectCode(subject.getSubjectCode())
-                .orElseThrow(() -> new ResourceNotFoundException("Subject", "code", request.getSubjectCode()));
-
-        if(subjectFromDb != null) {
+        // Check if subject already exists
+        if(this.subjectRepository.findBySubjectCode(subject.getSubjectCode()).isPresent()) {
             throw new APIException("Subject with code " + subject.getSubjectCode() + " already exists");
         }
 
@@ -113,31 +111,32 @@ public class SubjectServiceImpl implements SubjectService {
         Subject subjectFromDb = this.subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", subjectId));
 
-        Subject subject = modelMapper.map(subjectFromDb, Subject.class);
+        Subject subject = modelMapper.map(request, Subject.class);
 
-        subjectFromDb.setSubjectName(subject.getSubjectName());
-        subjectFromDb.setSubjectCode(subject.getSubjectCode());
-        subjectFromDb.setCredits((subject.getCredits() == null) ? null : (subject.getCredits()));
-        subjectFromDb.setDescription(request.getDescription());
-
-        // Set level and cycle
+        if (subject.getSubjectName() != null) {
+            subjectFromDb.setSubjectName(subject.getSubjectName());
+        }
+        if (subject.getSubjectCode() != null) {
+            subjectFromDb.setSubjectCode(subject.getSubjectCode());
+        }
+        if (subject.getCredits() != null) {
+            subjectFromDb.setCredits(subject.getCredits());
+        }
+        if (subject.getDescription() != null) {
+            subjectFromDb.setDescription(subject.getDescription());
+        }
         if (subject.getSubjectLevel() != null) {
             subjectFromDb.setSubjectLevel(subject.getSubjectLevel());
         }
-
         if (subject.getStudentcycle() != null) {
             subjectFromDb.setStudentcycle(subject.getStudentcycle());
         }
-
-        // Handle teacher assignment
-        if (subject.getTeacher().getId() != null) {
+        if (subject.getTeacher() != null) {
             subjectFromDb.setTeacher(subject.getTeacher());
         }
-
         if (subject.getSemester() != null) {
             subjectFromDb.setSemester(subject.getSemester());
         }
-
         if (subject.getDepartment() != null) {
             subjectFromDb.setDepartment(subject.getDepartment());
         }
