@@ -259,13 +259,17 @@ public class GradeServiceImpl implements GradeService {
     }
     
     private boolean canTeacherEnterGrade(Teacher teacher, Subject subject, Student student) {
-        // Check if teacher teaches this subject at student's level
-        return subject.getTeacher() != null &&
-               subject.getTeacher().getId().equals(teacher.getId()) &&
-               subject.getSubjectLevel()
-                   .getStudentLevel()
-                   .equals(student.getStudentLevel()
-                           .getStudentLevel());
+        // Check if teacher teaches this subject
+        if (subject.getTeacher() == null || !subject.getTeacher().getId().equals(teacher.getId())) {
+            return false;
+        }
+        
+        // Check if subject level matches student level
+        if (subject.getSubjectLevel() != null && student.getStudentLevel() != null) {
+            return subject.getSubjectLevel().getStudentLevel().equals(student.getStudentLevel().getStudentLevel());
+        }
+        
+        return true;
     }
     
     private void calculateGradeMetrics(Grades grade) {
