@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3Bc7GZ5vjbqGszyvYJj4JMVLjG0uYkSDgBBKtyfwaHVV9p9OIGUZmctPIdiodlm
+\restrict iTntDtaZsMxGXSk999iBUjZwJVfwRIjaLwdFqqvT5nLPnKqfGYqhj64ELciBakq
 
 -- Dumped from database version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 -- Dumped by pg_dump version 17.6 (Ubuntu 17.6-1.pgdg24.04+1)
 
--- Started on 2025-10-05 20:07:52 WAT
+-- Started on 2025-10-06 11:08:49 WAT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2714,10 +2714,10 @@ COPY public.revendication (revendication_id, creation_date, description, last_mo
 --
 
 COPY public.revendication_period (revendication_period_id, color, creation_date, end_date, is_active, last_modified_date, start_date, exam_period_id, semester_id) FROM stdin;
-6	#33FF57	2025-10-05 19:45:15.438259+01	2025-12-27	t	2025-10-05 19:45:15.438259+01	2025-12-20	3	1
 7	#3357FF	2025-10-05 19:45:15.440476+01	2026-04-27	f	2025-10-05 19:45:15.440476+01	2026-04-20	2	2
 8	#FF33F5	2025-10-05 19:45:15.441748+01	2026-06-27	f	2025-10-05 19:45:15.441748+01	2026-06-20	4	2
-5	#FF5733	2025-10-05 19:45:15.433795+01	2025-10-27	t	2025-10-05 19:45:15.433795+01	2025-10-17	1	1
+5	#FF5733	2025-10-05 19:45:15.433795+01	2025-10-15	t	2025-10-05 19:45:15.433795+01	2025-10-01	1	1
+6	#33FF57	2025-10-05 19:45:15.438259+01	2025-12-27	f	2025-10-05 19:45:15.438259+01	2025-12-20	3	1
 \.
 
 
@@ -3575,11 +3575,11 @@ ALTER TABLE ONLY public.subjects
     ADD CONSTRAINT fksjy6ghvvelraa2w9mhv3bbnys FOREIGN KEY (teacher_id) REFERENCES public.teachers(id);
 
 
--- Completed on 2025-10-05 20:07:52 WAT
+-- Completed on 2025-10-06 11:08:49 WAT
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3Bc7GZ5vjbqGszyvYJj4JMVLjG0uYkSDgBBKtyfwaHVV9p9OIGUZmctPIdiodlm
+\unrestrict iTntDtaZsMxGXSk999iBUjZwJVfwRIjaLwdFqqvT5nLPnKqfGYqhj64ELciBakq
 
