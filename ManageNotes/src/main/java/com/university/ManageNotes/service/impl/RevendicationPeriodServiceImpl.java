@@ -132,10 +132,13 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
     @Override
     public List<RevendicationPeriodResponse> getActivePeriods() {
         Semester activeSemester = getActiveSemester();
+        LocalDate today = LocalDate.now();
         
         List<RevendicationPeriod> activePeriods = revendicationPeriodRepository.findAll().stream()
             .filter(period -> period.getSemester() != null && 
-                    period.getSemester().getSemesterId().equals(activeSemester.getSemesterId()))
+                    period.getSemester().getSemesterId().equals(activeSemester.getSemesterId()) &&
+                    period.getIsActive() != null && period.getIsActive() &&
+                    !today.isBefore(period.getStartDate()) && !today.isAfter(period.getEndDate()))
             .collect(Collectors.toList());
         
         return activePeriods.stream()
