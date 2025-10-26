@@ -24,7 +24,6 @@ public class TeacherResponse {
     private String lastName;
     private String phoneNumber;
     private String email;
-    @JsonIgnore
     private List<SubjectResponse> subjects;
     private DepartmentResponse department;
     private Set<TeachingLevel> teachingLevel;

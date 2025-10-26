@@ -1,5 +1,6 @@
 package com.university.ManageNotes.dto.Request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.university.ManageNotes.model.TeachingLevel;
 import com.university.ManageNotes.model.enums.StudentCycle;
 import jakarta.validation.constraints.*;
@@ -37,9 +38,9 @@ public class SubjectRequest {
     private Long teacherId;
     
     @NotEmpty(message = "At least one teaching level is required")
-    private List<TeachingLevel> subjectsLevel;
+    private List<String> subjectsLevel;
     
-    @NotNull(message = "Student cycle is required")
+    @JsonProperty("Studentcycle")
     private StudentCycle Studentcycle;
     
     @NotNull(message = "Semester ID is required")

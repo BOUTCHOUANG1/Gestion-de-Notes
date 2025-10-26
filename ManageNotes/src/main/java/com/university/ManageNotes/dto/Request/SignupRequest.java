@@ -46,7 +46,6 @@ public class SignupRequest {
     private String placeOfBirth;
 
     // Teacher fields
-    @NotEmpty(message = "At least one teaching level is required for teachers")
     private List<Long> levelIds;
     private Long departmentId;
     private String phone;

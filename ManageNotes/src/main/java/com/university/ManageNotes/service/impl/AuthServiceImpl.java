@@ -26,11 +26,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -40,6 +39,12 @@ public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final RoleRepository roleRepository;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final TeachingLevelRepository teachingLevelRepository;
+    private final DepartmentRepository departmentRepository;
+    private final SubjectRepository subjectRepository;
 
     @Override
     public MessageResponse changePassword(String username, String newPassword) {
@@ -64,6 +69,7 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
+    @Transactional
     public MessageResponse register(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             throw new APIException("Error: Username is already taken!");
@@ -73,22 +79,115 @@ public class AuthServiceImpl implements AuthService{
             throw new APIException("Error: Email is already in use!");
         }
 
+        String roleStr = signupRequest.getRole() != null ? signupRequest.getRole().toUpperCase() : "STUDENT";
+        AppRole appRole = AppRole.valueOf(roleStr);
+        Roles role = roleRepository.findByAppRole(appRole)
+                .orElseThrow(() -> new APIException("Error: Role not found."));
+
+        if (appRole == AppRole.TEACHER) {
+            return registerTeacher(signupRequest, role);
+        } else if (appRole == AppRole.STUDENT) {
+            return registerStudent(signupRequest, role);
+        } else {
+            return registerAdmin(signupRequest, role);
+        }
+    }
+
+    private MessageResponse registerStudent(SignupRequest request, Roles role) {
+        if (request.getMatricule() == null || request.getMatricule().trim().isEmpty()) {
+            throw new APIException("Matricule is required for student registration");
+        }
+        
+        TeachingLevel level;
+        if (request.getLevelId() != null) {
+            level = teachingLevelRepository.findById(request.getLevelId())
+                    .orElseThrow(() -> new ResourceNotFoundException("TeachingLevel", "id", request.getLevelId()));
+        } else {
+            level = teachingLevelRepository.findAll().stream()
+                    .filter(tl -> tl.getStudentLevel() == com.university.ManageNotes.model.enums.StudentLevel.LEVEL1)
+                    .findFirst()
+                    .orElseThrow(() -> new APIException("Default level LEVEL1 not found in database"));
+        }
+
+        Student student = new Student();
+        student.setUsername(request.getUsername());
+        student.setFirstName(request.getFirstName());
+        student.setLastName(request.getLastName());
+        student.setEmail(request.getEmail());
+        student.setPassword(passwordEncoder.encode(request.getPassword()));
+        student.setRole(role);
+        student.setMustChangePassword(false);
+        student.setIsActive(true);
+        student.setMatricule(request.getMatricule());
+        student.setSpeciality(request.getSpeciality());
+        student.setCycle(request.getCycle());
+        student.setDateOfBirth(request.getDateOfBirth());
+        student.setPlaceOfBirth(request.getPlaceOfBirth());
+        student.setStudentLevel(level);
+        
+        Student savedStudent = studentRepository.save(student);
+        studentRepository.flush();
+
+        return new MessageResponse("Student registered successfully!");
+    }
+
+    private MessageResponse registerTeacher(SignupRequest request, Roles role) {
+        Teacher teacher = new Teacher();
+        teacher.setUsername(request.getUsername());
+        teacher.setFirstName(request.getFirstName());
+        teacher.setLastName(request.getLastName());
+        teacher.setEmail(request.getEmail());
+        teacher.setPassword(passwordEncoder.encode(request.getPassword()));
+        teacher.setRole(role);
+        teacher.setMustChangePassword(false);
+        teacher.setIsActive(true);
+        teacher.setPhoneNumber(request.getPhone());
+        
+        if (request.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department", "id", request.getDepartmentId()));
+            teacher.setDepartment(department);
+        }
+        
+        if (request.getLevelIds() != null && !request.getLevelIds().isEmpty()) {
+            List<TeachingLevel> levels = new ArrayList<>();
+            for (Long levelId : request.getLevelIds()) {
+                TeachingLevel level = teachingLevelRepository.findById(levelId)
+                        .orElseThrow(() -> new ResourceNotFoundException("TeachingLevel", "id", levelId));
+                levels.add(level);
+            }
+            teacher.setTeachingLevels(levels);
+        }
+        
+        Teacher savedTeacher = teacherRepository.save(teacher);
+        teacherRepository.flush();
+        
+        if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
+            for (Long subjectId : request.getSubjectIds()) {
+                Subject subject = subjectRepository.findById(subjectId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", subjectId));
+                subject.setTeacher(savedTeacher);
+                subjectRepository.save(subject);
+            }
+        }
+
+        return new MessageResponse("Teacher registered successfully!");
+    }
+
+    private MessageResponse registerAdmin(SignupRequest request, Roles role) {
         Users user = new Users();
-        user.setUsername(signupRequest.getUsername());
-        user.setFirstName(signupRequest.getFirstName());
-        user.setLastName(signupRequest.getLastName());
-        user.setEmail(signupRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        user.setMustChangePassword(true);
+        user.setUsername(request.getUsername());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        user.setMustChangePassword(false);
         user.setIsActive(true);
-        user.setCreatedDate(Instant.now());
-        user.setLastModifiedDate(Instant.now());
-        // Handle role assignment based on role string
-        // This will need to be implemented based on your role lookup logic
-
         userRepository.save(user);
+        userRepository.flush();
 
-        return new MessageResponse("User registered successfully!");
+        return new MessageResponse("Admin registered successfully!");
     }
 
     @Override
@@ -158,4 +257,13 @@ public class AuthServiceImpl implements AuthService{
         return userResponse;
     }
 
+    @Override
+    @Transactional
+    public MessageResponse deleteUser(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        
+        userRepository.delete(user);
+        return new MessageResponse("User deleted successfully!");
+    }
 }

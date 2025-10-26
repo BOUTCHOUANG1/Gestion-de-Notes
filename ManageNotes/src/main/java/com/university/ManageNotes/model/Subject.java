@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.university.ManageNotes.model.enums.StudentCycle;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "subjects",
@@ -59,7 +59,7 @@ public class Subject{
      @JoinColumn(name = "transcript_id")
      private Transcript transcript;
 
-     @OneToMany(mappedBy = "subject")
+     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
      private List<Grades> grades = new ArrayList<>();
 
 

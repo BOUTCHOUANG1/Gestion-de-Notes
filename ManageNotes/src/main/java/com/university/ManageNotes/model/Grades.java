@@ -16,7 +16,9 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Table(name = "grades")
 public class Grades{
     @Id

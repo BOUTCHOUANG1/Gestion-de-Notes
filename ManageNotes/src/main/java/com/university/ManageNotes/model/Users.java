@@ -14,7 +14,9 @@ import java.util.Set;
 
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -24,6 +26,21 @@ import java.util.Set;
                 @UniqueConstraint(columnNames = "email")
         })
 public class Users{
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdDate == null) {
+            createdDate = Instant.now();
+        }
+        if (lastModifiedDate == null) {
+            lastModifiedDate = Instant.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedDate = Instant.now();
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

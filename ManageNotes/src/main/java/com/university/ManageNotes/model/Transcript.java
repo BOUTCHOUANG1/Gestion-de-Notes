@@ -16,7 +16,9 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Table(name = "transcript")
 public class Transcript {
     @Id

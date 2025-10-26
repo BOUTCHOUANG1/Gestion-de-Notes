@@ -18,4 +18,6 @@ public interface AuthService {
     MessageResponse changePassword(String username, String newPassword);
     
     MessageResponse logout();
+    
+    MessageResponse deleteUser(Long userId);
 }

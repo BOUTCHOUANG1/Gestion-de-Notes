@@ -47,10 +47,8 @@ public class TeacherRequest {
     
     private List<Subject> subjects;
     
-    @NotNull(message = "Department is required")
     private Department department;
     
-    @NotEmpty(message = "At least one teaching level is required")
     private List<TeachingLevel> teachingLevel;
     
     private Roles appRole;

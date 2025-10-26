@@ -2,13 +2,12 @@ package com.university.ManageNotes.model;
 
 import com.university.ManageNotes.model.enums.AssessmentType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
-@Data
+@Setter
+@Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "exam_periods")

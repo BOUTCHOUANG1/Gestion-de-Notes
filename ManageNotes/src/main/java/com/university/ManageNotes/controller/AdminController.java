@@ -2,10 +2,12 @@ package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.config.AppConstant;
 import com.university.ManageNotes.dto.Request.TeacherRequest;
+import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.StudentResponse;
 import com.university.ManageNotes.dto.Response.TeacherResponse;
 import com.university.ManageNotes.service.StudentService;
 import com.university.ManageNotes.service.TeacherService;
+import com.university.ManageNotes.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ public class AdminController {
 
     private final TeacherService teacherService;
     private final StudentService studentService;
+    private final AuthService authService;
 
     @PutMapping("/admin/teacher/{id}")
     @Operation(summary = "Update Teacher information (Admin only)")
@@ -53,5 +56,11 @@ public class AdminController {
             @RequestParam(name = "sortBy", defaultValue = AppConstant.SORT_STUDENT_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder) {
         return new ResponseEntity<>(studentService.getAllStudents(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/{id}")
+    @Operation(summary = "Delete user (Admin only)", description = "Delete a user by ID")
+    public ResponseEntity<MessageResponse> deleteUser(@PathVariable Long id) {
+        return new ResponseEntity<>(authService.deleteUser(id), HttpStatus.OK);
     }
 }

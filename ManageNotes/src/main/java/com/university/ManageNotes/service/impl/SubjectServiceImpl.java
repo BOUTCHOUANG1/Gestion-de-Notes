@@ -7,8 +7,7 @@ import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.Subject;
 import com.university.ManageNotes.model.Teacher;
-import com.university.ManageNotes.repository.SubjectRepository;
-import com.university.ManageNotes.repository.TeacherRepository;
+import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.SubjectService;
 import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +28,9 @@ import java.util.stream.Collectors;
 public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
     private final TeacherRepository teacherRepository;
+    private final TeachingLevelRepository teachingLevelRepository;
+    private final DepartmentRepository departmentRepository;
+    private final SemesterRepository semesterRepository;
     private final ModelMapper modelMapper;
     private final ResponseMapper responseMapper;
 
@@ -88,21 +90,60 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public SubjectRequest createSubject(SubjectRequest request) {
-        Subject subject = modelMapper.map(request, Subject.class);
-
-        // Check if subject already exists
-        if(this.subjectRepository.findBySubjectCode(subject.getSubjectCode()).isPresent()) {
-            throw new APIException("Subject with code " + subject.getSubjectCode() + " already exists");
+        if(this.subjectRepository.findBySubjectCode(request.getSubjectCode()).isPresent()) {
+            throw new APIException("Subject with code " + request.getSubjectCode() + " already exists");
         }
 
-        // Check if teacher is already assigned to a subject at this level
-        if (subject.getTeacher() != null && subject.getTeacher().getId() != null &&
-                subject.getSubjectLevel() != null) {
-            if (subjectRepository.existsByTeacherAndSubjectLevel(subject.getTeacher(), subject.getSubjectLevel())) {
-                throw new APIException("Teacher is already assigned to a subject at this level");
-            }
+        Subject subject = new Subject();
+        subject.setSubjectName(request.getSubjectName());
+        subject.setSubjectCode(request.getSubjectCode());
+        subject.setCredits(request.getCredits());
+        subject.setDescription(request.getDescription());
+        subject.setStudentcycle(request.getStudentcycle());
+        
+        if (request.getTeacherId() != null) {
+            Teacher teacher = teacherRepository.findById(request.getTeacherId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", request.getTeacherId()));
+            subject.setTeacher(teacher);
         }
-        return modelMapper.map(subjectRepository.save(subject), SubjectRequest.class);
+        
+        if (request.getSubjectsLevel() != null && !request.getSubjectsLevel().isEmpty()) {
+            String levelName = request.getSubjectsLevel().get(0);
+            com.university.ManageNotes.model.enums.StudentLevel studentLevel = com.university.ManageNotes.model.enums.StudentLevel.valueOf(levelName);
+            com.university.ManageNotes.model.TeachingLevel level = teachingLevelRepository.findAll().stream()
+                    .filter(tl -> tl.getStudentLevel() == studentLevel)
+                    .findFirst()
+                    .orElseThrow(() -> new APIException("Teaching level " + levelName + " not found"));
+            subject.setSubjectLevel(level);
+        }
+        
+        if (request.getDepartmentId() != null) {
+            com.university.ManageNotes.model.Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department", "id", request.getDepartmentId()));
+            subject.setDepartment(department);
+        }
+        
+        if (request.getSemesterId() != null) {
+            com.university.ManageNotes.model.Semester semester = semesterRepository.findById(request.getSemesterId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", request.getSemesterId()));
+            subject.setSemester(semester);
+        }
+        
+        Subject saved = subjectRepository.save(subject);
+        
+        SubjectRequest response = new SubjectRequest();
+        response.setSubjectName(saved.getSubjectName());
+        response.setSubjectCode(saved.getSubjectCode());
+        response.setCredits(saved.getCredits());
+        response.setDescription(saved.getDescription());
+        response.setStudentcycle(saved.getStudentcycle());
+        response.setTeacherId(saved.getTeacher() != null ? saved.getTeacher().getId() : null);
+        response.setDepartmentId(saved.getDepartment() != null ? saved.getDepartment().getDepartmentId() : null);
+        response.setSemesterId(saved.getSemester() != null ? saved.getSemester().getSemesterId() : null);
+        if (saved.getSubjectLevel() != null) {
+            response.setSubjectsLevel(List.of(saved.getSubjectLevel().getStudentLevel().name()));
+        }
+        return response;
     }
 
     @Override
@@ -145,11 +186,13 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @Transactional
     public SubjectRequest deleteSubject(Long id) {
         Subject subjectFoundDb = this.subjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", id));
-
-        this.subjectRepository.delete(subjectFoundDb);
-        return modelMapper.map(subjectFoundDb, SubjectRequest.class);
+        
+        SubjectRequest response = modelMapper.map(subjectFoundDb, SubjectRequest.class);
+        this.subjectRepository.deleteSubjectById(id);
+        return response;
     }
 }

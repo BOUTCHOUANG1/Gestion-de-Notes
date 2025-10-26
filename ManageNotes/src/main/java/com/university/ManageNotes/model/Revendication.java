@@ -11,7 +11,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.Instant;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "revendication")
