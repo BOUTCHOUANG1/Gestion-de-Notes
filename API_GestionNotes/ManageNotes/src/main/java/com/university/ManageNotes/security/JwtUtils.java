@@ -2,7 +2,6 @@ package com.university.ManageNotes.security;
 
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -40,7 +40,8 @@ public class JwtUtils {
     }
 
     private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        // JWT secret is Base64-encoded in .env, use it directly
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String getUserNameFromJwtToken(String token) {
@@ -73,12 +74,16 @@ public class JwtUtils {
                 .path("/api")
                 .maxAge(24 * 60 * 60)
                 .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
                 .build();
     }
 
     public ResponseCookie getClearJwtCookie() {
         return ResponseCookie.from(jwtCookie, null)
                 .path("/api")
+                .secure(true)
+                .sameSite("Strict")
                 .build();
     }
 

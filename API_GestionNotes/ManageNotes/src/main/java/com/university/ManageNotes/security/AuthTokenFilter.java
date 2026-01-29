@@ -45,11 +45,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            logger.info("JWT Token: {}", jwt != null ? "Present" : "Missing");
             
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                logger.info("Username from JWT: {}", username);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
@@ -57,12 +55,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("Authentication set successfully for user: {}", username);
-            } else {
-                logger.warn("JWT validation failed or token is null");
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage(), e);
+            logger.error("Authentication failed: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -70,12 +65,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        logger.debug("Authorization header: {}", headerAuth);
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            String token = headerAuth.substring(7);
-            logger.debug("Extracted JWT token: {}", token.substring(0, Math.min(20, token.length())) + "...");
-            return token;
+            return headerAuth.substring(7);
         }
 
         return null;
