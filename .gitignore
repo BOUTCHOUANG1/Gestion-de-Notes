@@ -1,0 +1,31 @@
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (will be handled by module-specific .gitignore)
+target/
+build/
+dist/
+node_modules/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Keep springBoot/ out (duplicate module to be removed in Phase 2)
+springBoot/

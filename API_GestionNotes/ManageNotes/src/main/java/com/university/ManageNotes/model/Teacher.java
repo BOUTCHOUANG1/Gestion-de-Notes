@@ -1,0 +1,44 @@
+package com.university.ManageNotes.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "teachers")
+public class Teacher extends Users {
+    @Column(length = 9)
+    private String phoneNumber;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Subject> subjects;
+
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teacher_id")
+    private List<TeachingLevel> teachingLevels = new ArrayList<>();
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "examiner")
+    private List<Grades> gradesEntered = new ArrayList<>();
+}

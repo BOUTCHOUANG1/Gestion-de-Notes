@@ -1,0 +1,199 @@
+package com.university.ManageNotes.service.impl;
+
+import com.university.ManageNotes.config.AppConstant;
+import com.university.ManageNotes.dto.Request.TeacherRequest;
+import com.university.ManageNotes.dto.Response.DepartmentResponse;
+import com.university.ManageNotes.dto.Response.StudentResponse;
+import com.university.ManageNotes.dto.Response.SubjectResponse;
+import com.university.ManageNotes.dto.Response.TeacherResponse;
+import com.university.ManageNotes.exception.APIException;
+import com.university.ManageNotes.exception.ResourceNotFoundException;
+import com.university.ManageNotes.model.Department;
+import com.university.ManageNotes.model.Student;
+import com.university.ManageNotes.model.Teacher;
+import com.university.ManageNotes.model.TeachingLevel;
+import com.university.ManageNotes.repository.DepartmentRepository;
+import com.university.ManageNotes.repository.StudentRepository;
+import com.university.ManageNotes.repository.SubjectRepository;
+import com.university.ManageNotes.repository.TeacherRepository;
+import com.university.ManageNotes.service.impl.UserDetailsImpl;
+import com.university.ManageNotes.service.TeacherService;
+import com.university.ManageNotes.util.ResponseMapper;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TeacherServiceImpl implements TeacherService {
+    private final TeacherRepository teacherRepository;
+    private final StudentRepository studentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final SubjectRepository subjectRepository;
+    private final ModelMapper modelMapper;
+    private final ResponseMapper responseMapper;
+
+    @Override
+    public TeacherRequest updateTeacher(Long teacherId, TeacherRequest request) {
+        Teacher teacher = modelMapper.map(request, Teacher.class);
+
+        Teacher teacherFromDb = this.teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
+
+        // Update Teacher entity
+        teacherFromDb.setFirstName(teacher.getFirstName());
+        teacherFromDb.setLastName(teacher.getLastName());
+        teacherFromDb.setEmail(teacher.getEmail());
+        teacherFromDb.setUsername(teacher.getUsername());
+        teacherFromDb.setDepartment(teacher.getDepartment());
+        teacherFromDb.setPhoneNumber(teacher.getPhoneNumber());
+        teacherFromDb.setTeachingLevels(teacher.getTeachingLevels());
+        teacherFromDb.setRole(teacher.getRole());
+        teacherFromDb.setIsActive(teacher.getIsActive());
+        return modelMapper.map(teacherRepository.save(teacherFromDb), TeacherRequest.class);
+    }
+
+    @Override
+    @Transactional
+    public TeacherResponse teacherProfile(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        Teacher teacher = teacherRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
+        
+        // Use basic mapping without loading department subjects to avoid circular reference
+        TeacherResponse response = responseMapper.toTeacherResponseBasic(teacher);
+        
+        // Add department info without subjects
+        if (teacher.getDepartment() != null) {
+            DepartmentResponse deptResponse = new DepartmentResponse();
+            deptResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
+            deptResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
+            deptResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
+            deptResponse.setLastModifiedDate(teacher.getDepartment().getLastModifiedDate());
+            response.setDepartment(deptResponse);
+        }
+        
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TeacherResponse> getAllTeachers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        List<Teacher> allTeachers = teacherRepository.findAll();
+
+        // Manual pagination and sorting
+        Comparator<Teacher> comparator = getComparator(sortBy, sortOrder);
+        List<Teacher> sortedTeachers = allTeachers.stream()
+                .sorted(comparator)
+                .skip((long) pageNumber * pageSize)
+                .limit(pageSize)
+                .collect(Collectors.toList());
+
+        return sortedTeachers.stream()
+                .map(this::mapToTeacherResponse)
+                .collect(Collectors.toList());
+    }
+    
+    private Comparator<Teacher> getComparator(String sortBy, String sortOrder) {
+        Comparator<Teacher> comparator = switch (sortBy.toLowerCase()) {
+            case "firstname" -> Comparator.comparing(Teacher::getFirstName, Comparator.nullsLast(String::compareToIgnoreCase));
+            case "lastname" -> Comparator.comparing(Teacher::getLastName, Comparator.nullsLast(String::compareToIgnoreCase));
+            case "email" -> Comparator.comparing(Teacher::getEmail, Comparator.nullsLast(String::compareToIgnoreCase));
+            default -> Comparator.comparing(Teacher::getId);
+        };
+        return sortOrder.equalsIgnoreCase("desc") ? comparator.reversed() : comparator;
+    }
+
+    private TeacherResponse mapToTeacherResponse(Teacher teacher) {
+        TeacherResponse response = responseMapper.toTeacherResponseBasic(teacher);
+        
+        if (teacher.getDepartment() != null) {
+            DepartmentResponse deptResponse = new DepartmentResponse();
+            deptResponse.setDepartmentId(teacher.getDepartment().getDepartmentId());
+            deptResponse.setDepartmentName(teacher.getDepartment().getDepartmentName());
+            deptResponse.setCreatedDate(teacher.getDepartment().getCreatedDate());
+            deptResponse.setLastModifiedDate(teacher.getDepartment().getLastModifiedDate());
+            
+            // Add subjects taught by this teacher
+            List<com.university.ManageNotes.model.Subject> teacherSubjects = subjectRepository.findAll().stream()
+                .filter(s -> s.getTeacher() != null && s.getTeacher().getId().equals(teacher.getId()))
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (!teacherSubjects.isEmpty()) {
+                java.util.Set<SubjectResponse> subjectResponses = teacherSubjects.stream()
+                    .map(subject -> {
+                        SubjectResponse sr = new SubjectResponse();
+                        sr.setSubjectId(subject.getSubjectId());
+                        sr.setSubjectName(subject.getSubjectName());
+                        sr.setSubjectCode(subject.getSubjectCode());
+                        sr.setCredits(subject.getCredits());
+                        sr.setDescription(subject.getDescription());
+                        sr.setStudentCycle(subject.getStudentcycle());
+                        sr.setDepartmentId(subject.getDepartment() != null ? subject.getDepartment().getDepartmentId() : null);
+                        if (subject.getSubjectLevel() != null) {
+                            sr.setSubjectsLevel(java.util.Collections.singleton(subject.getSubjectLevel()));
+                        }
+                        return sr;
+                    })
+                    .collect(java.util.stream.Collectors.toSet());
+                deptResponse.setDepartmentSubjects(subjectResponses);
+            }
+            
+            response.setDepartment(deptResponse);
+        }
+        
+        return response;
+    }
+
+    @Override
+    public Map<String, List<StudentResponse>> getStudentsByTeachingLevels(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        
+        Teacher teacher = teacherRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", userDetails.getId()));
+        
+        Map<String, List<StudentResponse>> studentsByLevel = new HashMap<>();
+        
+        for (TeachingLevel teachingLevel : teacher.getTeachingLevels()) {
+            List<Student> students = studentRepository.findByStudentLevelEnum(teachingLevel.getStudentLevel());
+            
+            List<StudentResponse> studentResponses = students.stream()
+                    .map(this::mapToStudentResponse)
+                    .collect(Collectors.toList());
+            
+            studentsByLevel.put(teachingLevel.getStudentLevel().name(), studentResponses);
+        }
+        
+        return studentsByLevel;
+    }
+    
+    private StudentResponse mapToStudentResponse(Student student) {
+        StudentResponse response = new StudentResponse();
+        response.setId(student.getId());
+        response.setFirstName(student.getFirstName());
+        response.setLastName(student.getLastName());
+        response.setEmail(student.getEmail());
+        response.setMatricule(student.getMatricule());
+        response.setSpeciality(student.getSpeciality());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setPlaceOfBirth(student.getPlaceOfBirth());
+        response.setCycle(student.getCycle());
+        response.setStudentLevel(student.getStudentLevel());
+        response.setCreatedDate(student.getCreatedDate());
+        response.setLastModifiedDate(student.getLastModifiedDate());
+        response.setIsActive(student.getIsActive());
+        response.setRole(student.getRole() != null ? student.getRole().getAppRole().name() : null);
+        return response;
+    }
+}
