@@ -1,16 +1,15 @@
 import {Form, Input} from "antd";
 import {AppButton, PasswordInputFormItem} from "../../../../components";
-import {processLogin} from "../../actions.ts";
 import {useState} from "react";
-import {useAppDispatch} from "../../../../store";
 import { useNavigate } from "react-router";
+import { useLoginMutation } from "../../api/authApi";
 
 
 export const LoginForm = ()=>{
 
-    const dispatch = useAppDispatch();
-
     const navigate = useNavigate();
+    
+    const [login, { isLoading }] = useLoginMutation();
 
     type SubmissionForm = {
         username: string;
@@ -24,16 +23,14 @@ export const LoginForm = ()=>{
                                 password,
                             }: SubmissionForm) => {
         setIsProcessing(true);
-        await dispatch(
-            processLogin({
-                req: {
-                    username,
-                    password,
-                },
-            })
-        );
-        setIsProcessing(false)
-        navigate('/dashboard');
+        try {
+            await login({ username, password }).unwrap();
+            navigate('/dashboard');
+        } catch {
+            // Error handled by baseQuery
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
 
@@ -53,7 +50,7 @@ export const LoginForm = ()=>{
             <PasswordInputFormItem/>
             <AppButton
                 htmlType={'submit'}
-                loading={isProcessing}
+                loading={isProcessing || isLoading}
                 className={'w-full'}
                 label={'Se connecter'}
             />

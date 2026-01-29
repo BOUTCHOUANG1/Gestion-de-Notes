@@ -1,10 +1,11 @@
 import { Outlet } from "react-router-dom";
 
-import { processSignOut } from "../features/auth/actions";
+import { clearTokens } from "../api/services/token.service";
+import { markAsUnauthenticated } from "../features/auth/slice";
+import { navigateTo } from "../features/navigation";
 import { useAppDispatch, useAppSelector } from "../store";
 import { DrawerSidebarProvider } from "../contexts";
 import { DashboardLayout } from "./DashboardLayout.tsx";
-//import { SideBarHeader } from "../components/SidebarHeader.tsx";
 import { SidebarNavItem } from "../components/SidebarNavItem.tsx";
 import { DashboardHeader } from "../components/DashboardHeader.tsx";
 import signOutIconSvg from "../images/logoutt.png";
@@ -24,7 +25,10 @@ export const Dashboard = () => {
   }
 
   const onDisconnect = () => {
-    dispatch(processSignOut());
+    clearTokens();
+    dispatch(markAsUnauthenticated());
+    dispatch({ type: 'RESET' });
+    dispatch(navigateTo('/'));
   };
 
   return (

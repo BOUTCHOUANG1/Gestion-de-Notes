@@ -1,9 +1,11 @@
 import {Action, combineReducers, configureStore} from "@reduxjs/toolkit";
+import {setupListeners} from "@reduxjs/toolkit/query";
 import {navigationReducer} from "../features/navigation";
 import {authReducer} from "../features/auth/slice.ts";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import {notificationReducer} from "../contexts";
 import { userReducer } from "../features/user/slices.ts";
+import { api } from "./api/apiSlice";
 
 
 
@@ -11,22 +13,29 @@ const combinedReducer = combineReducers({
     navigation : navigationReducer,
     auth: authReducer,
     notification: notificationReducer,
-    user : userReducer
+    user : userReducer,
+    [api.reducerPath]: api.reducer,
 
 })
 
-const rootReducer = (state, action: Action) => {
+const rootReducer = (state: any, action: Action) => {
     if (action.type === 'RESET') {
-        state = {};
+        const { [api.reducerPath]: apiState } = state;
+        state = { [api.reducerPath]: apiState };
     }
     return combinedReducer(state, action);
 };
 
-export const createStore = () =>(
-    configureStore({
+export const createStore = () => {
+    const store = configureStore({
         reducer: rootReducer,
-    })
-)
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware().concat(api.middleware),
+    });
+    
+    setupListeners(store.dispatch);
+    return store;
+}
 
 
 

@@ -1,7 +1,7 @@
 import {ReactNode, useCallback, useMemo, useState} from "react";
 import {Role} from "../../../../api/enums";
-import {IdentificationInfoDataType, PersonalInfoDataType, RegisterContext, RegisterProps} from "./context.ts";
-import {useRegisterMutation} from "../api/register.api.slice.ts";
+import {IdentificationInfoDataType, PersonalInfoDataType, RegisterContext} from "./context.ts";
+import {useRegisterMutation} from "../../api/authApi";
 
 
 type AgentRegisterCtxProviderType = {
@@ -32,7 +32,7 @@ export const RegisterCtxProvider = ({
             const payload  = {
                 ...personalInfoPayload,
                 ...identificationInfoPayload,
-                role,
+                role: role as Role,
             };
         triggerAgentRegister(payload);
     },
@@ -46,8 +46,8 @@ export const RegisterCtxProvider = ({
 
     const resetForm = () => {
         setRole(null);
-        setIdentificationInfo({});
-        setPersonalInfo({});
+        setIdentificationInfo({} as IdentificationInfoDataType);
+        setPersonalInfo({} as PersonalInfoDataType);
     };
 
     const contextValue = useMemo(
