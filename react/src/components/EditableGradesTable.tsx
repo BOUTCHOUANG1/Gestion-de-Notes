@@ -183,14 +183,18 @@ export const EditableGradesTable = ({
     ...baseColumns,
     ...extraColumns.map((col) => ({
       ...col,
-      render: (text: string, _record: studentResDto, idx: number) =>
+      render: (text: string, record: studentResDto) =>
         isEditable ? (
           <Input
-            value={(editingData[idx][col.dataIndex] as string) || ""}
+            value={(record[col.dataIndex] as string) || ""}
             onChange={(e) => {
-              const newData = [...editingData];
-              newData[idx][col.dataIndex] = e.target.value;
+              const newData = editingData.map((student) =>
+                student.id === record.id
+                  ? { ...student, [col.dataIndex]: e.target.value }
+                  : student
+              );
               setEditingData(newData);
+              onGradesChange?.(newData);
             }}
           />
         ) : (
