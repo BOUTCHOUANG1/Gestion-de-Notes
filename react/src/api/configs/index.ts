@@ -43,10 +43,9 @@ apiGatewayClient.interceptors.response.use(
         } // Send by client
       else if (
             error instanceof AxiosError &&
-            error.status &&
-            error.status >= 400 &&
-            error.status <= 499 &&
-            error.response
+            error.response?.status &&
+            error.response.status >= 400 &&
+            error.response.status <= 499
         ) {
             const message =
                 error.response.data.detail ??
@@ -72,7 +71,7 @@ apiGatewayClient.interceptors.response.use(
             ); // Send by client
         } // Send by client
 
-        return Promise.reject(new Error());
+        return Promise.reject(error);
     }
 );
 
