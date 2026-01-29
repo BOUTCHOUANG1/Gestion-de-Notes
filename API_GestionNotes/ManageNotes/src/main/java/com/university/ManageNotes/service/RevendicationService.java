@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface RevendicationService {
     
-    RevendicationRequest createRevendication(RevendicationRequest req);
+    RevendicationResponse createRevendication(RevendicationRequest req);
     
     List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber,
                                                      Integer pageSize,

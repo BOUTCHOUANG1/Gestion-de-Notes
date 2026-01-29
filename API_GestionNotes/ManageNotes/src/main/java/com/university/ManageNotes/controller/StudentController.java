@@ -30,11 +30,11 @@ public class StudentController {
 
     @PutMapping("/admin/student/{id}")
     @Operation(summary = "Update Student information (Admin only)")
-    public ResponseEntity<StudentRequest> updateStudent(
-            @PathVariable Long id, 
-            @Valid @RequestBody StudentRequest request) {
-        return new ResponseEntity<>(studentService.updateStudent(id, request), HttpStatus.OK);
-    }
+    public ResponseEntity<StudentResponse> updateStudent(
+             @PathVariable Long id, 
+             @Valid @RequestBody StudentRequest request) {
+         return new ResponseEntity<>(studentService.updateStudent(id, request), HttpStatus.OK);
+     }
 
     @GetMapping("/student/profile")
     @Operation(summary = "Get current Student profile", description = "This endpoint provide the informations of the current logged in Student")

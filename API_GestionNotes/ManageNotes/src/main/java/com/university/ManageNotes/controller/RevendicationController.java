@@ -25,9 +25,9 @@ public class RevendicationController {
 
     @PostMapping("/student/revendication")
     @Operation(summary = "Create grade revendication (Student)", description = "Student submits a grade revendication request")
-    public ResponseEntity<RevendicationRequest> createRevendication(@Valid @RequestBody RevendicationRequest request) {
-        return new ResponseEntity<>(revendicationService.createRevendication(request), HttpStatus.CREATED);
-    }
+    public ResponseEntity<RevendicationResponse> createRevendication(@Valid @RequestBody RevendicationRequest request) {
+         return new ResponseEntity<>(revendicationService.createRevendication(request), HttpStatus.CREATED);
+     }
 
     @GetMapping("/teacher/revendications")
     @Operation(summary = "Get pending revendications (Teacher)", description = "Teacher views pending revendications for their subjects")

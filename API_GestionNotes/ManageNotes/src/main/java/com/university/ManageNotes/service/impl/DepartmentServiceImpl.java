@@ -37,7 +37,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
-    public DepartmentRequest createDepartment(DepartmentRequest request) {
+    public DepartmentResponse createDepartment(DepartmentRequest request) {
         // Map DTO to Entity
         Department department = departmentMapper.toEntity(request);
 
@@ -60,7 +60,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         // Save and map back to DTO
         Department savedDepartment = departmentRepository.save(department);
-        return departmentMapper.toRequest(savedDepartment);
+        return mapToDepartmentResponse(savedDepartment);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
-    public DepartmentRequest updateDepartment(DepartmentRequest request, Long departmentId) {
+    public DepartmentResponse updateDepartment(DepartmentRequest request, Long departmentId) {
         // Map DTO to Entity
         Department departmentUpdate = departmentMapper.toEntity(request);
         
@@ -129,12 +129,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         // Save and map back to DTO
         Department savedDepartment = departmentRepository.save(departmentDb);
-        return departmentMapper.toRequest(savedDepartment);
+        return mapToDepartmentResponse(savedDepartment);
     }
 
     @Override
     @Transactional
-    public DepartmentRequest deleteDepartment(Long departmentId) {
+    public DepartmentResponse deleteDepartment(Long departmentId) {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", departmentId));
 
@@ -143,7 +143,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 -> subject.setDepartment(null));
         
         // Map to DTO before deletion
-        DepartmentRequest deletedDepartment = departmentMapper.toRequest(department);
+        DepartmentResponse deletedDepartment = mapToDepartmentResponse(department);
         departmentRepository.delete(department);
         
         return deletedDepartment;

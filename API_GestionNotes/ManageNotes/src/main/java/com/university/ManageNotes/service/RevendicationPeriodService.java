@@ -10,9 +10,9 @@ public interface RevendicationPeriodService {
     
     List<RevendicationPeriodResponse> getAllPeriod();
     
-    RevendicationPeriodRequest createPeriod(RevendicationPeriodRequest request);
+    RevendicationPeriodResponse createPeriod(RevendicationPeriodRequest request);
     
-    RevendicationPeriodRequest updatePeriod(Long id, RevendicationPeriodRequest request);
+    RevendicationPeriodResponse updatePeriod(Long id, RevendicationPeriodRequest request);
     
     void deletePeriod(Long id);
     

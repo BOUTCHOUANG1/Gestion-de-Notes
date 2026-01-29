@@ -47,23 +47,23 @@ public class SubjectController {
 
     @PostMapping("/admin/subject")
     @Operation(summary = "Create subject", description = "Admin can create a subject")
-    public ResponseEntity<SubjectRequest> createSubject(@Valid @RequestBody SubjectRequest request) {
-        return new ResponseEntity<>(subjectService.createSubject(request), HttpStatus.CREATED) ;
-    }
+    public ResponseEntity<SubjectResponse> createSubject(@Valid @RequestBody SubjectRequest request) {
+         return new ResponseEntity<>(subjectService.createSubject(request), HttpStatus.CREATED) ;
+     }
 
     @PutMapping("/admin/subject/{id}")
     @Operation(summary = "Update subject", description = "Admin can update a subject")
-    public ResponseEntity<SubjectRequest> updateSubject(@PathVariable Long id,
-                                  @Valid @RequestBody SubjectRequest request) {
-        return new ResponseEntity<>(subjectService.updateSubject(id, request), HttpStatus.OK);
-    }
+    public ResponseEntity<SubjectResponse> updateSubject(@PathVariable Long id,
+                                   @Valid @RequestBody SubjectRequest request) {
+         return new ResponseEntity<>(subjectService.updateSubject(id, request), HttpStatus.OK);
+     }
 
     @DeleteMapping("/admin/subject/{id}")
     @Operation(summary = "Delete subject",
             description = "Admin can delete a subject")
-    public ResponseEntity<SubjectRequest> delete(@PathVariable Long id) {
-        return new ResponseEntity<>(subjectService.deleteSubject(id), HttpStatus.OK) ;
-    }
+    public ResponseEntity<SubjectResponse> delete(@PathVariable Long id) {
+         return new ResponseEntity<>(subjectService.deleteSubject(id), HttpStatus.OK) ;
+     }
 
     @GetMapping("/teacher/subject")
     @Operation(summary = "Get subjects assigned to current teacher",

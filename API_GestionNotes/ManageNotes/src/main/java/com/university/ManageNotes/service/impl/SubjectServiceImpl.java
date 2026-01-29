@@ -89,110 +89,97 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public SubjectRequest createSubject(SubjectRequest request) {
-        if(this.subjectRepository.findBySubjectCode(request.getSubjectCode()).isPresent()) {
-            throw new APIException("Subject with code " + request.getSubjectCode() + " already exists");
-        }
+    public SubjectResponse createSubject(SubjectRequest request) {
+         if(this.subjectRepository.findBySubjectCode(request.getSubjectCode()).isPresent()) {
+             throw new APIException("Subject with code " + request.getSubjectCode() + " already exists");
+         }
 
-        Subject subject = new Subject();
-        subject.setSubjectName(request.getSubjectName());
-        subject.setSubjectCode(request.getSubjectCode());
-        subject.setCredits(request.getCredits());
-        subject.setDescription(request.getDescription());
-        subject.setStudentcycle(request.getStudentcycle());
-        
-        if (request.getTeacherId() != null) {
-            Teacher teacher = teacherRepository.findById(request.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", request.getTeacherId()));
-            subject.setTeacher(teacher);
-        }
-        
-        if (request.getSubjectsLevel() != null && !request.getSubjectsLevel().isEmpty()) {
-            String levelName = request.getSubjectsLevel().get(0);
-            com.university.ManageNotes.model.enums.StudentLevel studentLevel = com.university.ManageNotes.model.enums.StudentLevel.valueOf(levelName);
-            com.university.ManageNotes.model.TeachingLevel level = teachingLevelRepository.findAll().stream()
-                    .filter(tl -> tl.getStudentLevel() == studentLevel)
-                    .findFirst()
-                    .orElseThrow(() -> new APIException("Teaching level " + levelName + " not found"));
-            subject.setSubjectLevel(level);
-        }
-        
-        if (request.getDepartmentId() != null) {
-            com.university.ManageNotes.model.Department department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department", "id", request.getDepartmentId()));
-            subject.setDepartment(department);
-        }
-        
-        if (request.getSemesterId() != null) {
-            com.university.ManageNotes.model.Semester semester = semesterRepository.findById(request.getSemesterId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", request.getSemesterId()));
-            subject.setSemester(semester);
-        }
-        
-        Subject saved = subjectRepository.save(subject);
-        
-        SubjectRequest response = new SubjectRequest();
-        response.setSubjectName(saved.getSubjectName());
-        response.setSubjectCode(saved.getSubjectCode());
-        response.setCredits(saved.getCredits());
-        response.setDescription(saved.getDescription());
-        response.setStudentcycle(saved.getStudentcycle());
-        response.setTeacherId(saved.getTeacher() != null ? saved.getTeacher().getId() : null);
-        response.setDepartmentId(saved.getDepartment() != null ? saved.getDepartment().getDepartmentId() : null);
-        response.setSemesterId(saved.getSemester() != null ? saved.getSemester().getSemesterId() : null);
-        if (saved.getSubjectLevel() != null) {
-            response.setSubjectsLevel(List.of(saved.getSubjectLevel().getStudentLevel().name()));
-        }
-        return response;
-    }
+         Subject subject = new Subject();
+         subject.setSubjectName(request.getSubjectName());
+         subject.setSubjectCode(request.getSubjectCode());
+         subject.setCredits(request.getCredits());
+         subject.setDescription(request.getDescription());
+         subject.setStudentcycle(request.getStudentcycle());
+         
+         if (request.getTeacherId() != null) {
+             Teacher teacher = teacherRepository.findById(request.getTeacherId())
+                     .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", request.getTeacherId()));
+             subject.setTeacher(teacher);
+         }
+         
+         if (request.getSubjectsLevel() != null && !request.getSubjectsLevel().isEmpty()) {
+             String levelName = request.getSubjectsLevel().get(0);
+             com.university.ManageNotes.model.enums.StudentLevel studentLevel = com.university.ManageNotes.model.enums.StudentLevel.valueOf(levelName);
+             com.university.ManageNotes.model.TeachingLevel level = teachingLevelRepository.findAll().stream()
+                     .filter(tl -> tl.getStudentLevel() == studentLevel)
+                     .findFirst()
+                     .orElseThrow(() -> new APIException("Teaching level " + levelName + " not found"));
+             subject.setSubjectLevel(level);
+         }
+         
+         if (request.getDepartmentId() != null) {
+             com.university.ManageNotes.model.Department department = departmentRepository.findById(request.getDepartmentId())
+                     .orElseThrow(() -> new ResourceNotFoundException("Department", "id", request.getDepartmentId()));
+             subject.setDepartment(department);
+         }
+         
+         if (request.getSemesterId() != null) {
+             com.university.ManageNotes.model.Semester semester = semesterRepository.findById(request.getSemesterId())
+                     .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", request.getSemesterId()));
+             subject.setSemester(semester);
+         }
+         
+         Subject saved = subjectRepository.save(subject);
+         return subjectMapper.toSubjectResponse(saved);
+     }
 
     @Override
     @Transactional
-    public SubjectRequest updateSubject(Long subjectId, SubjectRequest request) {
-        Subject subjectFromDb = this.subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", subjectId));
+    public SubjectResponse updateSubject(Long subjectId, SubjectRequest request) {
+         Subject subjectFromDb = this.subjectRepository.findById(subjectId)
+                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", subjectId));
 
-        Subject subject = subjectMapper.toEntity(request);
+         Subject subject = subjectMapper.toEntity(request);
 
-        if (subject.getSubjectName() != null) {
-            subjectFromDb.setSubjectName(subject.getSubjectName());
-        }
-        if (subject.getSubjectCode() != null) {
-            subjectFromDb.setSubjectCode(subject.getSubjectCode());
-        }
-        if (subject.getCredits() != null) {
-            subjectFromDb.setCredits(subject.getCredits());
-        }
-        if (subject.getDescription() != null) {
-            subjectFromDb.setDescription(subject.getDescription());
-        }
-        if (subject.getSubjectLevel() != null) {
-            subjectFromDb.setSubjectLevel(subject.getSubjectLevel());
-        }
-        if (subject.getStudentcycle() != null) {
-            subjectFromDb.setStudentcycle(subject.getStudentcycle());
-        }
-        if (subject.getTeacher() != null) {
-            subjectFromDb.setTeacher(subject.getTeacher());
-        }
-        if (subject.getSemester() != null) {
-            subjectFromDb.setSemester(subject.getSemester());
-        }
-        if (subject.getDepartment() != null) {
-            subjectFromDb.setDepartment(subject.getDepartment());
-        }
+         if (subject.getSubjectName() != null) {
+             subjectFromDb.setSubjectName(subject.getSubjectName());
+         }
+         if (subject.getSubjectCode() != null) {
+             subjectFromDb.setSubjectCode(subject.getSubjectCode());
+         }
+         if (subject.getCredits() != null) {
+             subjectFromDb.setCredits(subject.getCredits());
+         }
+         if (subject.getDescription() != null) {
+             subjectFromDb.setDescription(subject.getDescription());
+         }
+         if (subject.getSubjectLevel() != null) {
+             subjectFromDb.setSubjectLevel(subject.getSubjectLevel());
+         }
+         if (subject.getStudentcycle() != null) {
+             subjectFromDb.setStudentcycle(subject.getStudentcycle());
+         }
+         if (subject.getTeacher() != null) {
+             subjectFromDb.setTeacher(subject.getTeacher());
+         }
+         if (subject.getSemester() != null) {
+             subjectFromDb.setSemester(subject.getSemester());
+         }
+         if (subject.getDepartment() != null) {
+             subjectFromDb.setDepartment(subject.getDepartment());
+         }
 
-        return subjectMapper.toRequest(subjectRepository.save(subjectFromDb));
-    }
+         return subjectMapper.toSubjectResponse(subjectRepository.save(subjectFromDb));
+     }
 
     @Override
     @Transactional
-    public SubjectRequest deleteSubject(Long id) {
-        Subject subjectFoundDb = this.subjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", id));
-        
-        SubjectRequest response = subjectMapper.toRequest(subjectFoundDb);
-        this.subjectRepository.deleteSubjectById(id);
-        return response;
-    }
+    public SubjectResponse deleteSubject(Long id) {
+         Subject subjectFoundDb = this.subjectRepository.findById(id)
+                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", id));
+         
+         SubjectResponse response = subjectMapper.toSubjectResponse(subjectFoundDb);
+         this.subjectRepository.deleteSubjectById(id);
+         return response;
+     }
 }

@@ -32,47 +32,44 @@ public class StudentServiceImpl implements StudentService {
     private final ResponseMapper responseMapper;
 
     @Override
-    public StudentRequest updateStudent(Long studentId, StudentRequest request) {
-        // Map DTO to Entity
-        Student student = studentMapper.toEntity(request);
+    public StudentResponse updateStudent(Long studentId, StudentRequest request) {
+         Student student = studentMapper.toEntity(request);
 
-        Student studentFromDb = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
+         Student studentFromDb = studentRepository.findById(studentId)
+                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
 
-        // Update fields
-        if (student.getFirstName() != null) {
-            studentFromDb.setFirstName(student.getFirstName());
-        }
-        if (student.getLastName() != null) {
-            studentFromDb.setLastName(student.getLastName());
-        }
-        if (student.getEmail() != null) {
-            studentFromDb.setEmail(student.getEmail());
-        }
-        if (student.getMatricule() != null) {
-            studentFromDb.setMatricule(student.getMatricule());
-            studentFromDb.setUsername(student.getMatricule());
-        }
-        if (student.getStudentLevel() != null) {
-            studentFromDb.setStudentLevel(student.getStudentLevel());
-        }
-        if (student.getSpeciality() != null) {
-            studentFromDb.setSpeciality(student.getSpeciality());
-        }
-        if (student.getCycle() != null) {
-            studentFromDb.setCycle(student.getCycle());
-        }
-        if (student.getDateOfBirth() != null) {
-            studentFromDb.setDateOfBirth(student.getDateOfBirth());
-        }
-        if (student.getPlaceOfBirth() != null) {
-            studentFromDb.setPlaceOfBirth(student.getPlaceOfBirth());
-        }
+         if (student.getFirstName() != null) {
+             studentFromDb.setFirstName(student.getFirstName());
+         }
+         if (student.getLastName() != null) {
+             studentFromDb.setLastName(student.getLastName());
+         }
+         if (student.getEmail() != null) {
+             studentFromDb.setEmail(student.getEmail());
+         }
+         if (student.getMatricule() != null) {
+             studentFromDb.setMatricule(student.getMatricule());
+             studentFromDb.setUsername(student.getMatricule());
+         }
+         if (student.getStudentLevel() != null) {
+             studentFromDb.setStudentLevel(student.getStudentLevel());
+         }
+         if (student.getSpeciality() != null) {
+             studentFromDb.setSpeciality(student.getSpeciality());
+         }
+         if (student.getCycle() != null) {
+             studentFromDb.setCycle(student.getCycle());
+         }
+         if (student.getDateOfBirth() != null) {
+             studentFromDb.setDateOfBirth(student.getDateOfBirth());
+         }
+         if (student.getPlaceOfBirth() != null) {
+             studentFromDb.setPlaceOfBirth(student.getPlaceOfBirth());
+         }
 
-        // Save entity and map to request DTO
-        Student savedStudent = studentRepository.save(studentFromDb);
-        return studentMapper.toRequest(savedStudent);
-    }
+         Student savedStudent = studentRepository.save(studentFromDb);
+         return studentMapper.toStudentResponse(savedStudent);
+     }
 
     @Override
     public StudentResponse studentProfile(Authentication authentication) {

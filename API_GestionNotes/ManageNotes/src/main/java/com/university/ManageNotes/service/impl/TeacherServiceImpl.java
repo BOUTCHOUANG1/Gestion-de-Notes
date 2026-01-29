@@ -44,24 +44,23 @@ public class TeacherServiceImpl implements TeacherService {
     private final ResponseMapper responseMapper;
 
     @Override
-    public TeacherRequest updateTeacher(Long teacherId, TeacherRequest request) {
-        Teacher teacher = teacherMapper.toEntity(request);
+    public TeacherResponse updateTeacher(Long teacherId, TeacherRequest request) {
+         Teacher teacher = teacherMapper.toEntity(request);
 
-        Teacher teacherFromDb = this.teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
+         Teacher teacherFromDb = this.teacherRepository.findById(teacherId)
+                 .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
 
-        // Update Teacher entity
-        teacherFromDb.setFirstName(teacher.getFirstName());
-        teacherFromDb.setLastName(teacher.getLastName());
-        teacherFromDb.setEmail(teacher.getEmail());
-        teacherFromDb.setUsername(teacher.getUsername());
-        teacherFromDb.setDepartment(teacher.getDepartment());
-        teacherFromDb.setPhoneNumber(teacher.getPhoneNumber());
-        teacherFromDb.setTeachingLevels(teacher.getTeachingLevels());
-        teacherFromDb.setRole(teacher.getRole());
-        teacherFromDb.setIsActive(teacher.getIsActive());
-        return teacherMapper.toRequest(teacherRepository.save(teacherFromDb));
-    }
+         teacherFromDb.setFirstName(teacher.getFirstName());
+         teacherFromDb.setLastName(teacher.getLastName());
+         teacherFromDb.setEmail(teacher.getEmail());
+         teacherFromDb.setUsername(teacher.getUsername());
+         teacherFromDb.setDepartment(teacher.getDepartment());
+         teacherFromDb.setPhoneNumber(teacher.getPhoneNumber());
+         teacherFromDb.setTeachingLevels(teacher.getTeachingLevels());
+         teacherFromDb.setRole(teacher.getRole());
+         teacherFromDb.setIsActive(teacher.getIsActive());
+         return teacherMapper.toTeacherResponse(teacherRepository.save(teacherFromDb));
+     }
 
     @Override
     @Transactional

@@ -40,50 +40,41 @@ public class RevendicationServiceImpl implements RevendicationService {
 
     @Override
     @Transactional
-    public RevendicationRequest createRevendication(RevendicationRequest request) {
-        // Map DTO to Entity
-        Revendication revendication = revendicationMapper.toEntity(request);
-        
-        // Get current student
-        Student currentStudent = getCurrentStudent();
-        
-        // Get entities
-        Grades grade = gradeRepository.findById(request.getGrade().getGradeId())
-            .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGrade().getGradeId()));
-            
-        Exam exam = examRepository.findById(request.getPeriod().getExamPeriodId())
-            .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getPeriod().getExamPeriodId()));
-        
-        // Validate student owns this grade
-        if (!grade.getStudent().getId().equals(currentStudent.getId())) {
-            throw new APIException("You can only create revendications for your own grades");
-        }
-        
-        // Get active semester
-        Semester activeSemester = getActiveSemester();
-        
-        // Check if revendication period is open
-        if (!revendicationPeriodService.isPeriodOpen(activeSemester.getSemesterId(), exam)) {
-            throw new APIException("Revendication period is closed for " + exam.getAssessmentType());
-        }
-        
-        // Check for duplicate revendication
-        if (revendicationRepository.existsByStudentAndGradeAndStatus(currentStudent, grade, RequestStatus.PENDING)) {
-            throw new APIException("You already have a pending revendication for this grade");
-        }
-        
-        // Set relationships
-        revendication.setStudent(currentStudent);
-        revendication.setGrade(grade);
-        revendication.setPeriod(exam);
-        revendication.setSemester(activeSemester);
-        revendication.setStatus(RequestStatus.PENDING);
-        revendication.setTeacherComment("Pending review");
-        
-        // Save and map back to DTO
-        Revendication savedRevendication = revendicationRepository.save(revendication);
-        return revendicationMapper.toRequest(savedRevendication);
-    }
+    public RevendicationResponse createRevendication(RevendicationRequest request) {
+         Revendication revendication = revendicationMapper.toEntity(request);
+         
+         Student currentStudent = getCurrentStudent();
+         
+         Grades grade = gradeRepository.findById(request.getGrade().getGradeId())
+             .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGrade().getGradeId()));
+             
+         Exam exam = examRepository.findById(request.getPeriod().getExamPeriodId())
+             .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getPeriod().getExamPeriodId()));
+         
+         if (!grade.getStudent().getId().equals(currentStudent.getId())) {
+             throw new APIException("You can only create revendications for your own grades");
+         }
+         
+         Semester activeSemester = getActiveSemester();
+         
+         if (!revendicationPeriodService.isPeriodOpen(activeSemester.getSemesterId(), exam)) {
+             throw new APIException("Revendication period is closed for " + exam.getAssessmentType());
+         }
+         
+         if (revendicationRepository.existsByStudentAndGradeAndStatus(currentStudent, grade, RequestStatus.PENDING)) {
+             throw new APIException("You already have a pending revendication for this grade");
+         }
+         
+         revendication.setStudent(currentStudent);
+         revendication.setGrade(grade);
+         revendication.setPeriod(exam);
+         revendication.setSemester(activeSemester);
+         revendication.setStatus(RequestStatus.PENDING);
+         revendication.setTeacherComment("Pending review");
+         
+         Revendication savedRevendication = revendicationRepository.save(revendication);
+         return revendicationMapper.toRevendicationResponse(savedRevendication);
+     }
 
     @Override
     public List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {

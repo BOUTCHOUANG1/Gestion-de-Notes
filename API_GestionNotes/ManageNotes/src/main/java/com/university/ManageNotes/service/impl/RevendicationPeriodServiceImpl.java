@@ -32,39 +32,32 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
 
     @Override
     @Transactional
-    public RevendicationPeriodRequest createPeriod(RevendicationPeriodRequest request) {
-        // Map DTO to Entity
-        RevendicationPeriod period = new RevendicationPeriod();
-        period.setStartDate(request.getStartDate());
-        period.setEndDate(request.getEndDate());
-        period.setColor(request.getColor());
-        
-        // Get active semester
-        Semester activeSemester = getActiveSemester();
-        
-        // Get exam
-        Exam exam = examRepository.findById(request.getExamId())
-            .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
-        
-        // Check for duplicate period for same exam and semester
-        if (revendicationPeriodRepository.existsByExamAndSemester(exam, activeSemester)) {
-            throw new APIException("Revendication period already exists for this exam in active semester");
-        }
-        
-        // Validate dates
-        if (request.getStartDate().isAfter(request.getEndDate())) {
-            throw new APIException("Start date cannot be after end date");
-        }
-        
-        // Set relationships and properties
-        period.setExam(exam);
-        period.setSemester(activeSemester);
-        period.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
-        
-        // Save entity and map to request DTO
-        RevendicationPeriod savedPeriod = revendicationPeriodRepository.save(period);
-        return mapToRequest(savedPeriod);
-    }
+    public RevendicationPeriodResponse createPeriod(RevendicationPeriodRequest request) {
+         RevendicationPeriod period = new RevendicationPeriod();
+         period.setStartDate(request.getStartDate());
+         period.setEndDate(request.getEndDate());
+         period.setColor(request.getColor());
+         
+         Semester activeSemester = getActiveSemester();
+         
+         Exam exam = examRepository.findById(request.getExamId())
+             .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
+         
+         if (revendicationPeriodRepository.existsByExamAndSemester(exam, activeSemester)) {
+             throw new APIException("Revendication period already exists for this exam in active semester");
+         }
+         
+         if (request.getStartDate().isAfter(request.getEndDate())) {
+             throw new APIException("Start date cannot be after end date");
+         }
+         
+         period.setExam(exam);
+         period.setSemester(activeSemester);
+         period.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
+         
+         RevendicationPeriod savedPeriod = revendicationPeriodRepository.save(period);
+         return mapToResponse(savedPeriod);
+     }
 
     @Override
     public List<RevendicationPeriodResponse> getAllPeriod() {
@@ -77,46 +70,41 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
 
     @Override
     @Transactional
-    public RevendicationPeriodRequest updatePeriod(Long id, RevendicationPeriodRequest request) {
-        RevendicationPeriod existingPeriod = revendicationPeriodRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("RevendicationPeriod", "id", id));
-        
-        // Update fields
-        if (request.getStartDate() != null) {
-            existingPeriod.setStartDate(request.getStartDate());
-        }
-        if (request.getEndDate() != null) {
-            existingPeriod.setEndDate(request.getEndDate());
-        }
-        if (request.getColor() != null) {
-            existingPeriod.setColor(request.getColor());
-        }
-        if (request.getIsActive() != null) {
-            existingPeriod.setIsActive(request.getIsActive());
-        }
-        
-        // Update exam if provided
-        if (request.getExamId() != null && !request.getExamId().equals(existingPeriod.getExam().getExamPeriodId())) {
-            Exam exam = examRepository.findById(request.getExamId())
-                .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
-            
-            // Check for duplicate only if exam is being changed
-            if (revendicationPeriodRepository.existsByExamAndSemester(exam, existingPeriod.getSemester())) {
-                throw new APIException("Revendication period already exists for this exam in the semester");
-            }
-            
-            existingPeriod.setExam(exam);
-        }
-        
-        // Validate dates
-        if (existingPeriod.getStartDate().isAfter(existingPeriod.getEndDate())) {
-            throw new APIException("Start date cannot be after end date");
-        }
-        
-        // Save entity and map to request DTO
-        RevendicationPeriod updatedPeriod = revendicationPeriodRepository.save(existingPeriod);
-        return mapToRequest(updatedPeriod);
-    }
+    public RevendicationPeriodResponse updatePeriod(Long id, RevendicationPeriodRequest request) {
+         RevendicationPeriod existingPeriod = revendicationPeriodRepository.findById(id)
+             .orElseThrow(() -> new ResourceNotFoundException("RevendicationPeriod", "id", id));
+         
+         if (request.getStartDate() != null) {
+             existingPeriod.setStartDate(request.getStartDate());
+         }
+         if (request.getEndDate() != null) {
+             existingPeriod.setEndDate(request.getEndDate());
+         }
+         if (request.getColor() != null) {
+             existingPeriod.setColor(request.getColor());
+         }
+         if (request.getIsActive() != null) {
+             existingPeriod.setIsActive(request.getIsActive());
+         }
+         
+         if (request.getExamId() != null && !request.getExamId().equals(existingPeriod.getExam().getExamPeriodId())) {
+             Exam exam = examRepository.findById(request.getExamId())
+                 .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamId()));
+             
+             if (revendicationPeriodRepository.existsByExamAndSemester(exam, existingPeriod.getSemester())) {
+                 throw new APIException("Revendication period already exists for this exam in the semester");
+             }
+             
+             existingPeriod.setExam(exam);
+         }
+         
+         if (existingPeriod.getStartDate().isAfter(existingPeriod.getEndDate())) {
+             throw new APIException("Start date cannot be after end date");
+         }
+         
+         RevendicationPeriod updatedPeriod = revendicationPeriodRepository.save(existingPeriod);
+         return mapToResponse(updatedPeriod);
+     }
 
     @Override
     @Transactional

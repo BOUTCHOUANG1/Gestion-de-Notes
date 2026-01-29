@@ -33,7 +33,7 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     @Transactional
-    public GradeRequest createGrade(GradeRequest request) {
+    public GradeResponse createGrade(GradeRequest request) {
         // Map DTO to Entity
         Grades grade = gradeMapper.toEntity(request);
         
@@ -89,12 +89,12 @@ public class GradeServiceImpl implements GradeService {
         
         // Save and map back to DTO
         Grades savedGrade = gradeRepository.save(grade);
-        return gradeMapper.toRequest(savedGrade);
+        return gradeMapper.toGradeResponse(savedGrade);
     }
 
     @Override
     @Transactional
-    public GradeRequest updateGrade(Long gradeId, GradeRequest updateRequest) {
+    public GradeResponse updateGrade(Long gradeId, GradeRequest updateRequest) {
         // Get existing grade
         Grades existingGrade = gradeRepository.findById(gradeId)
             .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", gradeId));
@@ -133,7 +133,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Save and map back to DTO
         Grades updatedGrade = gradeRepository.save(existingGrade);
-        return gradeMapper.toRequest(updatedGrade);
+        return gradeMapper.toGradeResponse(updatedGrade);
     }
 
     @Override

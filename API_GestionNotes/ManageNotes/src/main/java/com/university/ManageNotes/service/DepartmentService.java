@@ -10,10 +10,10 @@ public interface DepartmentService{
     List<DepartmentResponse> getAllDepartments(Integer pageNumber,
                                                Integer pageSize,
                                                String sortBy, String sortOrder);
-    DepartmentRequest createDepartment(DepartmentRequest request);
+    DepartmentResponse createDepartment(DepartmentRequest request);
 
-    DepartmentRequest updateDepartment(DepartmentRequest departmentRequest, Long departmentId);
+    DepartmentResponse updateDepartment(DepartmentRequest departmentRequest, Long departmentId);
 
-    DepartmentRequest deleteDepartment(Long departmentId);
+    DepartmentResponse deleteDepartment(Long departmentId);
 }
 
