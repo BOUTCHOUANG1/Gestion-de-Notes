@@ -11,7 +11,7 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.SubjectService;
 import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import com.university.ManageNotes.mapper.SubjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ public class SubjectServiceImpl implements SubjectService {
     private final TeachingLevelRepository teachingLevelRepository;
     private final DepartmentRepository departmentRepository;
     private final SemesterRepository semesterRepository;
-    private final ModelMapper modelMapper;
+    private final SubjectMapper subjectMapper;
     private final ResponseMapper responseMapper;
 
     @Override
@@ -152,7 +152,7 @@ public class SubjectServiceImpl implements SubjectService {
         Subject subjectFromDb = this.subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", subjectId));
 
-        Subject subject = modelMapper.map(request, Subject.class);
+        Subject subject = subjectMapper.toEntity(request);
 
         if (subject.getSubjectName() != null) {
             subjectFromDb.setSubjectName(subject.getSubjectName());
@@ -182,7 +182,7 @@ public class SubjectServiceImpl implements SubjectService {
             subjectFromDb.setDepartment(subject.getDepartment());
         }
 
-        return modelMapper.map(subjectRepository.save(subjectFromDb), SubjectRequest.class);
+        return subjectMapper.toRequest(subjectRepository.save(subjectFromDb));
     }
 
     @Override
@@ -191,7 +191,7 @@ public class SubjectServiceImpl implements SubjectService {
         Subject subjectFoundDb = this.subjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject", "id", id));
         
-        SubjectRequest response = modelMapper.map(subjectFoundDb, SubjectRequest.class);
+        SubjectRequest response = subjectMapper.toRequest(subjectFoundDb);
         this.subjectRepository.deleteSubjectById(id);
         return response;
     }

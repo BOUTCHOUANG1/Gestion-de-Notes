@@ -9,8 +9,8 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.GradeService;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import com.university.ManageNotes.util.GradeCalculator;
+import com.university.ManageNotes.mapper.GradeMapper;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +29,13 @@ public class GradeServiceImpl implements GradeService {
     private final SemesterRepository semesterRepository;
     private final ExamRepository examRepository;
     private final RevendicationPeriodService revendicationPeriodService;
-    private final ModelMapper modelMapper;
+    private final GradeMapper gradeMapper;
 
     @Override
     @Transactional
     public GradeRequest createGrade(GradeRequest request) {
         // Map DTO to Entity
-        Grades grade = modelMapper.map(request, Grades.class);
+        Grades grade = gradeMapper.toEntity(request);
         
         // Get current teacher
         Teacher currentTeacher = getCurrentTeacher();
@@ -89,7 +89,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Save and map back to DTO
         Grades savedGrade = gradeRepository.save(grade);
-        return modelMapper.map(savedGrade, GradeRequest.class);
+        return gradeMapper.toRequest(savedGrade);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Save and map back to DTO
         Grades updatedGrade = gradeRepository.save(existingGrade);
-        return modelMapper.map(updatedGrade, GradeRequest.class);
+        return gradeMapper.toRequest(updatedGrade);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Map to response DTOs
         List<GradeResponse> gradeResponses = grades.stream()
-            .map(this::mapToGradeResponse)
+            .map(gradeMapper::toGradeResponse)
             .collect(Collectors.toList());
             
         // Build student response with grades
@@ -209,40 +209,10 @@ public class GradeServiceImpl implements GradeService {
         List<Grades> grades = gradeRepository.findByExaminer(currentTeacher);
         
         return grades.stream()
-            .map(this::mapToGradeResponse)
+            .map(gradeMapper::toGradeResponse)
             .collect(Collectors.toList());
     }
     
-    private GradeResponse mapToGradeResponse(Grades grade) {
-        GradeResponse response = modelMapper.map(grade, GradeResponse.class);
-        
-        if (grade.getStudent() != null) {
-            response.setStudent(modelMapper.map(grade.getStudent(), GradeResponse.SimpleStudentResponse.class));
-        }
-        
-        if (grade.getSubject() != null) {
-            GradeResponse.SimpleSubjectResponse subjectResponse = modelMapper.map(grade.getSubject(), GradeResponse.SimpleSubjectResponse.class);
-            if (grade.getSubject().getCredits() != null) {
-                subjectResponse.setCredits(grade.getSubject().getCredits().doubleValue());
-            }
-            response.setSubject(subjectResponse);
-        }
-        
-        if (grade.getExaminer() != null) {
-            response.setExaminer(modelMapper.map(grade.getExaminer(), GradeResponse.SimpleTeacherResponse.class));
-        }
-        
-        if (grade.getSemester() != null) {
-            response.setSemester(modelMapper.map(grade.getSemester(), GradeResponse.SimpleSemesterResponse.class));
-        }
-        
-        if (grade.getExam() != null) {
-            response.setExam(grade.getExam().getAssessmentType());
-        }
-        
-        return response;
-    }
-
     // Helper methods
     private Teacher getCurrentTeacher() {
         var auth = SecurityContextHolder.getContext().getAuthentication();

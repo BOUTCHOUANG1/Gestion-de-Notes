@@ -12,7 +12,7 @@ import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import com.university.ManageNotes.service.StudentService;
 import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import com.university.ManageNotes.mapper.StudentMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
-    private final ModelMapper modelMapper;
+    private final StudentMapper studentMapper;
     private final ResponseMapper responseMapper;
 
     @Override
     public StudentRequest updateStudent(Long studentId, StudentRequest request) {
         // Map DTO to Entity
-        Student student = modelMapper.map(request, Student.class);
+        Student student = studentMapper.toEntity(request);
 
         Student studentFromDb = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
@@ -71,7 +71,7 @@ public class StudentServiceImpl implements StudentService {
 
         // Save entity and map to request DTO
         Student savedStudent = studentRepository.save(studentFromDb);
-        return modelMapper.map(savedStudent, StudentRequest.class);
+        return studentMapper.toRequest(savedStudent);
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.security.JwtUtils;
 import com.university.ManageNotes.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;

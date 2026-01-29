@@ -12,8 +12,8 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import com.university.ManageNotes.service.RevendicationService;
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
+import com.university.ManageNotes.mapper.RevendicationMapper;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,13 +36,13 @@ public class RevendicationServiceImpl implements RevendicationService {
     private final SemesterRepository semesterRepository;
     private final ExamRepository examRepository;
     private final RevendicationPeriodService revendicationPeriodService;
-    private final ModelMapper modelMapper;
+    private final RevendicationMapper revendicationMapper;
 
     @Override
     @Transactional
     public RevendicationRequest createRevendication(RevendicationRequest request) {
         // Map DTO to Entity
-        Revendication revendication = modelMapper.map(request, Revendication.class);
+        Revendication revendication = revendicationMapper.toEntity(request);
         
         // Get current student
         Student currentStudent = getCurrentStudent();
@@ -82,7 +82,7 @@ public class RevendicationServiceImpl implements RevendicationService {
         
         // Save and map back to DTO
         Revendication savedRevendication = revendicationRepository.save(revendication);
-        return modelMapper.map(savedRevendication, RevendicationRequest.class);
+        return revendicationMapper.toRequest(savedRevendication);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class RevendicationServiceImpl implements RevendicationService {
         List<Revendication> revendications = revendicationPage.getContent();
 
         return revendications.stream()
-                .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
+                .map(revendicationMapper::toRevendicationResponse)
                 .collect(Collectors.toList());
     }
 
@@ -192,7 +192,7 @@ public class RevendicationServiceImpl implements RevendicationService {
         
         // Map to response DTOs
         return revendications.stream()
-            .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
+            .map(revendicationMapper::toRevendicationResponse)
             .collect(Collectors.toList());
     }
 

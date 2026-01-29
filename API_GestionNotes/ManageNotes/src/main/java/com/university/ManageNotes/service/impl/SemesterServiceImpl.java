@@ -8,7 +8,6 @@ import com.university.ManageNotes.model.Semester;
 import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.service.SemesterService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class SemesterServiceImpl implements SemesterService {
 
     private final SemesterRepository semesterRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public List<SemesterResponse> getAllSemesters() {

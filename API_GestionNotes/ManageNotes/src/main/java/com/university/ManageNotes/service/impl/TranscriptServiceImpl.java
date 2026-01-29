@@ -11,7 +11,7 @@ import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import com.university.ManageNotes.service.TranscriptService;
 import com.university.ManageNotes.util.GradeCalculator;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import com.university.ManageNotes.mapper.GradeMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class TranscriptServiceImpl implements TranscriptService {
 
     private final StudentRepository studentRepository;
-    private final ModelMapper modelMapper;
+    private final GradeMapper gradeMapper;
 
     @Override
     public TranscriptResponse getTranscriptStudent(Long studentId) {
@@ -75,7 +75,7 @@ public class TranscriptServiceImpl implements TranscriptService {
         response.setStudentLevel(student.getStudentLevel());
         response.setStudentCycle(student.getCycle());
         response.setStudentGrades(allGrades.stream()
-            .map(grade -> modelMapper.map(grade, com.university.ManageNotes.dto.Response.GradeResponse.class))
+            .map(grade -> gradeMapper.toGradeResponse(grade))
             .collect(Collectors.toList()));
         
         // Calculate academic metrics

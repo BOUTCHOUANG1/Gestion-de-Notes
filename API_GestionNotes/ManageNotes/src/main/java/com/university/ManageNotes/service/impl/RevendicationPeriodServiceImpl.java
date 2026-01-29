@@ -15,7 +15,6 @@ import com.university.ManageNotes.repository.RevendicationPeriodRepository;
 import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public class RevendicationPeriodServiceImpl implements RevendicationPeriodServic
     private final RevendicationPeriodRepository revendicationPeriodRepository;
     private final SemesterRepository semesterRepository;
     private final ExamRepository examRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     @Transactional

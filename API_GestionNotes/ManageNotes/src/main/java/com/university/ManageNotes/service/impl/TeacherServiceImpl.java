@@ -21,7 +21,7 @@ import com.university.ManageNotes.service.TeacherService;
 import com.university.ManageNotes.util.ResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
+import com.university.ManageNotes.mapper.TeacherMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,12 +40,12 @@ public class TeacherServiceImpl implements TeacherService {
     private final StudentRepository studentRepository;
     private final DepartmentRepository departmentRepository;
     private final SubjectRepository subjectRepository;
-    private final ModelMapper modelMapper;
+    private final TeacherMapper teacherMapper;
     private final ResponseMapper responseMapper;
 
     @Override
     public TeacherRequest updateTeacher(Long teacherId, TeacherRequest request) {
-        Teacher teacher = modelMapper.map(request, Teacher.class);
+        Teacher teacher = teacherMapper.toEntity(request);
 
         Teacher teacherFromDb = this.teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
@@ -60,7 +60,7 @@ public class TeacherServiceImpl implements TeacherService {
         teacherFromDb.setTeachingLevels(teacher.getTeachingLevels());
         teacherFromDb.setRole(teacher.getRole());
         teacherFromDb.setIsActive(teacher.getIsActive());
-        return modelMapper.map(teacherRepository.save(teacherFromDb), TeacherRequest.class);
+        return teacherMapper.toRequest(teacherRepository.save(teacherFromDb));
     }
 
     @Override
