@@ -22,7 +22,7 @@ export class UserService {
   }
 
   async getStudents() {
-    const res = await this._client.get<studentResDto>(
+    const res = await this._client.get<studentResDto[]>(
       userApis.GET_STUDENTS
     );
     return res.data;

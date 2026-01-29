@@ -1,8 +1,10 @@
 export interface LoginResDto{
     token: string;
-    type: string;
+    type?: string;
     id: number;
     username: string;
-    email: string;
-    role: string[];
+    email?: string;
+    role: string;
+    createdDate?: string;
+    lastModifiedDate?: string;
 }
