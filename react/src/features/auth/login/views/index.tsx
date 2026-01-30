@@ -1,13 +1,10 @@
 import {Form, Input} from "antd";
 import {AppButton, PasswordInputFormItem} from "../../../../components";
 import {useState} from "react";
-import { useNavigate } from "react-router";
 import { useLoginMutation } from "../../api/authApi";
 
 
 export const LoginForm = ()=>{
-
-    const navigate = useNavigate();
     
     const [login, { isLoading }] = useLoginMutation();
 
@@ -25,7 +22,6 @@ export const LoginForm = ()=>{
         setIsProcessing(true);
         try {
             await login({ username, password }).unwrap();
-            navigate('/dashboard');
         } catch {
             // Error handled by baseQuery
         } finally {
