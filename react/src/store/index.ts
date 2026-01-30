@@ -20,8 +20,8 @@ const combinedReducer = combineReducers({
 
 const rootReducer = (state: any, action: Action) => {
     if (action.type === 'RESET') {
-        const { [api.reducerPath]: apiState } = state;
-        state = { [api.reducerPath]: apiState };
+        // Clear all state including RTK Query cache
+        return combinedReducer(undefined, action);
     }
     return combinedReducer(state, action);
 };
