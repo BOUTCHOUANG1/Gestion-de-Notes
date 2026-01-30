@@ -7,10 +7,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {TeacherMapper.class, DepartmentMapper.class, SemesterMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {DepartmentMapper.class, SemesterMapper.class})
 public interface SubjectMapper {
     
-    @Mapping(target = "teacher", source = "teacher")
+    @Mapping(target = "teacher", ignore = true)
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "department", source = "department")
     @Mapping(target = "studentCycle", source = "studentcycle")

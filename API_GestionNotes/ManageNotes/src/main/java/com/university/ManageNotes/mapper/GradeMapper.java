@@ -112,7 +112,6 @@ public interface GradeMapper {
     @Mapping(source = "requestedScore", target = "requestedScore")
     @Mapping(source = "description", target = "cause")
     @Mapping(source = "status", target = "status")
-    @Mapping(source = "description", target = "description")
     GradeResponse.SimpleRevendicationResponse toSimpleRevendicationResponse(Revendication revendication);
     
     /**

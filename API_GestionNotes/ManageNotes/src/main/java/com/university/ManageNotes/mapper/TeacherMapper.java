@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SubjectMapper.class, DepartmentMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {DepartmentMapper.class})
 public interface TeacherMapper {
     
     @Mapping(target = "teacherId", source = "id")
-    @Mapping(target = "subjects", source = "subjects")
+    @Mapping(target = "subjects", ignore = true)
     @Mapping(target = "department", source = "department")
     @Mapping(target = "role", expression = "java(teacher.getRole() != null ? teacher.getRole().getAppRole().name() : null)")
     TeacherResponse toTeacherResponse(Teacher teacher);

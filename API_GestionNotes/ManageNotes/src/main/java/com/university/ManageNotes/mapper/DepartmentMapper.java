@@ -7,10 +7,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SubjectMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface DepartmentMapper {
     
-    @Mapping(target = "departmentSubjects", source = "subjects")
+    @Mapping(target = "departmentSubjects", ignore = true)
     DepartmentResponse toDepartmentResponse(Department department);
     
     @Mapping(target = "departmentId", ignore = true)
