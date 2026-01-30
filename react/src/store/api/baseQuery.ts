@@ -4,7 +4,7 @@ import { getToken } from '../../api/services/token.service';
 import { triggerServerNotification, triggerClientNotification } from '../../contexts/notification/slice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3030/api',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3030/api',
   prepareHeaders: (headers) => {
     const token = getToken('token');
     if (token) {
@@ -33,12 +33,11 @@ export const baseQueryWithAuth: BaseQueryFn<
       result.error.status >= 400 &&
       result.error.status <= 499
     ) {
-      const data = result.error.data as any;
-      const message =
-        data?.detail ??
-        data?.message ??
-        data?.error ??
-        data?.title ??
+      const data = result.error.data as Record<string, unknown>;
+      const message = typeof data?.detail === 'string' ? data.detail :
+        typeof data?.message === 'string' ? data.message :
+        typeof data?.error === 'string' ? data.error :
+        typeof data?.title === 'string' ? data.title :
         'An error occurred';
       api.dispatch(triggerServerNotification({
         message: 'Error',
