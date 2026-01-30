@@ -4,7 +4,7 @@ import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
 export const studentsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getStudents: builder.query<studentResDto[], void>({
-      query: () => 'students',
+      query: () => 'admin/students',
       providesTags: (result) =>
         result
           ? [
