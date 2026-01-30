@@ -44,6 +44,15 @@ export const baseQueryWithAuth: BaseQueryFn<
         type: 'error',
         description: message,
       }));
+    } else if (
+      typeof result.error.status === 'number' &&
+      result.error.status >= 500
+    ) {
+      api.dispatch(triggerServerNotification({
+        message: 'Server Error',
+        type: 'error',
+        description: 'An internal server error occurred. Please try again later.',
+      }));
     }
   }
   
