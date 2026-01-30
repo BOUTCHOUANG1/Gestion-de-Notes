@@ -5,7 +5,7 @@ import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.LoginResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
-import com.university.ManageNotes.dto.Response.userProfileResDto;
+import com.university.ManageNotes.dto.Response.UserProfileResDto;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.*;
@@ -258,11 +258,11 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public userProfileResDto getProfileByUsername(String username) {
+    public UserProfileResDto getProfileByUsername(String username) {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         
-        userProfileResDto profile = new userProfileResDto();
+        UserProfileResDto profile = new UserProfileResDto();
         profile.setId(user.getId());
         profile.setFirstName(user.getFirstName());
         profile.setLastName(user.getLastName());

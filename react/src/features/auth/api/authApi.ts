@@ -1,7 +1,7 @@
 import { api } from '../../../store/api/apiSlice';
 import { LoginreqDto, RegisterReqDto } from '../../../api/request-dto/auth.req';
 import { LoginResDto } from '../../../api/reponse-dto/auth.res.dto';
-import { userProfileResDto } from '../../../api/reponse-dto/user.res.dto';
+import { UserProfileResDto } from '../../../api/reponse-dto/user.res.dto';
 import { setTokens } from '../../../api/services/token.service';
 import { markAsAuthenticated } from '../slice';
 import { navigateTo } from '../../navigation/slice';
@@ -36,7 +36,7 @@ export const authApi = api.injectEndpoints({
       invalidatesTags: ['Auth'],
     }),
     
-    getProfile: builder.query<userProfileResDto, void>({
+    getProfile: builder.query<UserProfileResDto, void>({
       query: () => 'me',
       providesTags: [{ type: 'User', id: 'PROFILE' }],
     }),

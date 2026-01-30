@@ -1,6 +1,6 @@
 package com.university.ManageNotes.controller;
 
-import com.university.ManageNotes.dto.Response.userProfileResDto;
+import com.university.ManageNotes.dto.Response.UserProfileResDto;
 import com.university.ManageNotes.service.AuthService;
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +20,7 @@ public class ProfileController {
 
     @GetMapping("/me")
     @Operation(summary = "Get current user profile", description = "Returns profile information of the currently authenticated user based on JWT token")
-    public ResponseEntity<userProfileResDto> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<UserProfileResDto> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return new ResponseEntity<>(authService.getProfileByUsername(userDetails.getUsername()), HttpStatus.OK);
     }
 }
