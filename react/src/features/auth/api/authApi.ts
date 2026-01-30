@@ -29,7 +29,7 @@ export const authApi = api.injectEndpoints({
     
     register: builder.mutation<unknown, RegisterReqDto>({
       query: (body) => ({
-        url: 'auth/register',
+        url: 'auth/admin/register',
         method: 'POST',
         body,
       }),
