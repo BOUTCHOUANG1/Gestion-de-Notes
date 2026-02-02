@@ -38,5 +38,5 @@ export const PrivateRoutes = ({ children }: PrivateRoutesProps) => {
     }
 
 
-    return isAuthenticated ? children : <Navigate to={'/auth'} />;
+    return isAuthenticated ? children : <Navigate to={'/auth/login'} />;
 };

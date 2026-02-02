@@ -7,9 +7,28 @@ type ThemeProviderProps = {
 };
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+    const textColor = typeof window !== 'undefined'
+        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-text').trim() || '#33332D'
+        : '#33332D';
+
+    const borderColor = typeof window !== 'undefined'
+        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-border').trim() || '#E1E1E1'
+        : '#E1E1E1';
+
+    const bgColor = typeof window !== 'undefined'
+        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-bg').trim() || '#FFFFFF'
+        : '#FFFFFF';
+
     return (
         <ConfigProvider
             theme={{
+                token: {
+                    colorText: textColor,
+                    colorBorder: borderColor,
+                    colorBgBase: bgColor,
+                    fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                    fontSize: 18,
+                },
                 components: {
                     Notification: {
                         colorPrimary: ColorTheme.PRIMARY,

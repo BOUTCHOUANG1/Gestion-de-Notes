@@ -1,12 +1,14 @@
 import {Form, Input} from "antd";
 import {AppButton, PasswordInputFormItem} from "../../../../components";
 import {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../api/authApi";
 
 
 export const LoginForm = ()=>{
     
     const [login, { isLoading }] = useLoginMutation();
+    const navigate = useNavigate();
 
     type SubmissionForm = {
         username: string;
@@ -22,6 +24,7 @@ export const LoginForm = ()=>{
         setIsProcessing(true);
         try {
             await login({ username, password }).unwrap();
+            navigate('/dashboard');
         } catch {
             // Error handled by baseQuery
         } finally {
@@ -41,11 +44,12 @@ export const LoginForm = ()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Entrez votre nom'/>
+                <Input id="login_username" size={'large'} placeholder='Entrez votre nom'/>
             </Form.Item>
             <PasswordInputFormItem/>
             <AppButton
                 htmlType={'submit'}
+                data-testid="login-submit"
                 loading={isProcessing || isLoading}
                 className={'w-full'}
                 label={'Se connecter'}

@@ -23,6 +23,7 @@ export const PasswordInputFormItem = () => {
             ]}
         >
             <Input
+                id="login_password"
                 size={'large'}
                 suffix={
                     showPassword ? (

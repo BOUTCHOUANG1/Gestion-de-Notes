@@ -4,7 +4,6 @@ import { LoginResDto } from '../../../api/reponse-dto/auth.res.dto';
 import { UserProfileResDto } from '../../../api/reponse-dto/user.res.dto';
 import { setTokens } from '../../../api/services/token.service';
 import { markAsAuthenticated } from '../slice';
-import { navigateTo } from '../../navigation/slice';
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -20,7 +19,6 @@ export const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
           setTokens({ token: data.token });
           dispatch(markAsAuthenticated());
-          dispatch(navigateTo('/dashboard'));
         } catch {
           // Error already handled by baseQuery
         }
