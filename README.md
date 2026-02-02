@@ -215,10 +215,11 @@ npm run test:report     # View test report
 ```json
 {
   "username": "admin",
-  "password": "admin123",
+  "password": "admin",
   "role": "ADMIN"
 }
 ```
+**Note**: The actual password in the database is `admin`, not `admin123` as originally documented.
 
 **Teacher:**
 ```json
@@ -244,7 +245,7 @@ npm run test:report     # View test report
 ```bash
 curl -X POST http://localhost:3030/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}'
+  -d '{"username":"admin","password":"admin"}'
 
 # Response:
 # {
@@ -393,7 +394,7 @@ const { data: students } = useGetStudentsQuery();
 # 1. Login
 TOKEN=$(curl -s -X POST http://localhost:3030/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}' \
+  -d '{"username":"admin","password":"admin"}' \
   | jq -r '.token')
 
 # 2. Get profile

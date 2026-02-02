@@ -50,14 +50,14 @@ Authenticate a user and receive a JWT token.
 ```bash
 curl -X POST http://localhost:3030/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}'
+  -d '{"username":"admin","password":"admin"}'
 ```
 
 **Example (JavaScript/RTK Query):**
 ```typescript
 const { data, error } = await login({
   username: 'admin',
-  password: 'admin123'
+  password: 'admin'
 });
 ```
 
@@ -684,7 +684,7 @@ logging.level.org.springframework.security=DEBUG
 # 1. Login
 TOKEN=$(curl -X POST http://localhost:3030/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}' \
+  -d '{"username":"admin","password":"admin"}' \
   | jq -r '.token')
 
 # 2. Get profile
@@ -702,7 +702,7 @@ curl -X GET http://localhost:3030/api/admin/students \
 test('should login successfully', async ({ page }) => {
   await page.goto('/auth');
   await page.fill('input[name="username"]', 'admin');
-  await page.fill('input[name="password"]', 'admin123');
+  await page.fill('input[name="password"]', 'admin');
   await page.click('button[type="submit"]');
   await expect(page).toHaveURL(/\/dashboard/);
 });
