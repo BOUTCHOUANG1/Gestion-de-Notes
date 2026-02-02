@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const STUDENT_USER = process.env.E2E_STUDENT_USER ?? 'STU2024001';
-const STUDENT_PASS = process.env.E2E_STUDENT_PASS ?? 'student123';
+const STUDENT_PASS = process.env.E2E_STUDENT_PASS ?? 'nathan';
 
 async function loginAs(page: any, username: string, password: string) {
   await page.context().clearCookies();

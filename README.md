@@ -225,7 +225,7 @@ npm run test:report     # View test report
 ```json
 {
   "username": "prof.johnson",
-  "password": "teacher123",
+  "password": "duchelle",
   "role": "TEACHER"
 }
 ```
@@ -234,7 +234,7 @@ npm run test:report     # View test report
 ```json
 {
   "username": "STU2024001",
-  "password": "student123",
+  "password": "nathan",
   "role": "STUDENT"
 }
 ```

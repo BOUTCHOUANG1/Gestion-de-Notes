@@ -1,0 +1,79 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        📊 ADMIN DASHBOARD PREVIEW                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  🏆 Admin Dashboard                                                          │
+│  Real-time overview of your institution                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────┬─────────────────────┬─────────────────────┬──────────────────┐
+│  👤 Total Students  │  👥 Total Teachers  │  📚 Total Subjects  │  🏛️ Departments  │
+│       500           │        25           │        120          │        10        │
+│     ━━━━━━━         │     ━━━━━━━         │     ━━━━━━━         │     ━━━━━━━      │
+│      Blue           │      Green          │      Purple         │      Orange      │
+└─────────────────────┴─────────────────────┴─────────────────────┴──────────────────┘
+
+┌─────────────────────┬─────────────────────┬─────────────────────┬──────────────────┐
+│  📝 Total Grades    │ ⚠️ Pending Claims   │  📋 Total Claims    │ 📅 Active Sem.   │
+│      2,500          │        12           │         45          │        2         │
+│     ━━━━━━━         │     ━━━━━━━         │     ━━━━━━━         │     ━━━━━━━      │
+│       Cyan          │      Yellow         │        Pink         │      Blue        │
+└─────────────────────┴─────────────────────┴─────────────────────┴──────────────────┘
+
+┌──────────────────────────┬─────────────────────────────────────────────────────────┐
+│                          │                                                         │
+│  👤 Students by Level    │         📝 Recent Activity                              │
+│  ────────────────────    │         ─────────────────                               │
+│                          │                                                         │
+│  ┌────────────┬───────┐  │  ┌──────┬──────────────────────────────────┬─────────┐ │
+│  │ Level      │ Count │  │  │ Type │ Description                      │ Time    │ │
+│  ├────────────┼───────┤  │  ├──────┼──────────────────────────────────┼─────────┤ │
+│  │ Licence 1  │  150  │  │  │ 🔵   │ New grade added for Mathematics  │ 1h ago  │ │
+│  │ Licence 2  │  120  │  │  │ 🟠   │ Grade claim submitted            │ 2h ago  │ │
+│  │ Licence 3  │  100  │  │  │ 🟢   │ New teacher registered           │ 3h ago  │ │
+│  │ Master 1   │   80  │  │  │ 🔵   │ Semester activated               │ 5h ago  │ │
+│  │ Master 2   │   50  │  │  │ 🟠   │ Claim approved by teacher        │ 6h ago  │ │
+│  └────────────┴───────┘  │  └──────┴──────────────────────────────────┴─────────┘ │
+│                          │                                                         │
+└──────────────────────────┴─────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│  📊 Quick Stats Summary (Gradient Background)                                    │
+│  ─────────────────────────────────────────────                                   │
+│                                                                                  │
+│    Average Grades         Claim Rate         Subjects/Dept       Students/Teacher│
+│    per Student                                                                   │
+│       5.0                  1.8%                 12.0                 20.0        │
+│     ━━━━━━━              ━━━━━━━             ━━━━━━━            ━━━━━━━         │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  KEY FEATURES:                                                               ║
+║  ✅ Real-time statistics from PostgreSQL                                     ║
+║  ✅ Color-coded metric cards                                                 ║
+║  ✅ Students distribution by level                                           ║
+║  ✅ Recent activity log with pagination                                      ║
+║  ✅ Calculated analytics (averages, ratios)                                  ║
+║  ✅ Responsive design (mobile, tablet, desktop)                              ║
+║  ✅ Loading skeletons for better UX                                          ║
+║  ✅ Error handling with clear feedback                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  TECHNOLOGY STACK:                                                           ║
+║  Frontend: React 18.3 + TypeScript 5.8 + Ant Design 5.26 + RTK Query        ║
+║  Backend:  Spring Boot 3.5.3 + Java 21 + PostgreSQL 17.5                    ║
+║  Icons:    @heroicons/react + Ant Design Icons                              ║
+║  State:    Redux Toolkit 2.8.2 with automatic caching                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+ACCESS INSTRUCTIONS:
+──────────────────────────────────────────────────────────────────────────────
+1. Start Backend:   cd API_GestionNotes/ManageNotes && mvn spring-boot:run
+2. Start Frontend:  cd react && npm run dev
+3. Login:           Username: admin, Password: admin
+4. Navigate:        Sidebar → Administration → Dashboard
+5. URL:             http://localhost:5173/dashboard/admin/dashboard
+
+STATUS: ✅ PRODUCTION READY | BUILD: ✅ PASSING | DOCS: ✅ COMPLETE
