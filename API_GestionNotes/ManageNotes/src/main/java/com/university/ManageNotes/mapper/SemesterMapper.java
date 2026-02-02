@@ -6,12 +6,13 @@ import com.university.ManageNotes.model.Semester;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.Builder;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SubjectMapper.class, GradeMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, builder = @Builder(disableBuilder = true))
 public interface SemesterMapper {
     
-    @Mapping(target = "subjects", source = "subjects")
-    @Mapping(target = "grades", source = "grades")
+    @Mapping(target = "subjects", ignore = true)
+    @Mapping(target = "grades", ignore = true)
     SemesterResponse toSemesterResponse(Semester semester);
     
     @Mapping(target = "semesterId", ignore = true)
