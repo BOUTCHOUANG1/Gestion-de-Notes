@@ -40,11 +40,11 @@ export const LoginForm = ()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input id="login_username" size={'large'} placeholder='Entrez votre nom'/>
+                <Input id="login_username" size={'large'} placeholder='Enter your username'/>
             </Form.Item>
             <PasswordInputFormItem/>
             <AppButton
@@ -52,7 +52,7 @@ export const LoginForm = ()=>{
                 data-testid="login-submit"
                 loading={isProcessing || isLoading}
                 className={'w-full'}
-                label={'Se connecter'}
+                label={'Sign In'}
             />
         </Form>
 

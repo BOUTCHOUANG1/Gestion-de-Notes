@@ -1,8 +1,9 @@
-import { Card, Typography, Avatar, Tag, Descriptions, Spin, Empty, Divider, Row, Col } from 'antd';
-import { UserOutlined, MailOutlined, IdcardOutlined, BookOutlined, CalendarOutlined } from '@ant-design/icons';
+import { Card, Typography, Avatar, Tag, Descriptions, Empty, Divider, Row, Col } from 'antd';
+import { UserOutlined, MailOutlined, IdcardOutlined, BookOutlined } from '@ant-design/icons';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { useGetProfileQuery } from '../../auth/api/authApi';
 import { Role } from '../../../api/enums';
+import { ProfileSkeleton } from '../../../components/Skeletons';
 
 const { Title, Text } = Typography;
 
@@ -38,11 +39,7 @@ export const ProfilePage = () => {
   const { data: profile, isLoading, error } = useGetProfileQuery();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spin size="large" tip="Loading profile..." />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error || !profile) {
@@ -137,7 +134,7 @@ export const ProfilePage = () => {
               <Row gutter={[24, 16]}>
                 <Col xs={24} sm={8}>
                   <div>
-                    <Text type="secondary">Matricule</Text>
+                    <Text type="secondary">Student ID</Text>
                     <div>
                       <Text strong className="text-lg">
                         {(profile as any).matricule || 'N/A'}

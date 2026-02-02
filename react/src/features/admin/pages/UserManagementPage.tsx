@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Card, Typography, Select, Tag, Tabs } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Space, message, Card, Typography, Select, Tag, Tabs } from 'antd';
+import { PlusOutlined, EditOutlined, SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { useGetStudentsQuery } from '../../students/api/studentsApi';

@@ -29,7 +29,7 @@ export const semesterApi = api.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Semesters', id },
         { type: 'Semesters', id: 'LIST' },
       ],
@@ -40,7 +40,7 @@ export const semesterApi = api.injectEndpoints({
         url: `admin/semester/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Semesters', id },
         { type: 'Semesters', id: 'LIST' },
       ],

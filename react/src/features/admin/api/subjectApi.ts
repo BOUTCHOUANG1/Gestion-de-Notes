@@ -34,7 +34,7 @@ export const subjectApi = api.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Subjects', id },
         { type: 'Subjects', id: 'LIST' },
       ],
@@ -45,7 +45,7 @@ export const subjectApi = api.injectEndpoints({
         url: `admin/subject/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Subjects', id },
         { type: 'Subjects', id: 'LIST' },
       ],

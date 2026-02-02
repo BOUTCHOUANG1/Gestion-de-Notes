@@ -45,7 +45,7 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
       key: "0",
     },
     {
-      label: <button onClick={onDisconnect}>{"Deconnexion"}</button>,
+      label: <button onClick={onDisconnect}>{"Logout"}</button>,
       key: "1",
     },
   ];

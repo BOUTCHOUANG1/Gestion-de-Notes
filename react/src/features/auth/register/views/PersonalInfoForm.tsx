@@ -31,11 +31,11 @@ export const PersonalInfoForm =()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Entrez votre nom'/>
+                <Input size={'large'}  placeholder='Enter your first name'/>
             </Form.Item>
             <Form.Item
                 name="lastName"
@@ -43,35 +43,35 @@ export const PersonalInfoForm =()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Entrez votre prenom'/>
+                <Input size={'large'}  placeholder='Enter your last name'/>
             </Form.Item>
             <Form.Item
                 name="phone"
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Entrez votre numero de telephone'/>
+                <Input size={'large'} placeholder='Enter your phone number'/>
             </Form.Item>
             <Form.Item
                 name="dateOfBirth"
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
                 <DatePicker
                     size="large"
-                    placeholder={'Entez votre date de naissance'}
+                    placeholder={'Enter your date of birth'}
                     className={'w-full'}
                 />
             </Form.Item>
@@ -80,22 +80,22 @@ export const PersonalInfoForm =()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Entrez votre lieu de naissance'/>
+                <Input size={'large'}  placeholder='Enter your place of birth'/>
             </Form.Item>
             <div className={'w-full flex justify-between gap-10 mt-10'}>
                 <AppButton
                     className={'w-full'}
-                    label={'Precedent'}
+                    label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
                     className={'w-full'}
                     htmlType={'submit'}
-                    label={'Suivant'}
+                    label={'Next'}
                     disabled={disabledButton}
                 />
             </div>

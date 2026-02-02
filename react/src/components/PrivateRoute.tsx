@@ -1,7 +1,7 @@
 import { ReactNode, useEffect} from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector} from "../store";
-import {Spinner} from "./Spinner.tsx";
+import { AuthCheckingSkeleton } from './Skeletons';
 import { markAsAuthenticated, markAsUnauthenticated } from '../features/auth/slice.ts';
 import { useGetProfileQuery } from '../features/auth/api/authApi';
 
@@ -30,11 +30,7 @@ export const PrivateRoutes = ({ children }: PrivateRoutesProps) => {
 
 
     if (isAuthenticated == null) {
-        return (
-            <div className={'flex items-center justify-center w-screen h-screen'}>
-                <Spinner/>
-            </div>
-        )
+        return <AuthCheckingSkeleton />;
     }
 
 

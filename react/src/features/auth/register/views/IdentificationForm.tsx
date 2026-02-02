@@ -54,22 +54,22 @@ export const IdentificationForm =()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder="Entrez votre nom d'utilisateur"/>
+                <Input size={'large'} placeholder="Enter your username"/>
             </Form.Item>
             <Form.Item
                 name="email"
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Entrez votre email'/>
+                <Input size={'large'} placeholder='Enter your email'/>
             </Form.Item>
             {
                 (role === Role.ADMIN || role === Role.TEACHER) && (
@@ -78,11 +78,11 @@ export const IdentificationForm =()=>{
                         rules={[
                             {
                                 required: true,
-                                message: 'Champ obligatoire',
+                                message: 'Required field',
                             },
                         ]}
                     >
-                        <Input size={'large'} placeholder='Entrez votre cle'/>
+                        <Input size={'large'} placeholder='Enter your key'/>
                     </Form.Item>
                 )
             }
@@ -94,29 +94,29 @@ export const IdentificationForm =()=>{
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Entrez votre classe'/>
+                            <Input size={'large'} placeholder='Enter your level'/>
                         </Form.Item>
                         <Form.Item
                             name="speciality"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Entrez votre filiaire'/>
+                            <Input size={'large'} placeholder='Enter your program'/>
                         </Form.Item>
                         <Form.Item
                             name="cycle"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
@@ -124,7 +124,7 @@ export const IdentificationForm =()=>{
                                 size={'large'}
                                 aria-label="mfaChannel"
                                 options={levels}
-                                placeholder={'Selectionnez votre cycle'}
+                                placeholder={'Select your cycle'}
                             />
                         </Form.Item>
                     </>
@@ -137,13 +137,13 @@ export const IdentificationForm =()=>{
             <div className={'w-full flex justify-between gap-6 mt-10'}>
                 <AppButton
                     className={'w-full'}
-                    label={'Precedent'}
+                    label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
                     htmlType={'submit'}
                     className={'w-full'}
-                    label={'Suivant'}
+                    label={'Next'}
                     loading={isRegisterLoading}
                 />
             </div>

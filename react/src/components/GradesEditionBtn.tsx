@@ -20,14 +20,14 @@ export const GradesEdition = ({
         icon={<XCircleIcon width={20} />}
         onClick={()=> setIsTableEditable(false)}
       >
-        Annuler
+        Cancel
       </Button>
       <Button
         className=" w-[150px]"
         icon={<PencilSquareIcon width={20} className="text-white" />}
         onClick={confirmGrades}
       >
-        Confirmer
+        Confirm
       </Button>
     </div>
   );

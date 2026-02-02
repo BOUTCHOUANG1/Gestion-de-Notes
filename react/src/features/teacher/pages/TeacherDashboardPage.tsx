@@ -1,4 +1,4 @@
-import { Card, Table, Tag, Statistic, Row, Col, Spin, Alert, Empty, Badge, Tabs } from 'antd';
+import { Card, Table, Tag, Statistic, Row, Col, Empty, Badge, Tabs } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
   BookOutlined, 
@@ -14,6 +14,7 @@ import {
 } from '../api/teacherDashboardApi';
 import { SubjectResponse } from '../../../api/response-dto/subject.dto';
 import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
+import { DashboardSkeleton } from '../../../components/Skeletons';
 
 const levelLabels: Record<string, string> = {
   LEVEL1: 'Licence 1',
@@ -65,7 +66,7 @@ export const TeacherDashboardPage = () => {
 
   const studentColumns: ColumnsType<studentResDto> = [
     {
-      title: 'Matricule',
+      title: 'Student ID',
       dataIndex: 'matricule',
       key: 'matricule',
       render: (matricule: string) => <Tag>{matricule}</Tag>,
@@ -113,11 +114,7 @@ export const TeacherDashboardPage = () => {
     : [];
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

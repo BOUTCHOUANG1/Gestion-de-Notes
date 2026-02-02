@@ -29,15 +29,15 @@ export const RoleSelectionView = () => {
         value: Role;
     }[] = [
         {
-            label: 'ADMINISTRATEUR',
+            label: 'Administrator',
             value: Role.ADMIN,
         },
         {
-            label: 'ENSEIGNANT',
+            label: 'Teacher',
             value: Role.TEACHER,
         },
         {
-            label: 'ETUDIANT',
+            label: 'Student',
             value: Role.STUDENT,
         },
     ];
@@ -62,7 +62,7 @@ export const RoleSelectionView = () => {
                 <div className="">
                     <AppButton
                         aria-label={'next step'}
-                        label={'Suivant'}
+                        label={'Next'}
                         htmlType="button"
                         className="w-full"
                         onClick={handleNext}

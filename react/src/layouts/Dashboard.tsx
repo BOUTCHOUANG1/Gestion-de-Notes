@@ -9,7 +9,7 @@ import { DashboardLayout } from "./DashboardLayout.tsx";
 import { SidebarNavItem } from "../components/SidebarNavItem.tsx";
 import { DashboardHeader } from "../components/DashboardHeader.tsx";
 import signOutIconSvg from "../images/logoutt.png";
-import { AcademicCapIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, BookOpenIcon, CalendarIcon, BuildingOfficeIcon, DocumentTextIcon, ClipboardDocumentListIcon, UserIcon, ChartBarIcon } from "@heroicons/react/24/solid";
+import { AcademicCapIcon, HomeIcon, Cog6ToothIcon, DocumentTextIcon, ClipboardDocumentListIcon, UserIcon, ChartBarIcon } from "@heroicons/react/24/solid";
 import { SidebarNavSubItem } from "../components/SidebarNavSubItem.tsx";
 import { hasPermission } from "../utils/index.ts";
 import { Role } from "../api/enums/index.ts";

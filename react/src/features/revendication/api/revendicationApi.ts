@@ -40,7 +40,7 @@ export const revendicationApi = api.injectEndpoints({
         method: 'POST',
         params: comment ? { comment } : undefined,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Revendications', id },
         { type: 'Revendications', id: 'LIST' },
         { type: 'Grades', id: 'LIST' },
@@ -53,7 +53,7 @@ export const revendicationApi = api.injectEndpoints({
         method: 'POST',
         params: reason ? { reason } : undefined,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Revendications', id },
         { type: 'Revendications', id: 'LIST' },
       ],

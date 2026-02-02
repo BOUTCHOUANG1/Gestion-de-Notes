@@ -20,7 +20,7 @@ export const teachersApi = api.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Teachers', id },
         { type: 'Teachers', id: 'LIST' },
       ],

@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import {ColorTheme} from "../../api/enums";
 
 type ThemeProviderProps = {
@@ -21,6 +22,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
     return (
         <ConfigProvider
+            locale={enUS}
             theme={{
                 token: {
                     colorText: textColor,

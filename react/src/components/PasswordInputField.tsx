@@ -18,7 +18,7 @@ export const PasswordInputFormItem = () => {
             rules={[
                 {
                     required: true,
-                    message: 'Champ obligatoire',
+                    message: 'Required field',
                 },
             ]}
         >
@@ -39,7 +39,7 @@ export const PasswordInputFormItem = () => {
                     )
                 }
                 type={showPassword ? 'text' : 'password'}
-                placeholder='Entrez votre mot de passe'
+                placeholder='Enter your password'
             />
         </Form.Item>
     );

@@ -6,7 +6,7 @@ import { EditPvButton } from "./EditPvButton";
 import { studentResDto } from "../api/reponse-dto/user.res.dto";
 import { FakeStudents } from "../features/user/data";
 
-// Type pour chaque étudiant, avec index signature pour colonnes dynamiques
+// Type for each student, with index signature for dynamic columns
 // export type Student = {
 //   key: number;
 //   studentId: string;
@@ -14,7 +14,7 @@ import { FakeStudents } from "../features/user/data";
 //   [key: string]: string | number;
 // };
 
-// Génère n étudiants factices
+// Generates n fake students
 // const generateStudents = (count: number): Student[] => {
 //   return Array.from({ length: count }, (_, i) => ({
 //     key: i,
@@ -59,13 +59,13 @@ export const EditableGradesTable = ({
   // Colonnes de base
   const baseColumns = [
     {
-      title: "Matricule",
+      title: "Student ID",
       dataIndex: "id",
       render: (text: string) => text,
       sorter: (a: studentResDto, b: studentResDto) => String(a.id).localeCompare(String(b.id)),
     },
     {
-      title: "Noms et prénoms",
+      title: "Full Name",
       dataIndex: "firstName",
       render: (text: string) => text,
       sorter: (a: studentResDto, b: studentResDto) => String(a.firstName).localeCompare(String(b.firstName)),
@@ -203,7 +203,7 @@ export const EditableGradesTable = ({
     })),
   ];
 
-  // Compte le nombre d'étudiants ayant au moins une note attribuée (hors nom/prénom/matricule)
+  // Counts the number of students with at least one grade assigned
   const gradeFields = ["cc1", "tp", "sn1", "cc2", "tp2", "sn2", ...extraColumns.map(col => col.dataIndex)];
   const attributedGrades = displayData.filter(student =>
     gradeFields.some(field => {
@@ -231,10 +231,10 @@ export const EditableGradesTable = ({
                     className="!text-white"
                     style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
                 >
-                    Rechercher
+                    Search
                 </Button>
                 <Input
-                    placeholder="Entrez le nom ..."
+                    placeholder="Enter name..."
                     onChange={handleSearch}
                     allowClear
                     style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
@@ -265,14 +265,14 @@ export const EditableGradesTable = ({
           }`}
           disabled={isEditable}
         >
-          Imprimer les PV
+          Print Reports
         </Button>
         <div>
             <Tag 
                 color={tagColor()} 
                 className="!h-9 !flex !items-center !justify-center !font-bold"
             >
-                {attributedGrades} notes attribuées pour {FakeStudents.length} étudiants
+                {attributedGrades} grades assigned for {FakeStudents.length} students
             </Tag>
         </div>
       </div>

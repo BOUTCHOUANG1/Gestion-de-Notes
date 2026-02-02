@@ -1,10 +1,11 @@
-import { Table, Card, Typography, Tag, Statistic, Row, Col, Divider, Button, Empty, Spin } from 'antd';
+import { Table, Card, Typography, Tag, Statistic, Row, Col, Divider, Button, Empty } from 'antd';
 import { FileTextOutlined, TrophyOutlined, BookOutlined, DownloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { useGetStudentTranscriptQuery } from '../api/transcriptApi';
 import type { TranscriptGrade, TranscriptSemester } from '../../../api/response-dto/transcript.dto';
+import { TranscriptSkeleton } from '../../../components/Skeletons';
 
 const { Title, Text } = Typography;
 
@@ -45,11 +46,7 @@ export const TranscriptPage = () => {
   const { data: transcript, isLoading, error } = useGetStudentTranscriptQuery();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spin size="large" tip="Loading transcript..." />
-      </div>
-    );
+    return <TranscriptSkeleton />;
   }
 
   if (error || !transcript) {
@@ -167,7 +164,7 @@ export const TranscriptPage = () => {
             </Col>
             <Col xs={24} sm={12} md={6}>
               <div>
-                <Text type="secondary">Matricule</Text>
+                <Text type="secondary">Student ID</Text>
                 <div><Text strong className="text-lg">{transcript.matricule}</Text></div>
               </div>
             </Col>
