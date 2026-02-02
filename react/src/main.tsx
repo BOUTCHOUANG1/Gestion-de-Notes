@@ -5,15 +5,18 @@ import {App} from "./App.tsx";
 import {Provider} from "react-redux";
 import {store} from "./store";
 import {NotificationProvider, ThemeProvider} from "./contexts";
+import {ThemeContextProvider} from "./contexts/ThemeContext.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <Provider store={store}>
-          <NotificationProvider>
-              <ThemeProvider>
-                  <App />
-              </ThemeProvider>
-          </NotificationProvider>
+          <ThemeContextProvider>
+              <NotificationProvider>
+                  <ThemeProvider>
+                      <App />
+                  </ThemeProvider>
+              </NotificationProvider>
+          </ThemeContextProvider>
       </Provider>
   </StrictMode>,
 )

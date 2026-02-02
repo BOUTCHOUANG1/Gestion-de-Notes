@@ -35,7 +35,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your first name'/>
+                <Input size={'large'}  placeholder='Enter your first name' className="form-input"/>
             </Form.Item>
             <Form.Item
                 name="lastName"
@@ -47,7 +47,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your last name'/>
+                <Input size={'large'}  placeholder='Enter your last name' className="form-input"/>
             </Form.Item>
             <Form.Item
                 name="phone"
@@ -58,7 +58,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Enter your phone number'/>
+                <Input size={'large'} placeholder='Enter your phone number' className="form-input"/>
             </Form.Item>
             <Form.Item
                 name="dateOfBirth"
@@ -72,7 +72,7 @@ export const PersonalInfoForm =()=>{
                 <DatePicker
                     size="large"
                     placeholder={'Enter your date of birth'}
-                    className={'w-full'}
+                    className={'w-full form-input'}
                 />
             </Form.Item>
             <Form.Item
@@ -84,16 +84,16 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your place of birth'/>
+                <Input size={'large'}  placeholder='Enter your place of birth' className="form-input"/>
             </Form.Item>
             <div className={'w-full flex justify-between gap-10 mt-10'}>
                 <AppButton
-                    className={'w-full'}
+                    className={'btn-primary w-full'}
                     label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
-                    className={'w-full'}
+                    className={'btn-primary w-full'}
                     htmlType={'submit'}
                     label={'Next'}
                     disabled={disabledButton}

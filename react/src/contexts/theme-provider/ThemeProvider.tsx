@@ -1,63 +1,99 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
-import {ColorTheme} from "../../api/enums";
+import { useTheme } from '../ThemeContext';
 
 type ThemeProviderProps = {
     children: ReactNode;
 };
 
+const getCSSVariable = (variableName: string, fallback: string): string => {
+    if (typeof window === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+    return value || fallback;
+};
+
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-    const textColor = typeof window !== 'undefined'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-text').trim() || '#33332D'
-        : '#33332D';
+    const { theme } = useTheme();
+    const [cssVars, setCssVars] = useState({
+        textColor: getCSSVariable('--mn-color-text', '#33332D'),
+        borderColor: getCSSVariable('--mn-color-border', '#E1E1E1'),
+        bgColor: getCSSVariable('--mn-color-bg', '#FFFFFF'),
+        primaryColor: getCSSVariable('--mn-color-primary', '#1f7d53'),
+        secondaryColor: getCSSVariable('--mn-color-secondary', '#2b8a5e'),
+    });
 
-    const borderColor = typeof window !== 'undefined'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-border').trim() || '#E1E1E1'
-        : '#E1E1E1';
+    useEffect(() => {
+        const updateCSSVars = () => {
+            setCssVars({
+                textColor: getCSSVariable('--mn-color-text', '#33332D'),
+                borderColor: getCSSVariable('--mn-color-border', '#E1E1E1'),
+                bgColor: getCSSVariable('--mn-color-bg', '#FFFFFF'),
+                primaryColor: getCSSVariable('--mn-color-primary', '#1f7d53'),
+                secondaryColor: getCSSVariable('--mn-color-secondary', '#2b8a5e'),
+            });
+        };
 
-    const bgColor = typeof window !== 'undefined'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--mn-color-bg').trim() || '#FFFFFF'
-        : '#FFFFFF';
+        updateCSSVars();
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    setTimeout(updateCSSVars, 0);
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme'],
+        });
+
+        return () => observer.disconnect();
+    }, [theme]);
 
     return (
         <ConfigProvider
             locale={enUS}
             theme={{
                 token: {
-                    colorText: textColor,
-                    colorBorder: borderColor,
-                    colorBgBase: bgColor,
-                    fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                    fontSize: 18,
+                    colorText: cssVars.textColor,
+                    colorBorder: cssVars.borderColor,
+                    colorBgBase: cssVars.bgColor,
+                    colorPrimary: cssVars.primaryColor,
+                    fontFamily: '"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                    fontFamilyCode: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                    fontSize: 16,
                 },
                 components: {
                     Notification: {
-                        colorPrimary: ColorTheme.PRIMARY,
+                        colorPrimary: cssVars.primaryColor,
                     },
                     DatePicker:{
-                        activeBorderColor: 'transparent',
-                        hoverBorderColor: ' border-gray-300',
+                        activeBorderColor: cssVars.primaryColor,
+                        hoverBorderColor: cssVars.borderColor,
                     },
                     Button: {
-                        defaultHoverBg: ColorTheme.SECONDARY,
+                        defaultHoverBg: cssVars.secondaryColor,
                         defaultHoverColor: 'white',
-                        defaultHoverBorderColor: 'transparent',
-                        defaultBg: ColorTheme.PRIMARY,
-                        defaultColor:'white'
+                        defaultHoverBorderColor: cssVars.secondaryColor,
+                        defaultBg: cssVars.primaryColor,
+                        defaultColor: 'white',
+                        primaryColor: cssVars.primaryColor,
+                        primaryShadow: 'none',
                     },
                     Input:{
-                        activeBorderColor: 'transparent',
-                        hoverBorderColor: ' border-gray-300',
+                        activeBorderColor: cssVars.primaryColor,
+                        hoverBorderColor: cssVars.borderColor,
                     },
                     Tabs : {
-                        colorPrimary : ColorTheme.SECONDARY
+                        colorPrimary: cssVars.secondaryColor
                     },
                     Radio : {
-                        colorPrimary :ColorTheme.SECONDARY
+                        colorPrimary: cssVars.secondaryColor
                     },
                     Checkbox : {
-                        colorPrimary : '#1f7d53'
+                        colorPrimary: cssVars.primaryColor
                     },
                 },
             }}

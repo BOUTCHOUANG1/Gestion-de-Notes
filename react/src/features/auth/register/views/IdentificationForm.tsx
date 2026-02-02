@@ -4,14 +4,11 @@ import {useContext} from "react";
 import {StepperContext} from "../../../../contexts";
 import {IdentificationInfoDataType, RegisterContext} from "../context";
 import {Role} from "../../../../api/enums";
-// import {useAppDispatch} from "../../../../store";
-// import {navigateTo} from "../../../navigation";
 
 export const IdentificationForm =()=>{
 
     const { handlePrev } = useContext(StepperContext);
     const { setIdentificationInfo , register , role , personalInfo, identificationInfo ,isRegisterLoading } = useContext(RegisterContext)
-    //const dispatch = useAppDispatch()
 
     const levels = [
         {
@@ -41,8 +38,6 @@ export const IdentificationForm =()=>{
             role,
             ...identificationInfo
         })
-        // dispatch(navigateTo('/auth'))
-        // resetForm?.()
 
     }
 
@@ -58,7 +53,7 @@ export const IdentificationForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder="Enter your username"/>
+                <Input size={'large'} placeholder="Enter your username" className="form-input"/>
             </Form.Item>
             <Form.Item
                 name="email"
@@ -69,7 +64,7 @@ export const IdentificationForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Enter your email'/>
+                <Input size={'large'} placeholder='Enter your email' className="form-input"/>
             </Form.Item>
             {
                 (role === Role.ADMIN || role === Role.TEACHER) && (
@@ -82,7 +77,7 @@ export const IdentificationForm =()=>{
                             },
                         ]}
                     >
-                        <Input size={'large'} placeholder='Enter your key'/>
+                        <Input size={'large'} placeholder='Enter your key' className="form-input"/>
                     </Form.Item>
                 )
             }
@@ -98,7 +93,7 @@ export const IdentificationForm =()=>{
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Enter your level'/>
+                            <Input size={'large'} placeholder='Enter your level' className="form-input"/>
                         </Form.Item>
                         <Form.Item
                             name="speciality"
@@ -109,7 +104,7 @@ export const IdentificationForm =()=>{
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Enter your program'/>
+                            <Input size={'large'} placeholder='Enter your program' className="form-input"/>
                         </Form.Item>
                         <Form.Item
                             name="cycle"
@@ -125,6 +120,7 @@ export const IdentificationForm =()=>{
                                 aria-label="mfaChannel"
                                 options={levels}
                                 placeholder={'Select your cycle'}
+                                className="form-input"
                             />
                         </Form.Item>
                     </>
@@ -136,13 +132,13 @@ export const IdentificationForm =()=>{
             <PasswordInputFormItem/>
             <div className={'w-full flex justify-between gap-6 mt-10'}>
                 <AppButton
-                    className={'w-full'}
+                    className={'btn-primary w-full'}
                     label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
                     htmlType={'submit'}
-                    className={'w-full'}
+                    className={'btn-primary w-full'}
                     label={'Next'}
                     loading={isRegisterLoading}
                 />

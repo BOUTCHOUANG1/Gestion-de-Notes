@@ -26,7 +26,6 @@ export const LoginForm = ()=>{
             await login({ username, password }).unwrap();
             navigate('/dashboard');
         } catch {
-            // Error handled by baseQuery
         } finally {
             setIsProcessing(false);
         }
@@ -44,14 +43,19 @@ export const LoginForm = ()=>{
                     },
                 ]}
             >
-                <Input id="login_username" size={'large'} placeholder='Enter your username'/>
+                <Input 
+                    id="login_username" 
+                    size={'large'} 
+                    placeholder='Enter your username'
+                    className="form-input"
+                />
             </Form.Item>
             <PasswordInputFormItem/>
             <AppButton
                 htmlType={'submit'}
                 data-testid="login-submit"
                 loading={isProcessing || isLoading}
-                className={'w-full'}
+                className={'btn-primary w-full mt-4'}
                 label={'Sign In'}
             />
         </Form>

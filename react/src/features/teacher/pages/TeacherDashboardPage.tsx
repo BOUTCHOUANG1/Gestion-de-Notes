@@ -1,4 +1,4 @@
-import { Card, Table, Tag, Statistic, Row, Col, Empty, Badge, Tabs } from 'antd';
+import { Table, Tag, Statistic, Row, Col, Empty, Badge, Tabs } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
   BookOutlined, 
@@ -15,6 +15,7 @@ import {
 import { SubjectResponse } from '../../../api/response-dto/subject.dto';
 import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
 import { DashboardSkeleton } from '../../../components/Skeletons';
+import { Card, GradeBadge } from '../../../components';
 
 const levelLabels: Record<string, string> = {
   LEVEL1: 'Licence 1',
@@ -97,7 +98,7 @@ export const TeacherDashboardPage = () => {
     ? Object.entries(studentsByLevel).map(([level, students]) => ({
         key: level,
         label: (
-          <span>
+          <span className="font-mono">
             {levelLabels[level] || level} <Badge count={students.length} style={{ marginLeft: 8 }} />
           </span>
         ),
@@ -108,6 +109,7 @@ export const TeacherDashboardPage = () => {
             rowKey="id"
             pagination={{ pageSize: 10 }}
             size="small"
+            className="table"
           />
         ),
       }))
@@ -120,85 +122,78 @@ export const TeacherDashboardPage = () => {
   return (
     <div className="space-y-6 p-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl md:text-3xl font-mono font-bold">
           Welcome, {profile?.firstName} {profile?.lastName}
         </h1>
-        <p className="text-gray-500">{profile?.email}</p>
+        <p className="opacity-70 mt-1">{profile?.email}</p>
       </div>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card hoverable>
             <Statistic
-              title="Assigned Subjects"
+              title={<span className="font-mono">Assigned Subjects</span>}
               value={subjects?.length || 0}
               prefix={<BookOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: 'var(--mn-color-primary)', fontFamily: 'IBM Plex Mono' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card hoverable>
             <Statistic
-              title="Total Students"
+              title={<span className="font-mono">Total Students</span>}
               value={totalStudents}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: 'var(--mn-color-secondary)', fontFamily: 'IBM Plex Mono' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card hoverable>
             <Statistic
-              title="Teaching Levels"
+              title={<span className="font-mono">Teaching Levels</span>}
               value={studentsByLevel ? Object.keys(studentsByLevel).length : 0}
               prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#722ed1' }}
+              valueStyle={{ color: '#722ed1', fontFamily: 'IBM Plex Mono' }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card hoverable>
             <Statistic
-              title="Status"
+              title={<span className="font-mono">Status</span>}
               value="Active"
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: 'var(--mn-color-secondary)', fontFamily: 'IBM Plex Mono' }}
             />
           </Card>
         </Col>
       </Row>
 
-      <Card title="My Subjects" className="mt-6">
+      <Card className="mt-6" hoverable={false}>
+        <h2 className="text-xl font-mono font-bold mb-4">My Subjects</h2>
         {subjects && subjects.length > 0 ? (
           <Table
             columns={subjectColumns}
             dataSource={subjects}
             rowKey="id"
             pagination={false}
+            className="table"
           />
         ) : (
           <Empty description="No subjects assigned yet" />
         )}
       </Card>
 
-      <Card title="My Students by Level" className="mt-6">
+      <Card className="mt-6" hoverable={false}>
+        <h2 className="text-xl font-mono font-bold mb-4">My Students by Level</h2>
         {levelTabs.length > 0 ? (
           <Tabs items={levelTabs} />
         ) : (
           <Empty description="No students in your teaching levels" />
         )}
       </Card>
-
-      {/* Department info removed - not available in TeacherResponse */}
-      {/* {profile?.department && (
-        <Alert
-          message="Department Information"
-          description={`You are assigned to the ${profile.department.name} department.`}
-          type="info"
-          showIcon
-        />
-      )} */}
     </div>
   );
 };
