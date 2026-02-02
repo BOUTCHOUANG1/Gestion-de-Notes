@@ -11,11 +11,13 @@ import {
   useGetTeacherProfileQuery,
   useGetTeacherSubjectsQuery,
   useGetStudentsByTeachingLevelsQuery,
+  useGetTeacherGradesQuery,
 } from '../api/teacherDashboardApi';
 import { SubjectResponse } from '../../../api/response-dto/subject.dto';
 import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
 import { DashboardSkeleton } from '../../../components/Skeletons';
-import { Card } from '../../../components';
+import { Card, GradeBadge } from '../../../components';
+import React from 'react';
 
 const levelLabels: Record<string, string> = {
   LEVEL1: 'Licence 1',
@@ -31,8 +33,9 @@ export const TeacherDashboardPage = () => {
   const { data: profile, isLoading: profileLoading } = useGetTeacherProfileQuery();
   const { data: subjects, isLoading: subjectsLoading } = useGetTeacherSubjectsQuery();
   const { data: studentsByLevel, isLoading: studentsLoading } = useGetStudentsByTeachingLevelsQuery();
+  const { data: teacherGrades, isLoading: gradesLoading } = useGetTeacherGradesQuery();
 
-  const isLoading = profileLoading || subjectsLoading || studentsLoading;
+  const isLoading = profileLoading || subjectsLoading || studentsLoading || gradesLoading;
 
   const subjectColumns: ColumnsType<SubjectResponse> = [
     {
@@ -57,6 +60,18 @@ export const TeacherDashboardPage = () => {
       dataIndex: 'credits',
       key: 'credits',
       render: (credits: number) => <Badge count={credits} style={{ backgroundColor: '#52c41a' }} />,
+    },
+    {
+      title: 'Average Grade',
+      key: 'average',
+      render: (_: unknown, record: SubjectResponse) => {
+        const avg = subjectAverages[record.code];
+        return avg ? (
+          <span className="font-mono">{avg.avg.toFixed(1)} ({avg.count} grades)</span>
+        ) : (
+          <span className="text-gray-400">No grades</span>
+        );
+      },
     },
     {
       title: 'Department',
@@ -93,6 +108,28 @@ export const TeacherDashboardPage = () => {
   const totalStudents = studentsByLevel 
     ? Object.values(studentsByLevel).reduce((sum, students) => sum + students.length, 0)
     : 0;
+
+  const subjectAverages = React.useMemo(() => {
+    if (!teacherGrades || !subjects) return {};
+    
+    const averages: Record<string, { sum: number; count: number; avg: number }> = {};
+    
+    teacherGrades.forEach(grade => {
+      if (!averages[grade.subjectCode]) {
+        averages[grade.subjectCode] = { sum: 0, count: 0, avg: 0 };
+      }
+      averages[grade.subjectCode].sum += grade.value;
+      averages[grade.subjectCode].count += 1;
+    });
+    
+    Object.keys(averages).forEach(code => {
+      averages[code].avg = averages[code].sum / averages[code].count;
+    });
+    
+    return averages;
+  }, [teacherGrades, subjects]);
+
+  const recentGrades = teacherGrades?.slice(0, 5) || [];
 
   const levelTabs = studentsByLevel 
     ? Object.entries(studentsByLevel).map(([level, students]) => ({
@@ -170,6 +207,50 @@ export const TeacherDashboardPage = () => {
           </Card>
         </Col>
       </Row>
+
+      <Card className="mt-6" hoverable={false}>
+        <h2 className="text-xl font-mono font-bold mb-4">Recent Grades Submitted</h2>
+        {recentGrades.length > 0 ? (
+          <Table
+            columns={[
+              {
+                title: 'Student',
+                dataIndex: 'studentName',
+                key: 'studentName',
+              },
+              {
+                title: 'Subject',
+                key: 'subject',
+                render: (_: unknown, record: any) => <Tag color="blue">{record.subjectCode}</Tag>,
+              },
+              {
+                title: 'Grade',
+                dataIndex: 'value',
+                key: 'value',
+                render: (value: number) => <GradeBadge grade={value} />,
+              },
+              {
+                title: 'Period',
+                dataIndex: 'periodLabel',
+                key: 'periodLabel',
+              },
+              {
+                title: 'Date',
+                dataIndex: 'createdDate',
+                key: 'createdDate',
+                render: (date: string) => date ? new Date(date).toLocaleDateString() : 'N/A',
+              },
+            ]}
+            dataSource={recentGrades}
+            rowKey="id"
+            pagination={false}
+            size="small"
+            className="table"
+          />
+        ) : (
+          <Empty description="No grades submitted yet" />
+        )}
+      </Card>
 
       <Card className="mt-6" hoverable={false}>
         <h2 className="text-xl font-mono font-bold mb-4">My Subjects</h2>
