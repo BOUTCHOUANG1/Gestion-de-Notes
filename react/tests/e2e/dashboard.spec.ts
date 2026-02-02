@@ -5,13 +5,9 @@ const TEST_PASSWORD = process.env.E2E_ADMIN_PASS ?? 'admin';
 
 test.describe('Dashboard Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth');
+    // Uses default storageState from globalSetup.
+    await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
-    
-    await page.fill('#login_username', TEST_USERNAME);
-    await page.fill('#login_password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
-    
     await page.waitForURL('**/dashboard/**', { timeout: 15000 });
   });
 

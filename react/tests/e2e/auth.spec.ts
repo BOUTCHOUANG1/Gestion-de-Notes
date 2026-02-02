@@ -5,18 +5,25 @@ const TEST_PASSWORD = process.env.E2E_ADMIN_PASS ?? 'admin';
 
 test.describe('Authentication Flow', () => {
   test('should login successfully with valid credentials', async ({ page }) => {
+    // Override default storageState for this test to truly test the login UI.
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
     await page.goto('/auth');
     await page.waitForLoadState('networkidle');
     
     await page.fill('#login_username', TEST_USERNAME);
     await page.fill('#login_password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
+    await page.getByTestId('login-submit').click();
     
     await page.waitForURL('**/dashboard/**', { timeout: 15000 });
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
   test('should show error with invalid credentials', async ({ page }) => {
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
     await page.goto('/auth');
     await page.waitForLoadState('networkidle');
     
@@ -27,7 +34,7 @@ test.describe('Authentication Flow', () => {
       response => response.url().includes('/api/auth/login')
     );
     
-    await page.click('button[type="submit"]');
+    await page.getByTestId('login-submit').click();
     const response = await responsePromise;
     
     await page.waitForTimeout(2000);
@@ -35,6 +42,9 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should redirect unauthenticated users to login', async ({ page }) => {
+    await page.context().clearCookies();
+    await page.evaluate(() => localStorage.clear());
+
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
     
@@ -62,13 +72,9 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should persist authentication across page reloads', async ({ page }) => {
-    await page.goto('/auth');
+    // Uses default storageState from globalSetup.
+    await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
-    
-    await page.fill('#login_username', TEST_USERNAME);
-    await page.fill('#login_password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
-    
     await page.waitForURL('**/dashboard/**', { timeout: 15000 });
     
     await page.reload();
