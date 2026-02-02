@@ -1,10 +1,94 @@
-@import  'tailwindcss';
+/* Design system (fullstackopen.com inspired)
+   - Font: IBM Plex Mono
+   - Colors: text #33332D, borders #E1E1E1, background #FFFFFF
+   - Typography scale: 54/29/25/18/14px (H1/H2/H3/body/small)
+   - Spacing: 8px grid
+*/
 
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+/* Tailwind v4 theme tokens (used by text-primary/bg-primary/etc.) */
 @theme {
-    --color-primary: #6EADFF;
-    --color-secondary: #a6a3e1;
-    --color-tertiary: #e1e1f6;
-    --color-bgColor: #FEFFEF;
+    --color-primary: #33332D;
+    --color-secondary: #33332D;
+    --color-tertiary: #E1E1E1;
+    --color-bgColor: #FFFFFF;
+}
+
+:root {
+    /* Canonical design tokens */
+    --mn-font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --mn-color-text: #33332D;
+    --mn-color-border: #E1E1E1;
+    --mn-color-bg: #FFFFFF;
+
+    --mn-font-size-h1: 54px;
+    --mn-font-size-h2: 29px;
+    --mn-font-size-h3: 25px;
+    --mn-font-size-body: 18px;
+    --mn-font-size-small: 14px;
+
+    --mn-space-1: 8px;
+    --mn-space-2: 16px;
+    --mn-space-3: 24px;
+    --mn-space-4: 32px;
+    --mn-space-5: 40px;
+    --mn-space-6: 48px;
+}
+
+html,
+body {
+    height: 100%;
+    background: var(--mn-color-bg);
+    color: var(--mn-color-text);
+    font-family: var(--mn-font-family);
+    font-size: var(--mn-font-size-body);
+    line-height: 1.55;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+:where(*, *::before, *::after) {
+    box-sizing: border-box;
+    border-color: var(--mn-color-border);
+}
+
+h1 {
+    font-size: var(--mn-font-size-h1);
+    line-height: 1.1;
+    font-weight: 700;
+    margin: 0 0 var(--mn-space-3);
+}
+
+h2 {
+    font-size: var(--mn-font-size-h2);
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0 0 var(--mn-space-2);
+}
+
+h3 {
+    font-size: var(--mn-font-size-h3);
+    line-height: 1.25;
+    font-weight: 700;
+    margin: 0 0 var(--mn-space-2);
+}
+
+p {
+    margin: 0 0 var(--mn-space-2);
+}
+
+small {
+    font-size: var(--mn-font-size-small);
+}
+
+a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--mn-color-border);
+    text-underline-offset: 2px;
 }
 
 .dashboard-layout {
@@ -80,7 +164,6 @@
   @apply bg-slate-500
   dark:bg-slate-200;
 } */
-
 
 
 
