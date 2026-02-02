@@ -35,14 +35,14 @@ public class AuthController {
     }
 
     @PostMapping("/admin/register")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Register a user information", description = "This endpoint is an Admin priviledge to Register a particular user")
     public ResponseEntity<MessageResponse> register(@Valid @RequestBody SignupRequest signupRequest) {
         return new ResponseEntity<>(authService.register(signupRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/admin/profile")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Get current admin profile", description = "This endpoint provide the informations of the current logged in admin")
     public ResponseEntity<UserResponse> getAdminDetails(Authentication authentication) {
         UserResponse userProfileReponse = authService.getCurrentAdmin(authentication);

@@ -3,6 +3,7 @@ package com.university.ManageNotes.controller;
 import com.university.ManageNotes.dto.Response.DashboardStatsResponse;
 import com.university.ManageNotes.dto.Response.RecentActivityResponse;
 import com.university.ManageNotes.dto.Response.StudentsByLevelResponse;
+import com.university.ManageNotes.model.enums.RequestStatus;
 import com.university.ManageNotes.repository.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Dashboard", description = "Admin dashboard statistics and analytics")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class DashboardController {
 
     private final StudentRepository studentRepository;
@@ -39,7 +40,7 @@ public class DashboardController {
                 .totalDepartments(departmentRepository.count())
                 .totalGrades(gradeRepository.count())
                 .totalClaims(revendicationRepository.count())
-                .pendingClaims(revendicationRepository.countByStatus("PENDING"))
+                .pendingClaims(revendicationRepository.countByStatus(RequestStatus.PENDING))
                 .activeSemesters(semesterRepository.countByActiveTrue())
                 .build();
 

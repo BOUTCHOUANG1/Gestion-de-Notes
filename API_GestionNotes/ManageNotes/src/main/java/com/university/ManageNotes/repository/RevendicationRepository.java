@@ -19,5 +19,5 @@ public interface RevendicationRepository extends JpaRepository<Revendication, Lo
     List<Revendication> findByStudentOrderByCreatedDateDesc(Student student);
     
     @Query("SELECT COUNT(r) FROM Revendication r WHERE r.status = :status")
-    Long countByStatus(@Param("status") String status);
+    Long countByStatus(@Param("status") RequestStatus status);
 }
