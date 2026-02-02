@@ -15,7 +15,7 @@ import {
 import { SubjectResponse } from '../../../api/response-dto/subject.dto';
 import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
 import { DashboardSkeleton } from '../../../components/Skeletons';
-import { Card, GradeBadge } from '../../../components';
+import { Card } from '../../../components';
 
 const levelLabels: Record<string, string> = {
   LEVEL1: 'Licence 1',

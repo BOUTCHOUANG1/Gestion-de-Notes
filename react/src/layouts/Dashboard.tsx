@@ -37,13 +37,13 @@ export const Dashboard = () => {
         collapsedWidth={65}
         sidebarView={
           <>
-            <div className="h-30 flex items-center justify-center">NIVEAUX</div>
+            <div className="h-30 flex items-center justify-center font-mono text-sm opacity-70 text-white">MENU</div>
             <main
-              className={"overflow-y-auto overflow-x-hidden h-full text-black "}
+              className={"overflow-y-auto overflow-x-hidden h-full text-white"}
             >
               <SidebarNavItem
                 to={"overview"}
-                icon={<HomeIcon width={24} className="text-gray-500" />}
+                icon={<HomeIcon width={24} className="text-white/70" />}
                 label={"Home"}
               />
               {hasPermission([Role.TEACHER]) && (
@@ -111,10 +111,14 @@ export const Dashboard = () => {
               )}
               {hasPermission([Role.ADMIN]) && (
                 <SidebarNavItem
-                  to={"admin/users"}
+                  to={"admin/dashboard"}
                   icon={<Cog6ToothIcon width={26} />}
                   label={"Administration"}
                 >
+                  <SidebarNavSubItem 
+                    label={"Dashboard"} 
+                    to={"admin/dashboard"} 
+                  />
                   <SidebarNavSubItem 
                     label={"Users"} 
                     to={"admin/users"} 
@@ -135,7 +139,7 @@ export const Dashboard = () => {
               )}
             </main>
 
-            <footer className="flex flex-col border-t border-gray-300">
+            <footer className="flex flex-col border-t border-white/20">
               <SidebarNavItem
                 to={"profile"}
                 icon={<UserIcon width={24} />}

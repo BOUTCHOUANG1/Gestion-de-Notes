@@ -1,5 +1,5 @@
 import { Outlet} from "react-router";
-import { ThemeToggle, LanguageSwitcher } from "../components";
+import { ThemeToggle } from "../components";
 
 export const AuthLayout = () => {
 
@@ -8,8 +8,7 @@ export const AuthLayout = () => {
             <div  className="md:bg-[url(./images/Frame.png)] bg-center bg-cover w-full h-screen fixed left-0 right-0 z-1 blur-3xl"/>
             <section className={' w-screen h-screen bg-inherit flex items-center md:justify-center  '}>
                 <div className={'card shadow-2xl w-full 2xl:w-1/2 lg:w-3/4 md:h-[75%] h-[65%] flex items-center justify-center relative z-100'}>
-                    <div className="absolute top-4 right-4 flex items-center gap-3">
-                        <LanguageSwitcher />
+                    <div className="absolute top-4 right-4">
                         <ThemeToggle />
                     </div>
                     <div className={`hidden lg:block w-1/2 h-full bg-[url(./images/Frame.png)] bg-center bg-cover rounded-l-lg`}/>

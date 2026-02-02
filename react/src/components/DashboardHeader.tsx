@@ -7,7 +7,7 @@ import back from "../images/back.png";
 import UserIcon from "@heroicons/react/24/solid/esm/UserIcon";
 import { store } from "../store";
 import { Link, useLocation } from "react-router";
-import { ThemeToggle, LanguageSwitcher } from "./";
+import { ThemeToggle } from "./";
 
 interface Props {
   useAppSelector: (state: any) => any;
@@ -79,7 +79,6 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
       </div>
 
       <div className="flex gap-3 items-center">
-        <LanguageSwitcher />
         <ThemeToggle />
         <Dropdown
           placement="bottomRight"

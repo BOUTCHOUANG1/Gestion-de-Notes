@@ -20,6 +20,7 @@ const UserManagementPage = lazy(() => import("../features/admin").then(m => ({ d
 const DepartmentManagementPage = lazy(() => import("../features/admin").then(m => ({ default: m.DepartmentManagementPage })));
 const SubjectManagementPage = lazy(() => import("../features/admin").then(m => ({ default: m.SubjectManagementPage })));
 const SemesterManagementPage = lazy(() => import("../features/admin").then(m => ({ default: m.SemesterManagementPage })));
+const AdminDashboardPage = lazy(() => import("../features/admin").then(m => ({ default: m.AdminDashboardPage })));
 const StudentGradeClaimPage = lazy(() => import("../features/revendication").then(m => ({ default: m.StudentGradeClaimPage })));
 const GradeClaimsReviewPage = lazy(() => import("../features/revendication").then(m => ({ default: m.GradeClaimsReviewPage })));
 const TranscriptPage = lazy(() => import("../features/transcript").then(m => ({ default: m.TranscriptPage })));
@@ -100,6 +101,10 @@ export const routes: RouteObject[] = [
       {
         path: "semester2",
         element: <Suspense fallback={<PageLoader />}><Semester2 /></Suspense>,
+      },
+      {
+        path: "admin/dashboard",
+        element: <Suspense fallback={<PageLoader />}><AdminDashboardPage /></Suspense>,
       },
       {
         path: "admin/users",

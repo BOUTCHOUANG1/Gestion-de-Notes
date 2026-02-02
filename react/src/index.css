@@ -482,6 +482,44 @@ code, pre {
   @apply opacity-100 font-semibold;
 }
 
+/* ===== SIDEBAR DARK THEME ===== */
+.sidebar-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item {
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.sidebar-nav-item.active .label,
+.sidebar-nav-item.active svg {
+  color: var(--bg-primary);
+}
+
+.sidebar-nav-sub-item {
+  color: var(--text-secondary);
+}
+
+.sidebar-nav-sub-item:hover,
+.sidebar-nav-sub-item.active {
+  color: var(--text-primary);
+}
+
+/* Mobile drawer dark theme */
+.ant-drawer .mobile-drawer {
+  background-color: var(--bg-primary) !important;
+}
+
 /* ===== UTILITY CLASSES ===== */
 .text-monospace {
   font-family: var(--font-mono);
