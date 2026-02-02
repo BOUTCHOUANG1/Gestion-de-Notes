@@ -4,7 +4,7 @@ import { request, type FullConfig } from '@playwright/test';
 
 export default async function globalSetup(_config: FullConfig) {
   const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
-  const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:3030/api';
   const loginUrl = apiBase.replace(/\/+$/, '') + '/auth/login';
 
   const username = process.env.E2E_ADMIN_USER ?? 'admin';

@@ -9,7 +9,7 @@ import { DashboardLayout } from "./DashboardLayout.tsx";
 import { SidebarNavItem } from "../components/SidebarNavItem.tsx";
 import { DashboardHeader } from "../components/DashboardHeader.tsx";
 import signOutIconSvg from "../images/logoutt.png";
-import { AcademicCapIcon, HomeIcon } from "@heroicons/react/24/solid";
+import { AcademicCapIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, BookOpenIcon, CalendarIcon, BuildingOfficeIcon, DocumentTextIcon, ClipboardDocumentListIcon, UserIcon, ChartBarIcon } from "@heroicons/react/24/solid";
 import { SidebarNavSubItem } from "../components/SidebarNavSubItem.tsx";
 import { hasPermission } from "../utils/index.ts";
 import { Role } from "../api/enums/index.ts";
@@ -49,6 +49,11 @@ export const Dashboard = () => {
               {hasPermission([Role.TEACHER]) && (
                 <>
                   <SidebarNavItem
+                    to={"teacher-dashboard"}
+                    icon={<ChartBarIcon width={26} />}
+                    label={"My Dashboard"}
+                  />
+                  <SidebarNavItem
                     to={"licence1"}
                     icon={<AcademicCapIcon width={26} />}
                     label={"Licence"}
@@ -85,18 +90,57 @@ export const Dashboard = () => {
                     icon={<AcademicCapIcon width={26} />}
                     label={"Semestre 2"}
                   />
+                  <SidebarNavItem
+                    to={"grade-claims"}
+                    icon={<ClipboardDocumentListIcon width={26} />}
+                    label={"Grade Claims"}
+                  />
+                  <SidebarNavItem
+                    to={"transcript"}
+                    icon={<DocumentTextIcon width={26} />}
+                    label={"Transcript"}
+                  />
                 </>
+              )}
+              {hasPermission([Role.TEACHER]) && (
+                <SidebarNavItem
+                  to={"grade-claims/review"}
+                  icon={<ClipboardDocumentListIcon width={26} />}
+                  label={"Grade Claims"}
+                />
               )}
               {hasPermission([Role.ADMIN]) && (
                 <SidebarNavItem
-                  to={"admin"}
-                  icon={<AcademicCapIcon width={26} />}
-                  label={"Adminnnn"}
-                />
+                  to={"admin/users"}
+                  icon={<Cog6ToothIcon width={26} />}
+                  label={"Administration"}
+                >
+                  <SidebarNavSubItem 
+                    label={"Users"} 
+                    to={"admin/users"} 
+                  />
+                  <SidebarNavSubItem 
+                    label={"Departments"} 
+                    to={"admin/departments"} 
+                  />
+                  <SidebarNavSubItem 
+                    label={"Subjects"} 
+                    to={"admin/subjects"} 
+                  />
+                  <SidebarNavSubItem 
+                    label={"Semesters"} 
+                    to={"admin/semesters"} 
+                  />
+                </SidebarNavItem>
               )}
             </main>
 
             <footer className="flex flex-col border-t border-gray-300">
+              <SidebarNavItem
+                to={"profile"}
+                icon={<UserIcon width={24} />}
+                label={"Profile"}
+              />
               <SidebarNavItem
                 aria-label="dashboard sign out"
                 to={"/"}

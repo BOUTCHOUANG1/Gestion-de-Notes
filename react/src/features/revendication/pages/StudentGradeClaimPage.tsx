@@ -1,0 +1,363 @@
+import { useState } from 'react';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Space, message, Card, Typography, Tag, Tabs, Empty } from 'antd';
+import { PlusOutlined, ExclamationCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import { usePageTitle } from '../../../hooks/usePageTitle';
+import {
+  useCreateRevendicationMutation,
+  useGetStudentRevendicationsQuery,
+} from '../api/revendicationApi';
+import { useGetStudentTranscriptQuery } from '../../transcript/api/transcriptApi';
+import type { RevendicationResponse, RevendicationRequest } from '../../../api/response-dto/revendication.dto';
+
+const { Title, Text } = Typography;
+const { TextArea } = Input;
+
+const CLAIM_CAUSES = [
+  { value: 'CALCULATION_ERROR', label: 'Calculation Error' },
+  { value: 'MISSING_GRADE', label: 'Missing Grade' },
+  { value: 'WRONG_ENTRY', label: 'Wrong Grade Entry' },
+  { value: 'EXAM_CORRECTION', label: 'Exam Correction Issue' },
+  { value: 'OTHER', label: 'Other' },
+];
+
+const PERIODS = [
+  { value: 'CC_1', label: 'Continuous Assessment 1 (CC1)' },
+  { value: 'CC_2', label: 'Continuous Assessment 2 (CC2)' },
+  { value: 'SN_1', label: 'Session Normale 1 (Midterm)' },
+  { value: 'SN_2', label: 'Session Normale 2 (Final)' },
+];
+
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'APPROVED': return <CheckCircleOutlined className="text-green-500" />;
+    case 'REJECTED': return <CloseCircleOutlined className="text-red-500" />;
+    default: return <ClockCircleOutlined className="text-orange-500" />;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'APPROVED': return 'green';
+    case 'REJECTED': return 'red';
+    default: return 'orange';
+  }
+};
+
+interface ClaimFormValues {
+  gradeId: number;
+  requestedScore: number;
+  cause: string;
+  period: string;
+  description: string;
+}
+
+export const StudentGradeClaimPage = () => {
+  usePageTitle('Grade Claims');
+
+  const { data: revendications, isLoading: claimsLoading } = useGetStudentRevendicationsQuery();
+  const { data: transcript } = useGetStudentTranscriptQuery();
+  const [createClaim, { isLoading: isCreating }] = useCreateRevendicationMutation();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm<ClaimFormValues>();
+
+  const handleOpenModal = () => {
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    form.resetFields();
+  };
+
+  const handleSubmitClaim = async (values: ClaimFormValues) => {
+    const payload: RevendicationRequest = {
+      gradeId: values.gradeId,
+      requestedScore: values.requestedScore,
+      cause: values.cause,
+      period: values.period,
+      description: values.description,
+    };
+
+    try {
+      await createClaim(payload).unwrap();
+      message.success('Grade claim submitted successfully');
+      handleCloseModal();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      message.error(`Failed to submit claim: ${errorMessage}`);
+    }
+  };
+
+  const pendingClaims = revendications?.filter(r => r.status === 'PENDING') || [];
+  const resolvedClaims = revendications?.filter(r => r.status !== 'PENDING') || [];
+
+  const claimColumns: ColumnsType<RevendicationResponse> = [
+    {
+      title: 'Subject',
+      key: 'subject',
+      render: (_, record) => (
+        <div>
+          <Text strong>{record.subjectName}</Text>
+          <br />
+          <Text type="secondary" className="text-xs">{record.subjectCode}</Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Period',
+      dataIndex: 'periodLabel',
+      key: 'periodLabel',
+      render: (period: string) => <Tag>{period || 'N/A'}</Tag>,
+    },
+    {
+      title: 'Current Score',
+      dataIndex: 'currentScore',
+      key: 'currentScore',
+      width: 100,
+      render: (score: number) => <Text>{score}/20</Text>,
+    },
+    {
+      title: 'Requested Score',
+      dataIndex: 'requestedScore',
+      key: 'requestedScore',
+      width: 120,
+      render: (score: number) => <Text strong className="text-blue-600">{score}/20</Text>,
+    },
+    {
+      title: 'Reason',
+      dataIndex: 'cause',
+      key: 'cause',
+      render: (cause: string) => CLAIM_CAUSES.find(c => c.value === cause)?.label || cause,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)} icon={getStatusIcon(status)}>
+          {status}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Submitted',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 120,
+      render: (date: string) => date ? dayjs(date).format('MMM DD, YYYY') : '-',
+    },
+  ];
+
+  const resolvedColumns: ColumnsType<RevendicationResponse> = [
+    ...claimColumns,
+    {
+      title: 'Response',
+      key: 'response',
+      width: 200,
+      render: (_, record) => (
+        <div>
+          {record.status === 'APPROVED' && record.teacherComment && (
+            <Text type="success" className="text-xs">{record.teacherComment}</Text>
+          )}
+          {record.status === 'REJECTED' && record.rejectionReason && (
+            <Text type="danger" className="text-xs">{record.rejectionReason}</Text>
+          )}
+          {record.resolvedAt && (
+            <div>
+              <Text type="secondary" className="text-xs">
+                Resolved: {dayjs(record.resolvedAt).format('MMM DD, YYYY')}
+              </Text>
+            </div>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const gradeOptions = transcript?.semesters.flatMap(sem => 
+    sem.grades.map(grade => ({
+      value: grade.subjectCode,
+      label: `${grade.subjectName} (${grade.subjectCode}) - ${grade.grade}/20 - ${sem.semesterName}`,
+      grade: grade.grade,
+      subjectName: grade.subjectName,
+    }))
+  ) || [];
+
+  const tabItems = [
+    {
+      key: 'pending',
+      label: (
+        <span>
+          <ClockCircleOutlined />
+          Pending ({pendingClaims.length})
+        </span>
+      ),
+      children: pendingClaims.length > 0 ? (
+        <Table
+          columns={claimColumns}
+          dataSource={pendingClaims}
+          rowKey="id"
+          loading={claimsLoading}
+          pagination={{ pageSize: 5 }}
+        />
+      ) : (
+        <Empty description="No pending claims" />
+      ),
+    },
+    {
+      key: 'resolved',
+      label: (
+        <span>
+          <CheckCircleOutlined />
+          Resolved ({resolvedClaims.length})
+        </span>
+      ),
+      children: resolvedClaims.length > 0 ? (
+        <Table
+          columns={resolvedColumns}
+          dataSource={resolvedClaims}
+          rowKey="id"
+          loading={claimsLoading}
+          pagination={{ pageSize: 5 }}
+        />
+      ) : (
+        <Empty description="No resolved claims" />
+      ),
+    },
+  ];
+
+  return (
+    <div className="p-4">
+      <Card>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <Title level={3} className="!mb-1">
+              <ExclamationCircleOutlined className="mr-2" />
+              Grade Claims
+            </Title>
+            <Text type="secondary">
+              Submit and track your grade dispute requests
+            </Text>
+          </div>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleOpenModal}
+          >
+            New Claim
+          </Button>
+        </div>
+
+        <Tabs items={tabItems} />
+      </Card>
+
+      <Modal
+        title="Submit Grade Claim"
+        open={isModalOpen}
+        onCancel={handleCloseModal}
+        footer={null}
+        destroyOnClose
+        width={550}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmitClaim}
+          autoComplete="off"
+        >
+          <Form.Item
+            name="gradeId"
+            label="Select Grade to Contest"
+            rules={[{ required: true, message: 'Please select a grade' }]}
+          >
+            <Select
+              placeholder="Select the grade you want to contest"
+              showSearch
+              optionFilterProp="label"
+              options={gradeOptions}
+            />
+          </Form.Item>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              name="requestedScore"
+              label="Requested Score"
+              rules={[
+                { required: true, message: 'Please enter requested score' },
+                { type: 'number', min: 0, max: 20, message: 'Score must be between 0 and 20' },
+              ]}
+            >
+              <InputNumber
+                min={0}
+                max={20}
+                step={0.25}
+                style={{ width: '100%' }}
+                placeholder="e.g., 15.5"
+                addonAfter="/20"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="period"
+              label="Assessment Period"
+              rules={[{ required: true, message: 'Please select period' }]}
+            >
+              <Select placeholder="Select period" options={PERIODS} />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            name="cause"
+            label="Reason for Claim"
+            rules={[{ required: true, message: 'Please select a reason' }]}
+          >
+            <Select placeholder="Select the reason for your claim" options={CLAIM_CAUSES} />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Detailed Description"
+            rules={[
+              { required: true, message: 'Please provide a description' },
+              { min: 20, message: 'Description must be at least 20 characters' },
+            ]}
+          >
+            <TextArea
+              rows={4}
+              placeholder="Please provide a detailed explanation of why you believe your grade should be changed. Include any relevant information such as specific questions, calculation errors, or supporting evidence."
+              maxLength={500}
+              showCount
+            />
+          </Form.Item>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+            <Text type="warning" className="text-sm">
+              <ExclamationCircleOutlined className="mr-1" />
+              Please ensure all information is accurate. False claims may result in disciplinary action.
+            </Text>
+          </div>
+
+          <Form.Item className="mb-0 flex justify-end">
+            <Space>
+              <Button onClick={handleCloseModal}>Cancel</Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isCreating}
+              >
+                Submit Claim
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default StudentGradeClaimPage;

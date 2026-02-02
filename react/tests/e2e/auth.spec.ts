@@ -51,24 +51,23 @@ test.describe('Authentication Flow', () => {
     await expect(page).toHaveURL(/\/auth/);
   });
 
-  test.skip('should logout successfully', async ({ page }) => {
-    await page.goto('/auth');
+  test('should logout successfully', async ({ page }) => {
+    await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
-    
-    await page.fill('#login_username', TEST_USERNAME);
-    await page.fill('#login_password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
-    
     await page.waitForURL('**/dashboard/**', { timeout: 15000 });
     
-    const userMenuButton = page.locator('.ant-badge').locator('..').locator('..');
-    await userMenuButton.hover();
-    await page.waitForTimeout(1000);
+    const userDropdown = page.locator('.ant-dropdown-trigger, [data-testid="user-menu"]').first();
+    await userDropdown.click();
+    await page.waitForTimeout(500);
     
-    await page.getByText(/deconnexion/i).click();
+    const logoutButton = page.getByText(/logout|deconnexion|sign out/i);
+    await logoutButton.click();
     
     await page.waitForURL('**/auth', { timeout: 10000 });
     await expect(page).toHaveURL(/\/auth/);
+    
+    const token = await page.evaluate(() => localStorage.getItem('token'));
+    expect(token).toBeNull();
   });
 
   test('should persist authentication across page reloads', async ({ page }) => {

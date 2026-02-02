@@ -16,9 +16,14 @@ test.describe('Dashboard Navigation', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test.skip('should display user profile information', async ({ page }) => {
+  test('should display user profile information', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await expect(page.getByText(/System|Administrator|ADMIN/i).first()).toBeVisible({ timeout: 5000 });
+    
+    const profileSection = page.locator('.ant-dropdown-trigger, [data-testid="user-profile"], .user-info').first();
+    await expect(profileSection).toBeVisible({ timeout: 5000 });
+    
+    const hasUsernameOrRole = await page.locator('text=/admin|ADMIN|System/i').first().isVisible({ timeout: 2000 }).catch(() => false);
+    expect(hasUsernameOrRole).toBeTruthy();
   });
 
   test('should have navigation menu', async ({ page }) => {
