@@ -5,7 +5,7 @@ import { DrawerSidebarContext, PageTitleContext } from "../contexts";
 import next from "../images/next.png";
 import back from "../images/back.png";
 import UserIcon from "@heroicons/react/24/solid/esm/UserIcon";
-import { store } from "../store";
+import { useAppSelector } from "../store";
 import { Link, useLocation } from "react-router";
 import { ThemeToggle } from "./";
 
@@ -34,7 +34,7 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
   const { toggleSidebar, isSidebarOpen } = useContext(DrawerSidebarContext);
   const { pageTitle } = useContext(PageTitleContext);
 
-  const userInfo = store.getState().user.profile;
+  const userInfo = useAppSelector((state) => state.user.profile);
 
   const onDisconnect = () => {
     disconnect();

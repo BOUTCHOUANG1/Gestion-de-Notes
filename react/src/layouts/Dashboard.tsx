@@ -135,6 +135,10 @@ export const Dashboard = () => {
                     label={"Semesters"} 
                     to={"admin/semesters"} 
                   />
+                  <SidebarNavSubItem 
+                    label={"Grade Claims"} 
+                    to={"grade-claims/review"} 
+                  />
                 </SidebarNavItem>
               )}
             </main>
