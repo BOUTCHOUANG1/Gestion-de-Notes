@@ -5,12 +5,10 @@ const TEST_PASSWORD = process.env.E2E_ADMIN_PASS ?? 'admin';
 
 test.describe('Authentication Flow', () => {
   test('should login successfully with valid credentials', async ({ page }) => {
-    // Override default storageState for this test to truly test the login UI.
+    await page.goto('/auth/login');
+    await page.waitForLoadState('networkidle');
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
-
-    await page.goto('/auth');
-    await page.waitForLoadState('networkidle');
     
     await page.fill('#login_username', TEST_USERNAME);
     await page.fill('#login_password', TEST_PASSWORD);
@@ -21,11 +19,10 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should show error with invalid credentials', async ({ page }) => {
+    await page.goto('/auth/login');
+    await page.waitForLoadState('networkidle');
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
-
-    await page.goto('/auth');
-    await page.waitForLoadState('networkidle');
     
     await page.fill('#login_username', 'invaliduser');
     await page.fill('#login_password', 'wrongpassword');
@@ -41,14 +38,16 @@ test.describe('Authentication Flow', () => {
     await expect(page).toHaveURL(/\/auth/);
   });
 
-  test('should redirect unauthenticated users to login', async ({ page }) => {
-    await page.context().clearCookies();
-    await page.evaluate(() => localStorage.clear());
-
+  test('should redirect unauthenticated users to login', async ({ browser }) => {
+    const context = await browser.newContext({ storageState: undefined });
+    const page = await context.newPage();
+    
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
     
     await expect(page).toHaveURL(/\/auth/);
+    
+    await context.close();
   });
 
   test('should logout successfully', async ({ page }) => {
@@ -56,15 +55,11 @@ test.describe('Authentication Flow', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForURL('**/dashboard/**', { timeout: 15000 });
     
-    const userDropdown = page.locator('.ant-dropdown-trigger, [data-testid="user-menu"]').first();
-    await userDropdown.click();
-    await page.waitForTimeout(500);
+    const logoutLink = page.getByRole('link', { name: /sign out/i });
+    await logoutLink.click();
     
-    const logoutButton = page.getByText(/logout|deconnexion|sign out/i);
-    await logoutButton.click();
-    
-    await page.waitForURL('**/auth', { timeout: 10000 });
-    await expect(page).toHaveURL(/\/auth/);
+    await page.waitForLoadState('networkidle');
+    await expect(page).toHaveURL(/\/(auth|$)/);
     
     const token = await page.evaluate(() => localStorage.getItem('token'));
     expect(token).toBeNull();

@@ -19,11 +19,11 @@ test.describe('Dashboard Navigation', () => {
   test('should display user profile information', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     
-    const profileSection = page.locator('.ant-dropdown-trigger, [data-testid="user-profile"], .user-info').first();
-    await expect(profileSection).toBeVisible({ timeout: 5000 });
+    const greetingHeading = page.locator('h1:has-text("Good morning")');
+    await expect(greetingHeading).toBeVisible({ timeout: 5000 });
     
-    const hasUsernameOrRole = await page.locator('text=/admin|ADMIN|System/i').first().isVisible({ timeout: 2000 }).catch(() => false);
-    expect(hasUsernameOrRole).toBeTruthy();
+    const roleText = page.locator('text=/Role:/i');
+    await expect(roleText).toBeVisible({ timeout: 5000 });
   });
 
   test('should have navigation menu', async ({ page }) => {
