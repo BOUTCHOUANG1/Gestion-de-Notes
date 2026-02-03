@@ -54,7 +54,7 @@ public class DashboardController {
         
         List<StudentsByLevelResponse> response = results.stream()
                 .map(result -> StudentsByLevelResponse.builder()
-                        .level((String) result[0])
+                        .level(result[0] != null ? result[0].toString() : "UNKNOWN")
                         .count((Long) result[1])
                         .build())
                 .collect(Collectors.toList());
