@@ -88,12 +88,12 @@ export const PersonalInfoForm =()=>{
             </Form.Item>
             <div className={'w-full flex justify-between gap-10 mt-10'}>
                 <AppButton
-                    className={'btn-primary w-full'}
+                    className={'btn-filled w-full'}
                     label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
-                    className={'btn-primary w-full'}
+                    className={'btn-filled w-full'}
                     htmlType={'submit'}
                     label={'Next'}
                     disabled={disabledButton}

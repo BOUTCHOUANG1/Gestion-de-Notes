@@ -132,13 +132,13 @@ export const IdentificationForm =()=>{
             <PasswordInputFormItem/>
             <div className={'w-full flex justify-between gap-6 mt-10'}>
                 <AppButton
-                    className={'btn-primary w-full'}
+                    className={'btn-filled w-full'}
                     label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
                     htmlType={'submit'}
-                    className={'btn-primary w-full'}
+                    className={'btn-filled w-full'}
                     label={'Next'}
                     loading={isRegisterLoading}
                 />

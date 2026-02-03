@@ -55,7 +55,7 @@ export const LoginForm = ()=>{
                 htmlType={'submit'}
                 data-testid="login-submit"
                 loading={isProcessing || isLoading}
-                className={'btn-primary w-full mt-4'}
+                className={'btn-filled w-full mt-4'}
                 label={'Sign In'}
             />
         </Form>
