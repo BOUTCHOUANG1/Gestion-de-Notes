@@ -23,8 +23,14 @@ export const LoginForm = ()=>{
                             }: SubmissionForm) => {
         setIsProcessing(true);
         try {
-            await login({ username, password }).unwrap();
-            navigate('/dashboard');
+            const data = await login({ username, password }).unwrap();
+            if (data.role === 'ADMIN') {
+                navigate('/dashboard/admin/dashboard');
+            } else if (data.role === 'TEACHER') {
+                navigate('/dashboard/teacher-dashboard');
+            } else {
+                navigate('/dashboard/overview');
+            }
         } catch {
         } finally {
             setIsProcessing(false);

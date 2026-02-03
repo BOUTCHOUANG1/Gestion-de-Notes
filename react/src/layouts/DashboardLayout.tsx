@@ -25,7 +25,7 @@ export const DashboardLayout = ({
         closable={false}
         rootClassName={"lg:hidden"}
         classNames={{
-          body: "!p-0 mobile-drawer !bg-[#33332D]",
+          body: "!p-0 mobile-drawer",
         }}
         onClose={() => toggleSidebar?.()}
         open={isSidebarOpen ?? false}
@@ -35,7 +35,7 @@ export const DashboardLayout = ({
       </Drawer>
       <div className="dashboard-layout">
         <aside
-          className={`sidebar-container hidden my-4  lg:grid grid-rows-[auto_1fr_auto] overflow-hidden duration-300 ease-in-out transition-all bg-[#33332D]`}
+          className={`sidebar-container hidden my-4 lg:grid grid-rows-[auto_1fr_auto] overflow-hidden duration-300 ease-in-out transition-all`}
           style={{ width: sidebarWidth }}
         >
           {sidebarView}
