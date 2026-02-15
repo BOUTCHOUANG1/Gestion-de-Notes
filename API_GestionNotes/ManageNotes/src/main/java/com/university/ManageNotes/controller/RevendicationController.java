@@ -54,4 +54,10 @@ public class RevendicationController {
             @RequestParam(required = false) String reason) {
         return new ResponseEntity<>(revendicationService.rejectRevendication(id, reason), HttpStatus.OK);
     }
+
+    @GetMapping("/admin/revendications")
+    @Operation(summary = "Get all revendications (Admin)", description = "Admin views all revendications")
+    public ResponseEntity<List<RevendicationResponse>> getAllRevendications() {
+        return new ResponseEntity<>(revendicationService.getAllRevendications(), HttpStatus.OK);
+    }
 }

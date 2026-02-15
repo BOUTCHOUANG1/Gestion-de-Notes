@@ -5,8 +5,8 @@ interface SideBarHeaderProps {
 
 export const SideBarHeader = ({ title }: SideBarHeaderProps) => {
     return (
-        <header className="flex  items-center justify-center h-30">
-           <span className={'font-bold lg:text-5xl text-primary '}>{title}</span>
+        <header className="flex items-center justify-center h-[60px]">
+           <span className={'font-semibold text-base text-[var(--text-primary)]'}>{title}</span>
         </header>
     );
 };

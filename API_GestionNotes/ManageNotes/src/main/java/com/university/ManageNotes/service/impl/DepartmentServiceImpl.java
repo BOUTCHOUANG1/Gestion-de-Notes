@@ -13,6 +13,7 @@ import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.service.DepartmentService;
 import com.university.ManageNotes.util.ResponseMapper;
 import com.university.ManageNotes.mapper.DepartmentMapper;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import java.util.HashSet;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         if (departmentRepository.existsByDepartmentName(department.getDepartmentName())) {
             throw new APIException("Department with name '" + department.getDepartmentName() + "' already exists");
         }
+
+        department.setCreatedDate(Instant.now());
+        department.setLastModifiedDate(Instant.now());
 
         // Handle subjects if provided
         if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
@@ -126,6 +130,8 @@ public class DepartmentServiceImpl implements DepartmentService {
                 departmentDb.setSubjects(newSubjects);
             }
         }
+
+        departmentDb.setLastModifiedDate(Instant.now());
 
         // Save and map back to DTO
         Department savedDepartment = departmentRepository.save(departmentDb);

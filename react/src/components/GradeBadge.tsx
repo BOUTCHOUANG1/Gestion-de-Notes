@@ -4,23 +4,14 @@ type GradeBadgeProps = {
 };
 
 const getGradeClass = (grade: string | number): string => {
-  const gradeStr = String(grade).toUpperCase();
-  
-  if (gradeStr.startsWith('A')) return 'grade-badge-a';
-  if (gradeStr.startsWith('B')) return 'grade-badge-b';
-  if (gradeStr.startsWith('C')) return 'grade-badge-c';
-  if (gradeStr.startsWith('D')) return 'grade-badge-d';
-  if (gradeStr.startsWith('F')) return 'grade-badge-f';
-  
-  const numericGrade = typeof grade === 'number' ? grade : parseFloat(gradeStr);
+  const numericGrade = typeof grade === 'number' ? grade : parseFloat(String(grade));
   if (!isNaN(numericGrade)) {
-    if (numericGrade >= 90) return 'grade-badge-a';
-    if (numericGrade >= 80) return 'grade-badge-b';
-    if (numericGrade >= 70) return 'grade-badge-c';
-    if (numericGrade >= 60) return 'grade-badge-d';
+    if (numericGrade >= 16) return 'grade-badge-a';
+    if (numericGrade >= 14) return 'grade-badge-b';
+    if (numericGrade >= 12) return 'grade-badge-c';
+    if (numericGrade >= 10) return 'grade-badge-d';
     return 'grade-badge-f';
   }
-  
   return 'grade-badge-c';
 };
 

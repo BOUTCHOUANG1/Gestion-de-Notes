@@ -11,6 +11,7 @@ import java.util.List;
 public class GradeResponse {
     private Long gradeId;
     private Double ccScore;
+    private Double tpScore;
     private Double snScore;
     private Double totalScore;
     private Double maxValue;

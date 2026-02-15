@@ -187,6 +187,13 @@ public class RevendicationServiceImpl implements RevendicationService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public List<RevendicationResponse> getAllRevendications() {
+        return revendicationRepository.findAll().stream()
+            .map(revendicationMapper::toRevendicationResponse)
+            .collect(Collectors.toList());
+    }
+
     // Helper methods
     private Student getCurrentStudent() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -200,8 +207,8 @@ public class RevendicationServiceImpl implements RevendicationService {
     private Teacher getCurrentTeacher() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
-            return teacherRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new APIException("Teacher not found"));
+            return teacherRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new APIException("Teacher not found for user: " + userDetails.getUsername()));
         }
         throw new APIException("No authenticated teacher");
     }

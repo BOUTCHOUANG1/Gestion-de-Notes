@@ -14,15 +14,30 @@ import { SidebarNavSubItem } from "../components/SidebarNavSubItem.tsx";
 import { hasPermission } from "../utils/index.ts";
 import { Role } from "../api/enums/index.ts";
 import { Spinner } from "../components/Spinner.tsx";
+import { useGetStudentsByTeachingLevelsQuery } from "../features/teacher/api/teacherDashboardApi.ts";
+
+const LEVEL_CONFIG: Record<string, { label: string; route: string; cycle: string }> = {
+  LEVEL1: { label: "Licence 1", route: "licence1", cycle: "licence" },
+  LEVEL2: { label: "Licence 2", route: "licence2", cycle: "licence" },
+  LEVEL3: { label: "Licence 3", route: "licence3", cycle: "licence" },
+  LEVEL4: { label: "Master 1", route: "master1", cycle: "master" },
+  LEVEL5: { label: "Master 2", route: "master2", cycle: "master" },
+};
 
 export const Dashboard = () => {
   const dispatch = useAppDispatch();
-
   const userProfile = useAppSelector((state) => state.user.profile);
+  const { data: studentsByLevel } = useGetStudentsByTeachingLevelsQuery(undefined, {
+    skip: !hasPermission([Role.TEACHER]),
+  });
 
   if (!userProfile) {
     return <Spinner />;
   }
+
+  const teacherLevels = studentsByLevel ? Object.keys(studentsByLevel) : [];
+  const licenceLevels = teacherLevels.filter(l => LEVEL_CONFIG[l]?.cycle === "licence");
+  const masterLevels = teacherLevels.filter(l => LEVEL_CONFIG[l]?.cycle === "master");
 
   const onDisconnect = () => {
     clearTokens();
@@ -37,13 +52,13 @@ export const Dashboard = () => {
         collapsedWidth={65}
         sidebarView={
           <>
-            <div className="h-30 flex items-center justify-center font-mono text-sm opacity-70 text-white">MENU</div>
+            <div className="h-30 flex items-center justify-center text-xs font-medium uppercase tracking-wider text-[var(--text-tertiary)]">MENU</div>
             <main
-              className={"overflow-y-auto overflow-x-hidden h-full text-white"}
+              className={"overflow-y-auto overflow-x-hidden h-full"}
             >
               <SidebarNavItem
                 to={"overview"}
-                icon={<HomeIcon width={24} className="text-white/70" />}
+                icon={<HomeIcon width={24} />}
                 label={"Home"}
               />
               {hasPermission([Role.TEACHER]) && (
@@ -53,28 +68,28 @@ export const Dashboard = () => {
                     icon={<ChartBarIcon width={26} />}
                     label={"My Dashboard"}
                   />
-                  <SidebarNavItem
-                    to={"licence1"}
-                    icon={<AcademicCapIcon width={26} />}
-                    label={"Licence"}
-                  >
-                    <SidebarNavSubItem label={"Licence 1"} to={"licence1"} />
-                    <SidebarNavSubItem label={"Licence 2"} to={"licence2"} />
-                    <SidebarNavSubItem label={"Licence 3"} to={"licence3"} />
-                  </SidebarNavItem>
-                  <SidebarNavItem
-                    to={"master1"}
-                    icon={<AcademicCapIcon width={26} />}
-                    label={"Master"}
-                  >
-                    <SidebarNavSubItem label={"Master 1"} to={"master1"} />
-                    <SidebarNavSubItem label={"Master 2"} to={"master2"} />
-                  </SidebarNavItem>
-                  <SidebarNavItem
-                    to={"overview"}
-                    icon={<AcademicCapIcon width={26} />}
-                    label={"Doctorat"}
-                  />
+                  {licenceLevels.length > 0 && (
+                    <SidebarNavItem
+                      to={LEVEL_CONFIG[licenceLevels[0]].route}
+                      icon={<AcademicCapIcon width={26} />}
+                      label={"Licence"}
+                    >
+                      {licenceLevels.map(l => (
+                        <SidebarNavSubItem key={l} label={LEVEL_CONFIG[l].label} to={LEVEL_CONFIG[l].route} />
+                      ))}
+                    </SidebarNavItem>
+                  )}
+                  {masterLevels.length > 0 && (
+                    <SidebarNavItem
+                      to={LEVEL_CONFIG[masterLevels[0]].route}
+                      icon={<AcademicCapIcon width={26} />}
+                      label={"Master"}
+                    >
+                      {masterLevels.map(l => (
+                        <SidebarNavSubItem key={l} label={LEVEL_CONFIG[l].label} to={LEVEL_CONFIG[l].route} />
+                      ))}
+                    </SidebarNavItem>
+                  )}
                 </>
               )}
 
@@ -143,7 +158,7 @@ export const Dashboard = () => {
               )}
             </main>
 
-            <footer className="flex flex-col border-t border-white/20">
+            <footer className="flex flex-col border-t border-[var(--border-color)]">
               <SidebarNavItem
                 to={"profile"}
                 icon={<UserIcon width={24} />}

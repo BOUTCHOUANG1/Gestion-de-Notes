@@ -19,7 +19,7 @@ export const SidebarNavSubItem = ({
     <NavLink
       className={({ isActive }) =>
         isActive
-          ? `bg-tertiary font-bold sidebar-nav-sub-item py-2 pr-4 grid ${gridDisplay} items-center`
+          ? `bg-tertiary font-semibold sidebar-nav-sub-item py-2 pr-4 grid ${gridDisplay} items-center`
           : `sidebar-nav-sub-item hover:bg-tertiary py-2 pr-4 grid ${gridDisplay} items-center`
       }
       //className={`sidebar-nav-sub-item text-sm tracking-tight hover:bg-slate-100  py-2 pr-4 grid ${gridDisplay} items-center `}

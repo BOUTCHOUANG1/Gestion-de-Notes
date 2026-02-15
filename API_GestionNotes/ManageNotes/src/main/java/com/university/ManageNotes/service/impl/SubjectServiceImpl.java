@@ -70,20 +70,7 @@ public class SubjectServiceImpl implements SubjectService {
             throw new APIException("No Subjects were found for this teacher with email " + teacherDb.getFirstName());
         }
 
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-
-        Page subjectPage = this.subjectRepository.findAll(pageable);
-
-        List<Subject> subjectList = subjectPage.getContent();
-
-        if(subjectList.isEmpty()){
-            throw new APIException("No subjects found");
-        }
-
-        return subjectList.stream()
+        return subjectByTeacherDb.stream()
                 .map(responseMapper::toSubjectResponse)
                 .collect(Collectors.toList());
     }

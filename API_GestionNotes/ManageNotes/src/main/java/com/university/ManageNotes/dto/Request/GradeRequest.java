@@ -28,12 +28,16 @@ public class GradeRequest {
     @NotNull(message = "Semester ID is required")
     private Long semesterId;
     
-    @Min(value = 0, message = "CC score must be greater than or equal to 0")
-    @Max(value = 30, message = "CC score must be less than or equal to 30")
+    @Min(value = 0, message = "CC score must be >= 0")
+    @Max(value = 20, message = "CC score must be <= 20")
     private Double ccScore;
-    
-    @Min(value = 0, message = "SN score must be greater than or equal to 0")
-    @Max(value = 70, message = "SN score must be less than or equal to 70")
+
+    @Min(value = 0, message = "TP score must be >= 0")
+    @Max(value = 20, message = "TP score must be <= 20")
+    private Double tpScore;
+
+    @Min(value = 0, message = "SN score must be >= 0")
+    @Max(value = 20, message = "SN score must be <= 20")
     private Double snScore;
     
     @Size(min = 5, max = 255, message = "Comments must be between 5 and 255 characters long")

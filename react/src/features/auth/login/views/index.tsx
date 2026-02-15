@@ -53,7 +53,6 @@ export const LoginForm = ()=>{
                     id="login_username" 
                     size={'large'} 
                     placeholder='Enter your username'
-                    className="form-input"
                 />
             </Form.Item>
             <PasswordInputFormItem/>
@@ -62,6 +61,7 @@ export const LoginForm = ()=>{
                 data-testid="login-submit"
                 loading={isProcessing || isLoading}
                 className={'btn-filled w-full mt-4'}
+                size={'large'}
                 label={'Sign In'}
             />
         </Form>

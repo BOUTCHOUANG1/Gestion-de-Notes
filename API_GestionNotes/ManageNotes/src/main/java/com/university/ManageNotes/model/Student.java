@@ -29,7 +29,7 @@ public class Student extends Users {
     @Column(name = "matricule")
     private String matricule;
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Grades> grades = new ArrayList<>();
 
     @Column(name = "speciality")

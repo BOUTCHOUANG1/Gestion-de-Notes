@@ -33,9 +33,11 @@ export interface studentResDto {
     lastName: string;
     email: string;
     username: string;
+    matricule: string;
     role: string;
+    studentLevel?: any;
     topics: Topic[];
-    [key: string]: string | number | Topic[] ; // Permet d'ajouter dynamiquement des propriétés
+    [key: string]: any;
 }
 
 

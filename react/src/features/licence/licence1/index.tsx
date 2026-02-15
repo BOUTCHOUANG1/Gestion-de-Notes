@@ -1,5 +1,4 @@
 import { GradingPage } from "../../../components/GradingPage";
-import { FakeStudents } from "../../user/data";
 
 export const Licence1 = () => (
   <GradingPage
@@ -13,6 +12,6 @@ export const Licence1 = () => (
     NC="10"
     CANT="20"
     levelDisplay="Licence 1"
-    initialData={FakeStudents}
+    studentLevel="LEVEL1"
   />
 );

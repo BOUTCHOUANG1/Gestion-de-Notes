@@ -11,16 +11,10 @@ export const revendicationApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Revendications', id: 'LIST' }],
     }),
-    
+
     getStudentRevendications: builder.query<RevendicationResponse[], void>({
       query: () => 'student/revendications',
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: 'Revendications' as const, id })),
-              { type: 'Revendications', id: 'STUDENT_LIST' },
-            ]
-          : [{ type: 'Revendications', id: 'STUDENT_LIST' }],
+      providesTags: [{ type: 'Revendications', id: 'STUDENT_LIST' }],
     }),
     
     getTeacherRevendications: builder.query<RevendicationResponse[], void>({
@@ -28,7 +22,18 @@ export const revendicationApi = api.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Revendications' as const, id })),
+              ...result.map(({ revendicationId }) => ({ type: 'Revendications' as const, id: revendicationId })),
+              { type: 'Revendications', id: 'LIST' },
+            ]
+          : [{ type: 'Revendications', id: 'LIST' }],
+    }),
+
+    getAdminRevendications: builder.query<RevendicationResponse[], void>({
+      query: () => 'admin/revendications',
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ revendicationId }) => ({ type: 'Revendications' as const, id: revendicationId })),
               { type: 'Revendications', id: 'LIST' },
             ]
           : [{ type: 'Revendications', id: 'LIST' }],
@@ -65,6 +70,7 @@ export const {
   useCreateRevendicationMutation,
   useGetStudentRevendicationsQuery,
   useGetTeacherRevendicationsQuery,
+  useGetAdminRevendicationsQuery,
   useApproveRevendicationMutation,
   useRejectRevendicationMutation,
 } = revendicationApi;

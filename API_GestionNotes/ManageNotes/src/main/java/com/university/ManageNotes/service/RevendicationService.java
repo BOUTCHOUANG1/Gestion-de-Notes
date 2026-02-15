@@ -20,4 +20,6 @@ public interface RevendicationService {
     MessageResponse rejectRevendication(Long revendicationId, String reason);
 
     List<RevendicationResponse> getStudentRevendications(Long studentId);
+
+    List<RevendicationResponse> getAllRevendications();
 }

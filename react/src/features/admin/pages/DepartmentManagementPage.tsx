@@ -27,12 +27,12 @@ export const DepartmentManagementPage = () => {
   const [form] = Form.useForm<DepartmentRequest>();
 
   const filteredDepartments = departments?.filter((dept) =>
-    dept.name.toLowerCase().includes(searchText.toLowerCase())
+    String(dept?.departmentName ?? '').toLowerCase().includes(searchText.toLowerCase())
   );
   const handleOpenModal = (department?: DepartmentResponse) => {
     if (department) {
       setEditingDepartment(department);
-      form.setFieldsValue({ name: department.name });
+      form.setFieldsValue({ departmentName: department.departmentName });
     } else {
       setEditingDepartment(null);
       form.resetFields();
@@ -49,7 +49,7 @@ export const DepartmentManagementPage = () => {
   const handleSubmit = async (values: DepartmentRequest) => {
     try {
       if (editingDepartment) {
-        await updateDepartment({ id: editingDepartment.id, ...values }).unwrap();
+        await updateDepartment({ id: editingDepartment.departmentId, ...values }).unwrap();
         message.success('Department updated successfully');
       } else {
         await createDepartment(values).unwrap();
@@ -75,25 +75,25 @@ export const DepartmentManagementPage = () => {
   const columns: ColumnsType<DepartmentResponse> = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'departmentId',
+      key: 'departmentId',
       width: 80,
-      sorter: (a, b) => a.id - b.id,
+      sorter: (a, b) => a.departmentId - b.departmentId,
     },
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      sorter: (a, b) => a.departmentName.localeCompare(b.departmentName),
     },
     {
       title: 'Created Date',
-      dataIndex: 'creationDate',
-      key: 'creationDate',
+      dataIndex: 'createdDate',
+      key: 'createdDate',
       render: (date: string) => (date ? new Date(date).toLocaleDateString() : '-'),
       sorter: (a, b) => {
-        if (!a.creationDate || !b.creationDate) return 0;
-        return new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime();
+        if (!a.createdDate || !b.createdDate) return 0;
+        return new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
       },
     },
     {
@@ -117,7 +117,7 @@ export const DepartmentManagementPage = () => {
           <Popconfirm
             title="Delete Department"
             description="Are you sure you want to delete this department?"
-            onConfirm={() => handleDelete(record.id)}
+            onConfirm={() => handleDelete(record.departmentId)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{ danger: true }}
@@ -165,7 +165,7 @@ export const DepartmentManagementPage = () => {
         <Table
           columns={columns}
           dataSource={filteredDepartments}
-          rowKey="id"
+          rowKey="departmentId"
           loading={isLoading || isFetching}
           pagination={{
             pageSize: 10,
@@ -189,7 +189,7 @@ export const DepartmentManagementPage = () => {
           autoComplete="off"
         >
           <Form.Item
-            name="name"
+            name="departmentName"
             label="Department Name"
             rules={[
               { required: true, message: 'Please enter department name' },

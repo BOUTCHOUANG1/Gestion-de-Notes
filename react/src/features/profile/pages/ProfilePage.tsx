@@ -73,7 +73,7 @@ export const ProfilePage = () => {
         <div className="flex flex-col items-center mb-6">
           <Avatar 
             size={100} 
-            style={{ backgroundColor: getAvatarColor(), fontSize: '36px' }}
+            style={{ backgroundColor: getAvatarColor(), fontSize: '24px' }}
           >
             {getInitials()}
           </Avatar>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Card, Typography, Select, InputNumber, Tag, Switch } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Card, Typography, Select, InputNumber, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, BookOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { usePageTitle } from '../../../hooks/usePageTitle';
@@ -48,30 +48,32 @@ export const SubjectManagementPage = () => {
   const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm<SubjectRequest>();
 
-  const filteredSubjects = subjects?.filter((subj) =>
-    subj.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    subj.code.toLowerCase().includes(searchText.toLowerCase()) ||
-    (subj.teacherName && subj.teacherName.toLowerCase().includes(searchText.toLowerCase()))
-  );
+  const filteredSubjects = subjects?.filter((s) => {
+    const q = searchText.toLowerCase();
+    return (
+      s.subjectName.toLowerCase().includes(q) ||
+      s.subjectCode.toLowerCase().includes(q) ||
+      (s.teacher && `${s.teacher.firstName} ${s.teacher.lastName}`.toLowerCase().includes(q))
+    );
+  });
 
   const handleOpenModal = (subject?: SubjectResponse) => {
     if (subject) {
       setEditingSubject(subject);
       form.setFieldsValue({
-        name: subject.name,
-        code: subject.code,
+        subjectName: subject.subjectName,
+        subjectCode: subject.subjectCode,
         credits: subject.credits,
         description: subject.description,
-        active: subject.active,
-        level: subject.level,
-        cycle: subject.cycle,
-        teacherId: subject.teacherId,
+        subjectsLevel: subject.subjectsLevel?.map(l => l.studentLevel) ?? [],
+        Studentcycle: subject.studentCycle,
+        teacherId: subject.teacher?.teacherId,
         departmentId: subject.departmentId,
       });
     } else {
       setEditingSubject(null);
       form.resetFields();
-      form.setFieldsValue({ active: true, credits: 3 });
+      form.setFieldsValue({ credits: 3 });
     }
     setIsModalOpen(true);
   };
@@ -85,7 +87,7 @@ export const SubjectManagementPage = () => {
   const handleSubmit = async (values: SubjectRequest) => {
     try {
       if (editingSubject) {
-        await updateSubject({ id: editingSubject.id, ...values }).unwrap();
+        await updateSubject({ id: editingSubject.subjectId, ...values }).unwrap();
         message.success('Subject updated successfully');
       } else {
         await createSubject(values).unwrap();
@@ -94,7 +96,7 @@ export const SubjectManagementPage = () => {
       handleCloseModal();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      message.error(editingSubject ? `Failed to update subject: ${errorMessage}` : `Failed to create subject: ${errorMessage}`);
+      message.error(editingSubject ? `Failed to update: ${errorMessage}` : `Failed to create: ${errorMessage}`);
     }
   };
 
@@ -104,39 +106,44 @@ export const SubjectManagementPage = () => {
       message.success('Subject deleted successfully');
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      message.error(`Failed to delete subject: ${errorMessage}`);
+      message.error(`Failed to delete: ${errorMessage}`);
     }
   };
 
   const columns: ColumnsType<SubjectResponse> = [
     {
       title: 'Code',
-      dataIndex: 'code',
-      key: 'code',
+      dataIndex: 'subjectCode',
+      key: 'subjectCode',
       width: 100,
-      sorter: (a, b) => a.code.localeCompare(b.code),
+      sorter: (a, b) => a.subjectCode.localeCompare(b.subjectCode),
     },
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      dataIndex: 'subjectName',
+      key: 'subjectName',
+      sorter: (a, b) => a.subjectName.localeCompare(b.subjectName),
     },
     {
       title: 'Level',
-      dataIndex: 'level',
-      key: 'level',
-      render: (level: string) => <Tag color="blue">{getLevelLabel(level)}</Tag>,
+      key: 'subjectsLevel',
+      render: (_, record) => (
+        <Space size={2} wrap>
+          {record.subjectsLevel?.map(l => (
+            <Tag color="blue" key={l.teachingLevelId}>{getLevelLabel(l.studentLevel)}</Tag>
+          )) || '-'}
+        </Space>
+      ),
       filters: LEVELS.map(l => ({ text: l.label, value: l.value })),
-      onFilter: (value, record) => record.level === value,
+      onFilter: (value, record) => record.subjectsLevel?.some(l => l.studentLevel === value) ?? false,
     },
     {
       title: 'Cycle',
-      dataIndex: 'cycle',
-      key: 'cycle',
-      render: (cycle: string) => <Tag color="purple">{getCycleLabel(cycle)}</Tag>,
+      dataIndex: 'studentCycle',
+      key: 'studentCycle',
+      render: (cycle: string) => cycle ? <Tag color="purple">{getCycleLabel(cycle)}</Tag> : '-',
       filters: CYCLES.map(c => ({ text: c.label, value: c.value })),
-      onFilter: (value, record) => record.cycle === value,
+      onFilter: (value, record) => record.studentCycle === value,
     },
     {
       title: 'Credits',
@@ -147,26 +154,19 @@ export const SubjectManagementPage = () => {
     },
     {
       title: 'Teacher',
-      dataIndex: 'teacherName',
-      key: 'teacherName',
-      render: (name: string) => name || <span className="text-gray-400">Not assigned</span>,
+      key: 'teacher',
+      render: (_, record) =>
+        record.teacher
+          ? `${record.teacher.firstName} ${record.teacher.lastName}`
+          : <span className="text-gray-400">Not assigned</span>,
     },
     {
       title: 'Department',
-      dataIndex: 'departmentName',
-      key: 'departmentName',
-      render: (name: string) => name || '-',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'active',
-      key: 'active',
-      width: 90,
-      render: (active: boolean) => (
-        <Tag color={active ? 'green' : 'default'}>
-          {active ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
+      key: 'departmentId',
+      render: (_, record) => {
+        const dept = departments?.find(d => d.departmentId === record.departmentId);
+        return dept?.departmentName || String(record.departmentId ?? '-');
+      },
     },
     {
       title: 'Actions',
@@ -182,8 +182,8 @@ export const SubjectManagementPage = () => {
           />
           <Popconfirm
             title="Delete Subject"
-            description="Are you sure you want to delete this subject? This will affect related grades."
-            onConfirm={() => handleDelete(record.id)}
+            description="Are you sure you want to delete this subject?"
+            onConfirm={() => handleDelete(record.subjectId)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{ danger: true }}
@@ -232,7 +232,7 @@ export const SubjectManagementPage = () => {
         <Table
           columns={columns}
           dataSource={filteredSubjects}
-          rowKey="id"
+          rowKey="subjectId"
           loading={isLoading || isFetching}
           pagination={{
             pageSize: 10,
@@ -256,11 +256,11 @@ export const SubjectManagementPage = () => {
           layout="vertical"
           onFinish={handleSubmit}
           autoComplete="off"
-          initialValues={{ active: true, credits: 3 }}
+          initialValues={{ credits: 3 }}
         >
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
-              name="name"
+              name="subjectName"
               label="Subject Name"
               rules={[{ required: true, message: 'Please enter subject name' }]}
             >
@@ -268,11 +268,11 @@ export const SubjectManagementPage = () => {
             </Form.Item>
 
             <Form.Item
-              name="code"
+              name="subjectCode"
               label="Subject Code"
               rules={[
                 { required: true, message: 'Please enter subject code' },
-                { pattern: /^[A-Z0-9-]+$/, message: 'Code should be uppercase letters, numbers, or hyphens' },
+                { pattern: /^[A-Z0-9]+$/, message: 'Uppercase letters and numbers only' },
               ]}
             >
               <Input placeholder="e.g., CS101" style={{ textTransform: 'uppercase' }} />
@@ -281,15 +281,15 @@ export const SubjectManagementPage = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
-              name="level"
-              label="Level"
-              rules={[{ required: true, message: 'Please select level' }]}
+              name="subjectsLevel"
+              label="Level(s)"
+              rules={[{ required: true, message: 'Please select at least one level' }]}
             >
-              <Select placeholder="Select level" options={LEVELS} />
+              <Select mode="multiple" placeholder="Select level(s)" options={LEVELS} />
             </Form.Item>
 
             <Form.Item
-              name="cycle"
+              name="Studentcycle"
               label="Cycle"
               rules={[{ required: true, message: 'Please select cycle' }]}
             >
@@ -303,38 +303,32 @@ export const SubjectManagementPage = () => {
               label="Credits"
               rules={[{ required: true, message: 'Please enter credits' }]}
             >
-              <InputNumber min={1} max={30} style={{ width: '100%' }} />
+              <InputNumber min={1} max={10} style={{ width: '100%' }} />
             </Form.Item>
 
-            <Form.Item
-              name="teacherId"
-              label="Assigned Teacher"
-            >
+            <Form.Item name="teacherId" label="Assigned Teacher">
               <Select
                 placeholder="Select teacher"
                 allowClear
                 showSearch
                 optionFilterProp="label"
                 options={teachers?.map(t => ({
-                  value: t.id,
+                  value: t.teacherId,
                   label: `${t.firstName} ${t.lastName}`,
                 }))}
               />
             </Form.Item>
           </div>
 
-          <Form.Item
-            name="departmentId"
-            label="Department"
-          >
+          <Form.Item name="departmentId" label="Department">
             <Select
               placeholder="Select department"
               allowClear
               showSearch
               optionFilterProp="label"
               options={departments?.map(d => ({
-                value: d.id,
-                label: d.name,
+                value: d.departmentId,
+                label: d.departmentName,
               }))}
             />
           </Form.Item>
@@ -342,16 +336,9 @@ export const SubjectManagementPage = () => {
           <Form.Item
             name="description"
             label="Description"
+            rules={[{ required: true, message: 'Description is required' }, { min: 10, message: 'At least 10 characters' }]}
           >
-            <TextArea rows={3} placeholder="Optional description of the subject" />
-          </Form.Item>
-
-          <Form.Item
-            name="active"
-            label="Active"
-            valuePropName="checked"
-          >
-            <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+            <TextArea rows={3} placeholder="Description of the subject" />
           </Form.Item>
 
           <Form.Item className="mb-0 flex justify-end">

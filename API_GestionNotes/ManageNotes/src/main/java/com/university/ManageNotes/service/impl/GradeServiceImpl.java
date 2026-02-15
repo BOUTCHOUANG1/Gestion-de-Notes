@@ -80,8 +80,8 @@ public class GradeServiceImpl implements GradeService {
         grade.setSemester(semester);
         grade.setExam(exam);
         
-        // Calculate total score from CC and SN
-        double totalScore = GradeCalculator.calculateSubjectTotal(grade.getCcScore(), grade.getSnScore());
+        // Calculate total score from CC, TP and SN
+        double totalScore = GradeCalculator.calculateSubjectTotal(grade.getCcScore(), grade.getTpScore(), grade.getSnScore());
         grade.setTotalScore(totalScore);
         
         // Calculate and set derived values
@@ -116,6 +116,9 @@ public class GradeServiceImpl implements GradeService {
         if (updateRequest.getCcScore() != null) {
             existingGrade.setCcScore(updateRequest.getCcScore());
         }
+        if (updateRequest.getTpScore() != null) {
+            existingGrade.setTpScore(updateRequest.getTpScore());
+        }
         if (updateRequest.getSnScore() != null) {
             existingGrade.setSnScore(updateRequest.getSnScore());
         }
@@ -125,7 +128,7 @@ public class GradeServiceImpl implements GradeService {
         
         // Recalculate total score
         double totalScore = GradeCalculator.calculateSubjectTotal(
-            existingGrade.getCcScore(), existingGrade.getSnScore());
+            existingGrade.getCcScore(), existingGrade.getTpScore(), existingGrade.getSnScore());
         existingGrade.setTotalScore(totalScore);
         
         // Recalculate metrics
@@ -217,8 +220,8 @@ public class GradeServiceImpl implements GradeService {
     private Teacher getCurrentTeacher() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
-            return teacherRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new APIException("Teacher not found"));
+            return teacherRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new APIException("Teacher not found for user: " + userDetails.getUsername()));
         }
         throw new APIException("No authenticated teacher");
     }

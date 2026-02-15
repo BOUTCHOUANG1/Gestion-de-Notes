@@ -97,6 +97,9 @@ public class AuthServiceImpl implements AuthService{
         if (request.getMatricule() == null || request.getMatricule().trim().isEmpty()) {
             throw new APIException("Matricule is required for student registration");
         }
+        if (studentRepository.existsByMatricule(request.getMatricule())) {
+            throw new APIException("Matricule already exists: " + request.getMatricule());
+        }
         
         TeachingLevel level;
         if (request.getLevelId() != null) {

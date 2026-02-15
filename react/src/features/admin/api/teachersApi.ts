@@ -5,6 +5,12 @@ export const teachersApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getTeachers: builder.query<TeacherResponse[], void>({
       query: () => 'admin/teachers',
+      transformResponse: (response: any[]) => 
+        response.map(t => ({
+          ...t,
+          id: t.teacherId,
+          teachingLevel: t.teachingLevel || [],
+        })),
       providesTags: (result) =>
         result
           ? [

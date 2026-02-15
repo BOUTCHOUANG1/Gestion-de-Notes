@@ -18,10 +18,10 @@ export const AppButton: React.FC<Props & ButtonProps> = ({
     return (
         <Button
             {...props}
-            className={`${className} rounded-lg font-semibold transition hover:disabled:cursor-not-allowed ${
+            className={`${className} rounded-full font-semibold transition hover:disabled:cursor-not-allowed ${
                 btnType === 'submit'
-                    ? 'bg-primary text-white hover:bg-secondary'
-                    : 'transparent text-secondary border-secondary border-1.5'
+                    ? 'bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]'
+                    : 'bg-transparent text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
         >
             {label ? label : children}

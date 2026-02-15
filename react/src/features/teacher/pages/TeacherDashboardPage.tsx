@@ -13,8 +13,6 @@ import {
   useGetStudentsByTeachingLevelsQuery,
   useGetTeacherGradesQuery,
 } from '../api/teacherDashboardApi';
-import { SubjectResponse } from '../../../api/response-dto/subject.dto';
-import { studentResDto } from '../../../api/reponse-dto/user.res.dto';
 import { DashboardSkeleton } from '../../../components/Skeletons';
 import { Card, GradeBadge } from '../../../components';
 import React from 'react';
@@ -37,23 +35,51 @@ export const TeacherDashboardPage = () => {
 
   const isLoading = profileLoading || subjectsLoading || studentsLoading || gradesLoading;
 
-  const subjectColumns: ColumnsType<SubjectResponse> = [
+  const totalStudents = studentsByLevel 
+    ? Object.values(studentsByLevel).reduce((sum, students) => sum + students.length, 0)
+    : 0;
+
+  const subjectAverages = React.useMemo(() => {
+    if (!teacherGrades || !subjects) return {} as Record<string, { sum: number; count: number; avg: number }>;
+    const averages: Record<string, { sum: number; count: number; avg: number }> = {};
+    teacherGrades.forEach((g: any) => {
+      const code = g.subject?.subjectCode || g.subjectCode || '';
+      if (!code) return;
+      if (!averages[code]) averages[code] = { sum: 0, count: 0, avg: 0 };
+      averages[code].sum += (g.totalScore ?? g.value ?? 0);
+      averages[code].count += 1;
+    });
+    Object.keys(averages).forEach(code => {
+      averages[code].avg = averages[code].sum / averages[code].count;
+    });
+    return averages;
+  }, [teacherGrades, subjects]);
+
+  const recentGrades = teacherGrades?.slice(0, 5) || [];
+
+  const subjectColumns: ColumnsType<any> = [
     {
       title: 'Code',
-      dataIndex: 'code',
-      key: 'code',
-      render: (code: string) => <Tag color="blue">{code}</Tag>,
+      key: 'subjectCode',
+      render: (_, r) => <Tag color="blue">{r.subjectCode}</Tag>,
     },
     {
       title: 'Subject Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'subjectName',
+      key: 'subjectName',
     },
     {
       title: 'Level',
-      dataIndex: 'level',
       key: 'level',
-      render: (level: string) => levelLabels[level] || level,
+      render: (_, r) => {
+        const levels = r.subjectsLevel;
+        if (Array.isArray(levels)) {
+          return levels.map((l: any) => (
+            <Tag key={l.teachingLevelId}>{levelLabels[l.studentLevel] || l.studentLevel}</Tag>
+          ));
+        }
+        return '-';
+      },
     },
     {
       title: 'Credits',
@@ -64,33 +90,33 @@ export const TeacherDashboardPage = () => {
     {
       title: 'Average Grade',
       key: 'average',
-      render: (_: unknown, record: SubjectResponse) => {
-        const avg = subjectAverages[record.code];
+      render: (_: unknown, record: any) => {
+        const avg = subjectAverages[record.subjectCode];
         return avg ? (
-          <span className="font-mono">{avg.avg.toFixed(1)} ({avg.count} grades)</span>
+          {avg.avg.toFixed(1)} ({avg.count} grades)
         ) : (
           <span className="text-gray-400">No grades</span>
         );
       },
     },
     {
-      title: 'Department',
-      dataIndex: 'departmentName',
-      key: 'departmentName',
+      title: 'Cycle',
+      key: 'studentCycle',
+      render: (_, r) => r.studentCycle ? <Tag color="purple">{r.studentCycle}</Tag> : '-',
     },
   ];
 
-  const studentColumns: ColumnsType<studentResDto> = [
+  const studentColumns: ColumnsType<any> = [
     {
-      title: 'Student ID',
+      title: 'Matricule',
       dataIndex: 'matricule',
       key: 'matricule',
-      render: (matricule: string) => <Tag>{matricule}</Tag>,
+      render: (m: string) => m ? <Tag>{m}</Tag> : '-',
     },
     {
       title: 'Name',
       key: 'name',
-      render: (_, record) => `${record.firstName} ${record.lastName}`,
+      render: (_, r) => `${r.firstName} ${r.lastName}`,
     },
     {
       title: 'Email',
@@ -101,151 +127,99 @@ export const TeacherDashboardPage = () => {
       title: 'Speciality',
       dataIndex: 'speciality',
       key: 'speciality',
-      render: (speciality: string) => speciality ? <Tag color="purple">{speciality}</Tag> : '-',
+      render: (s: string) => s ? <Tag color="purple">{s}</Tag> : '-',
     },
   ];
-
-  const totalStudents = studentsByLevel 
-    ? Object.values(studentsByLevel).reduce((sum, students) => sum + students.length, 0)
-    : 0;
-
-  const subjectAverages = React.useMemo(() => {
-    if (!teacherGrades || !subjects) return {};
-    
-    const averages: Record<string, { sum: number; count: number; avg: number }> = {};
-    
-    teacherGrades.forEach(grade => {
-      if (!averages[grade.subjectCode]) {
-        averages[grade.subjectCode] = { sum: 0, count: 0, avg: 0 };
-      }
-      averages[grade.subjectCode].sum += grade.value;
-      averages[grade.subjectCode].count += 1;
-    });
-    
-    Object.keys(averages).forEach(code => {
-      averages[code].avg = averages[code].sum / averages[code].count;
-    });
-    
-    return averages;
-  }, [teacherGrades, subjects]);
-
-  const recentGrades = teacherGrades?.slice(0, 5) || [];
 
   const levelTabs = studentsByLevel 
     ? Object.entries(studentsByLevel).map(([level, students]) => ({
         key: level,
         label: (
-          <span className="font-mono">
-            {levelLabels[level] || level} <Badge count={students.length} style={{ marginLeft: 8 }} />
+          <span className="font-sans">
+            {levelLabels[level] || level} <Badge count={(students as any[]).length} style={{ marginLeft: 8 }} />
           </span>
         ),
         children: (
           <Table
             columns={studentColumns}
-            dataSource={students}
+            dataSource={students as any[]}
             rowKey="id"
             pagination={{ pageSize: 10 }}
             size="small"
-            className="table"
           />
         ),
       }))
     : [];
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
+  if (isLoading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-6 p-4">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-mono font-bold">
+      <div className="mb-4">
+        <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
           Welcome, {profile?.firstName} {profile?.lastName}
         </h1>
-        <p className="opacity-70 mt-1">{profile?.email}</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">{profile?.email}</p>
       </div>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic
-              title={<span className="font-mono">Assigned Subjects</span>}
-              value={subjects?.length || 0}
-              prefix={<BookOutlined />}
-              valueStyle={{ color: 'var(--mn-color-primary)', fontFamily: 'IBM Plex Mono' }}
-            />
+            <Statistic title={Assigned Subjects} value={subjects?.length || 0} prefix={<BookOutlined />} valueStyle={{ color: 'var(--accent)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic
-              title={<span className="font-mono">Total Students</span>}
-              value={totalStudents}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: 'var(--mn-color-secondary)', fontFamily: 'IBM Plex Mono' }}
-            />
+            <Statistic title={Total Students} value={totalStudents} prefix={<TeamOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic
-              title={<span className="font-mono">Teaching Levels</span>}
-              value={studentsByLevel ? Object.keys(studentsByLevel).length : 0}
-              prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#722ed1', fontFamily: 'IBM Plex Mono' }}
-            />
+            <Statistic title={Teaching Levels} value={studentsByLevel ? Object.keys(studentsByLevel).length : 0} prefix={<TrophyOutlined />} valueStyle={{ color: 'var(--accent)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic
-              title={<span className="font-mono">Status</span>}
-              value="Active"
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: 'var(--mn-color-secondary)', fontFamily: 'IBM Plex Mono' }}
-            />
+            <Statistic title={Total Grades} value={teacherGrades?.length || 0} prefix={<CheckCircleOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
           </Card>
         </Col>
       </Row>
 
       <Card className="mt-6" hoverable={false}>
-        <h2 className="text-xl font-mono font-bold mb-4">Recent Grades Submitted</h2>
+        <h2 className="text-base font-semibold mb-3">Recent Grades Submitted</h2>
         {recentGrades.length > 0 ? (
           <Table
             columns={[
               {
                 title: 'Student',
-                dataIndex: 'studentName',
-                key: 'studentName',
+                key: 'student',
+                render: (_: unknown, r: any) => r.student ? `${r.student.firstName} ${r.student.lastName}` : '-',
               },
               {
                 title: 'Subject',
                 key: 'subject',
-                render: (_: unknown, record: any) => <Tag color="blue">{record.subjectCode}</Tag>,
+                render: (_: unknown, r: any) => <Tag color="blue">{r.subject?.subjectCode || '-'}</Tag>,
               },
               {
                 title: 'Grade',
-                dataIndex: 'value',
-                key: 'value',
-                render: (value: number) => <GradeBadge grade={value} />,
+                key: 'totalScore',
+                render: (_: unknown, r: any) => <GradeBadge grade={r.totalScore ?? 0} />,
               },
               {
-                title: 'Period',
-                dataIndex: 'periodLabel',
-                key: 'periodLabel',
+                title: 'Type',
+                key: 'exam',
+                render: (_: unknown, r: any) => <Tag>{r.exam || '-'}</Tag>,
               },
               {
                 title: 'Date',
-                dataIndex: 'createdDate',
                 key: 'createdDate',
-                render: (date: string) => date ? new Date(date).toLocaleDateString() : 'N/A',
+                render: (_: unknown, r: any) => r.createdDate ? new Date(r.createdDate).toLocaleDateString() : '-',
               },
             ]}
             dataSource={recentGrades}
-            rowKey="id"
+            rowKey="gradeId"
             pagination={false}
             size="small"
-            className="table"
           />
         ) : (
           <Empty description="No grades submitted yet" />
@@ -253,22 +227,16 @@ export const TeacherDashboardPage = () => {
       </Card>
 
       <Card className="mt-6" hoverable={false}>
-        <h2 className="text-xl font-mono font-bold mb-4">My Subjects</h2>
+        <h2 className="text-base font-semibold mb-3">My Subjects</h2>
         {subjects && subjects.length > 0 ? (
-          <Table
-            columns={subjectColumns}
-            dataSource={subjects}
-            rowKey="id"
-            pagination={false}
-            className="table"
-          />
+          <Table columns={subjectColumns} dataSource={subjects} rowKey="subjectId" pagination={false} />
         ) : (
           <Empty description="No subjects assigned yet" />
         )}
       </Card>
 
       <Card className="mt-6" hoverable={false}>
-        <h2 className="text-xl font-mono font-bold mb-4">My Students by Level</h2>
+        <h2 className="text-base font-semibold mb-3">My Students by Level</h2>
         {levelTabs.length > 0 ? (
           <Tabs items={levelTabs} />
         ) : (

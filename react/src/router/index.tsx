@@ -95,6 +95,10 @@ export const routes: RouteObject[] = [
         element: <Suspense fallback={<PageLoader />}><Master2 /></Suspense>,
       },
       {
+        path: "doctorat",
+        element: <Suspense fallback={<PageLoader />}><div className="p-8 text-center opacity-60"><h2 className="text-xl">Doctorat</h2><p>Coming soon</p></div></Suspense>,
+      },
+      {
         path: "semester1",
         element: <Suspense fallback={<PageLoader />}><Semester1 /></Suspense>,
       },

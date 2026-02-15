@@ -17,7 +17,13 @@ export const useGradeEditor = ({ level, semester, initialData = [] }: UseGradeEd
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved) as studentResDto[];
+        // Merge: keep grades from localStorage but update student info from API
+        if (initialData.length > 0) {
+          const savedMap = new Map(parsed.map(s => [s.id, s]));
+          return initialData.map(s => ({ ...s, ...savedMap.get(s.id), firstName: s.firstName, lastName: s.lastName, matricule: s.matricule }));
+        }
+        return parsed;
       } catch {
         return initialData;
       }
@@ -41,11 +47,10 @@ export const useGradeEditor = ({ level, semester, initialData = [] }: UseGradeEd
   const filteredTableData = useMemo(() => {
     const base = isTableEditable ? editedData : tableData;
     if (!searchValue) return base;
-    return base.filter((student) =>
-      (student.firstName || "")
-        .toLowerCase()
-        .includes(searchValue.toLowerCase())
-    );
+    return base.filter((student) => {
+      const full = `${student.firstName} ${student.lastName}`.toLowerCase();
+      return full.includes(searchValue.toLowerCase());
+    });
   }, [searchValue, tableData, editedData, isTableEditable]);
 
   return {

@@ -40,7 +40,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, loading 
         </span>
       }
       loading={loading}
-      valueStyle={{ color, fontSize: '28px', fontWeight: 'bold' }}
+      valueStyle={{ color, fontSize: '24px', fontWeight: 600 }}
     />
   </Card>
 );
@@ -166,7 +166,7 @@ export const AdminDashboardPage = () => {
             title="Total Subjects"
             value={stats?.totalSubjects || 0}
             icon={<BookOutlined />}
-            color="#722ed1"
+            color="var(--accent)"
             loading={statsLoading}
           />
         </Col>

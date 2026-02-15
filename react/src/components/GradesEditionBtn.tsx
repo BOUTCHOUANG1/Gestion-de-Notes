@@ -24,7 +24,7 @@ export const GradesEdition = ({
       </Button>
       <Button
         className=" w-[150px]"
-        icon={<PencilSquareIcon width={20} className="text-white" />}
+        icon={<PencilSquareIcon width={20} />}
         onClick={confirmGrades}
       >
         Confirm

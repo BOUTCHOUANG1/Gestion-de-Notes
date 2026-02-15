@@ -58,7 +58,7 @@ export const SidebarNavItem = ({
                     onClick={handleLinkClicked}
                     to={to ? to : '/#/'}
                     className={({ isActive }) =>
-                        isActive ? "bg-primary text-white font-bold sidebar-nav-item " : "sidebar-nav-item"
+                        isActive ? "font-semibold sidebar-nav-item active" : "sidebar-nav-item"
                     }
 
                 >

@@ -4,8 +4,10 @@ import { CheckOutlined, CloseOutlined, EyeOutlined, ExclamationCircleOutlined, C
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { usePageTitle } from '../../../hooks/usePageTitle';
+import { useGetProfileQuery } from '../../auth/api/authApi';
 import {
   useGetTeacherRevendicationsQuery,
+  useGetAdminRevendicationsQuery,
   useApproveRevendicationMutation,
   useRejectRevendicationMutation,
 } from '../api/revendicationApi';
@@ -13,14 +15,6 @@ import type { RevendicationResponse } from '../../../api/response-dto/revendicat
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
-
-const CLAIM_CAUSES: Record<string, string> = {
-  'CALCULATION_ERROR': 'Calculation Error',
-  'MISSING_GRADE': 'Missing Grade',
-  'WRONG_ENTRY': 'Wrong Grade Entry',
-  'EXAM_CORRECTION': 'Exam Correction Issue',
-  'OTHER': 'Other',
-};
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -38,10 +32,32 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+const getStudentName = (r: RevendicationResponse) =>
+  r.student ? `${r.student.firstName} ${r.student.lastName}` : 'Unknown';
+
+const getSubjectName = (r: RevendicationResponse) =>
+  r.grade?.subject?.subjectName ?? '-';
+
+const getSubjectCode = (r: RevendicationResponse) =>
+  r.grade?.subject?.subjectCode ?? '';
+
+const getCurrentScore = (r: RevendicationResponse) =>
+  r.grade?.score ?? 0;
+
 export const GradeClaimsReviewPage = () => {
   usePageTitle('Review Grade Claims');
 
-  const { data: revendications, isLoading } = useGetTeacherRevendicationsQuery();
+  const { data: profile } = useGetProfileQuery();
+  const isTeacher = profile?.role === 'TEACHER';
+  const isAdmin = profile?.role === 'ADMIN';
+
+  const { data: teacherData, isLoading: teacherLoading, error: teacherError } = useGetTeacherRevendicationsQuery(undefined, { skip: !isTeacher });
+  const { data: adminData, isLoading: adminLoading, error: adminError } = useGetAdminRevendicationsQuery(undefined, { skip: !isAdmin });
+
+  const revendications = isAdmin ? adminData : teacherData;
+  const isLoading = isAdmin ? adminLoading : teacherLoading;
+  const error = isAdmin ? adminError : teacherError;
+
   const [approveClaim, { isLoading: isApproving }] = useApproveRevendicationMutation();
   const [rejectClaim, { isLoading: isRejecting }] = useRejectRevendicationMutation();
 
@@ -67,100 +83,90 @@ export const GradeClaimsReviewPage = () => {
   const handleApprove = async (values: { comment?: string }) => {
     if (!selectedClaim) return;
     try {
-      await approveClaim({ id: selectedClaim.id, comment: values.comment }).unwrap();
-      message.success('Claim approved successfully. Grade has been updated.');
+      await approveClaim({ id: selectedClaim.revendicationId, comment: values.comment }).unwrap();
+      message.success('Claim approved successfully.');
       handleCloseModal();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      message.error(`Failed to approve claim: ${errorMessage}`);
+    } catch {
+      message.error('Failed to approve claim');
     }
   };
 
   const handleReject = async (values: { reason?: string }) => {
     if (!selectedClaim) return;
     try {
-      await rejectClaim({ id: selectedClaim.id, reason: values.reason }).unwrap();
+      await rejectClaim({ id: selectedClaim.revendicationId, reason: values.reason }).unwrap();
       message.success('Claim rejected successfully.');
       handleCloseModal();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      message.error(`Failed to reject claim: ${errorMessage}`);
+    } catch {
+      message.error('Failed to reject claim');
     }
   };
 
-  const pendingColumns: ColumnsType<RevendicationResponse> = [
+  const columns: ColumnsType<RevendicationResponse> = [
     {
       title: 'Student',
-      dataIndex: 'studentName',
-      key: 'studentName',
-      render: (name: string, record) => (
+      key: 'student',
+      render: (_, r) => (
         <div>
-          <Text strong>{name}</Text>
-          <br />
-          <Text type="secondary" className="text-xs">ID: {record.studentId}</Text>
+          <Text strong>{getStudentName(r)}</Text>
+          {r.student?.matricule && <><br /><Text type="secondary" className="text-xs">{r.student.matricule}</Text></>}
         </div>
       ),
     },
     {
       title: 'Subject',
       key: 'subject',
-      render: (_, record) => (
+      render: (_, r) => (
         <div>
-          <Text>{record.subjectName}</Text>
-          <br />
-          <Text type="secondary" className="text-xs">{record.subjectCode}</Text>
+          <Text>{getSubjectName(r)}</Text>
+          <br /><Text type="secondary" className="text-xs">{getSubjectCode(r)}</Text>
         </div>
       ),
     },
     {
-      title: 'Period',
-      dataIndex: 'periodLabel',
-      key: 'periodLabel',
-      width: 100,
-      render: (period: string) => <Tag>{period || 'N/A'}</Tag>,
-    },
-    {
       title: 'Current',
-      dataIndex: 'currentScore',
       key: 'currentScore',
       width: 80,
-      render: (score: number) => <Text>{score}/20</Text>,
+      render: (_, r) => <Text>{getCurrentScore(r)}/20</Text>,
     },
     {
       title: 'Requested',
-      dataIndex: 'requestedScore',
       key: 'requestedScore',
       width: 90,
-      render: (score: number) => <Text strong className="text-blue-600">{score}/20</Text>,
+      render: (_, r) => <Text strong className="text-blue-600">{r.requestedScore}/20</Text>,
     },
     {
-      title: 'Difference',
-      key: 'difference',
-      width: 90,
-      render: (_, record) => {
-        const diff = record.requestedScore - record.currentScore;
-        return (
-          <Tag color={diff > 0 ? 'green' : 'red'}>
-            {diff > 0 ? '+' : ''}{diff.toFixed(2)}
-          </Tag>
-        );
+      title: 'Diff',
+      key: 'diff',
+      width: 70,
+      render: (_, r) => {
+        const diff = r.requestedScore - getCurrentScore(r);
+        return <Tag color={diff > 0 ? 'green' : 'red'}>{diff > 0 ? '+' : ''}{diff.toFixed(1)}</Tag>;
       },
     },
     {
-      title: 'Reason',
-      dataIndex: 'cause',
-      key: 'cause',
-      render: (cause: string) => CLAIM_CAUSES[cause] || cause,
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 110,
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)} icon={getStatusIcon(status)}>{status}</Tag>
+      ),
+      filters: [
+        { text: 'Pending', value: 'PENDING' },
+        { text: 'Approved', value: 'APPROVED' },
+        { text: 'Rejected', value: 'REJECTED' },
+      ],
+      onFilter: (value, record) => record.status === value,
     },
     {
-      title: 'Submitted',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: 'Date',
+      key: 'createdDate',
       width: 100,
-      render: (date: string) => date ? dayjs(date).format('MMM DD') : '-',
+      render: (_, r) => r.createdDate ? dayjs(r.createdDate).format('MMM DD') : '-',
       sorter: (a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0;
-        return dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix();
+        if (!a.createdDate || !b.createdDate) return 0;
+        return dayjs(a.createdDate).unix() - dayjs(b.createdDate).unix();
       },
     },
     {
@@ -170,93 +176,19 @@ export const GradeClaimsReviewPage = () => {
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="View Details">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => handleOpenModal(record, 'view')}
-            />
+            <Button type="text" icon={<EyeOutlined />} onClick={() => handleOpenModal(record, 'view')} />
           </Tooltip>
-          <Tooltip title="Approve">
-            <Button
-              type="text"
-              className="text-green-600"
-              icon={<CheckOutlined />}
-              onClick={() => handleOpenModal(record, 'approve')}
-            />
-          </Tooltip>
-          <Tooltip title="Reject">
-            <Button
-              type="text"
-              danger
-              icon={<CloseOutlined />}
-              onClick={() => handleOpenModal(record, 'reject')}
-            />
-          </Tooltip>
+          {record.status === 'PENDING' && isTeacher && (
+            <>
+              <Tooltip title="Approve">
+                <Button type="text" className="text-green-600" icon={<CheckOutlined />} onClick={() => handleOpenModal(record, 'approve')} />
+              </Tooltip>
+              <Tooltip title="Reject">
+                <Button type="text" danger icon={<CloseOutlined />} onClick={() => handleOpenModal(record, 'reject')} />
+              </Tooltip>
+            </>
+          )}
         </Space>
-      ),
-    },
-  ];
-
-  const resolvedColumns: ColumnsType<RevendicationResponse> = [
-    {
-      title: 'Student',
-      dataIndex: 'studentName',
-      key: 'studentName',
-    },
-    {
-      title: 'Subject',
-      key: 'subject',
-      render: (_, record) => `${record.subjectName} (${record.subjectCode})`,
-    },
-    {
-      title: 'Score Change',
-      key: 'scoreChange',
-      render: (_, record) => (
-        <span>
-          {record.currentScore} → {record.requestedScore}
-        </span>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)} icon={getStatusIcon(status)}>
-          {status}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Approved', value: 'APPROVED' },
-        { text: 'Rejected', value: 'REJECTED' },
-      ],
-      onFilter: (value, record) => record.status === value,
-    },
-    {
-      title: 'Response',
-      key: 'response',
-      render: (_, record) => (
-        <Text type="secondary" className="text-xs">
-          {record.status === 'APPROVED' ? record.teacherComment : record.rejectionReason || '-'}
-        </Text>
-      ),
-    },
-    {
-      title: 'Resolved',
-      dataIndex: 'resolvedAt',
-      key: 'resolvedAt',
-      render: (date: string) => date ? dayjs(date).format('MMM DD, YYYY') : '-',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 80,
-      render: (_, record) => (
-        <Button
-          type="text"
-          icon={<EyeOutlined />}
-          onClick={() => handleOpenModal(record, 'view')}
-        />
       ),
     },
   ];
@@ -266,45 +198,64 @@ export const GradeClaimsReviewPage = () => {
       key: 'pending',
       label: (
         <Badge count={pendingClaims.length} offset={[10, 0]}>
-          <span className="pr-4">
-            <ClockCircleOutlined className="mr-1" />
-            Pending Review
-          </span>
+          <span className="pr-4"><ClockCircleOutlined className="mr-1" />Pending</span>
         </Badge>
       ),
       children: pendingClaims.length > 0 ? (
-        <Table
-          columns={pendingColumns}
-          dataSource={pendingClaims}
-          rowKey="id"
-          loading={isLoading}
-          pagination={{ pageSize: 10 }}
-        />
+        <Table columns={columns} dataSource={pendingClaims} rowKey="revendicationId" loading={isLoading} pagination={{ pageSize: 10 }} />
       ) : (
-        <Empty description="No pending claims to review" />
+        <Empty description="No pending claims" />
       ),
     },
     {
       key: 'resolved',
-      label: (
-        <span>
-          <CheckCircleOutlined className="mr-1" />
-          Resolved ({resolvedClaims.length})
-        </span>
-      ),
+      label: <span><CheckCircleOutlined className="mr-1" />Resolved ({resolvedClaims.length})</span>,
       children: resolvedClaims.length > 0 ? (
-        <Table
-          columns={resolvedColumns}
-          dataSource={resolvedClaims}
-          rowKey="id"
-          loading={isLoading}
-          pagination={{ pageSize: 10 }}
-        />
+        <Table columns={columns} dataSource={resolvedClaims} rowKey="revendicationId" loading={isLoading} pagination={{ pageSize: 10 }} />
       ) : (
         <Empty description="No resolved claims" />
       ),
     },
+    {
+      key: 'all',
+      label: `All (${revendications?.length ?? 0})`,
+      children: revendications?.length ? (
+        <Table columns={columns} dataSource={revendications} rowKey="revendicationId" loading={isLoading} pagination={{ pageSize: 10 }} />
+      ) : (
+        <Empty description="No claims" />
+      ),
+    },
   ];
+
+  if (!isTeacher && !isAdmin) {
+    return (
+      <div className="p-4">
+        <Card>
+          <div className="text-center py-8">
+            <ExclamationCircleOutlined className="text-5xl text-orange-500 mb-4" />
+            <Title level={4}>Access Restricted</Title>
+            <Text type="secondary">This page is only accessible to teachers and admins.</Text>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <Card>
+          <div className="text-center py-8">
+            <CloseCircleOutlined className="text-5xl text-red-500 mb-4" />
+            <Title level={4}>Error Loading Claims</Title>
+            <Text type="secondary">
+              {(error as any)?.data?.message ?? 'Failed to load grade claims.'}
+            </Text>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -312,27 +263,20 @@ export const GradeClaimsReviewPage = () => {
         <div className="mb-6">
           <Title level={3} className="!mb-1">
             <ExclamationCircleOutlined className="mr-2" />
-            Grade Claims Review
+            Grade Claims {isAdmin ? '(Admin View)' : 'Review'}
           </Title>
           <Text type="secondary">
-            Review and process student grade dispute requests
+            {isAdmin ? 'Overview of all student grade dispute requests' : 'Review and process student grade dispute requests'}
           </Text>
         </div>
-
         <Tabs items={tabItems} />
       </Card>
 
       <Modal
-        title={
-          actionType === 'view' ? 'Claim Details' :
-          actionType === 'approve' ? 'Approve Claim' :
-          'Reject Claim'
-        }
+        title={actionType === 'view' ? 'Claim Details' : actionType === 'approve' ? 'Approve Claim' : 'Reject Claim'}
         open={!!selectedClaim && !!actionType}
         onCancel={handleCloseModal}
-        footer={actionType === 'view' ? (
-          <Button onClick={handleCloseModal}>Close</Button>
-        ) : null}
+        footer={actionType === 'view' ? <Button onClick={handleCloseModal}>Close</Button> : null}
         destroyOnClose
         width={500}
       >
@@ -340,30 +284,12 @@ export const GradeClaimsReviewPage = () => {
           <div>
             <div className="bg-gray-50 rounded p-4 mb-4">
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Text type="secondary">Student</Text>
-                  <div><Text strong>{selectedClaim.studentName}</Text></div>
-                </div>
-                <div>
-                  <Text type="secondary">Subject</Text>
-                  <div><Text strong>{selectedClaim.subjectName}</Text></div>
-                </div>
-                <div>
-                  <Text type="secondary">Current Score</Text>
-                  <div><Text>{selectedClaim.currentScore}/20</Text></div>
-                </div>
-                <div>
-                  <Text type="secondary">Requested Score</Text>
-                  <div><Text strong className="text-blue-600">{selectedClaim.requestedScore}/20</Text></div>
-                </div>
-                <div>
-                  <Text type="secondary">Reason</Text>
-                  <div><Tag>{CLAIM_CAUSES[selectedClaim.cause] || selectedClaim.cause}</Tag></div>
-                </div>
-                <div>
-                  <Text type="secondary">Period</Text>
-                  <div><Text>{selectedClaim.periodLabel || 'N/A'}</Text></div>
-                </div>
+                <div><Text type="secondary">Student</Text><div><Text strong>{getStudentName(selectedClaim)}</Text></div></div>
+                <div><Text type="secondary">Subject</Text><div><Text strong>{getSubjectName(selectedClaim)}</Text></div></div>
+                <div><Text type="secondary">Current Score</Text><div><Text>{getCurrentScore(selectedClaim)}/20</Text></div></div>
+                <div><Text type="secondary">Requested Score</Text><div><Text strong className="text-blue-600">{selectedClaim.requestedScore}/20</Text></div></div>
+                <div><Text type="secondary">Status</Text><div><Tag color={getStatusColor(selectedClaim.status)}>{selectedClaim.status}</Tag></div></div>
+                <div><Text type="secondary">Semester</Text><div><Text>{selectedClaim.semester?.semesterName || 'N/A'}</Text></div></div>
               </div>
               {selectedClaim.description && (
                 <div className="mt-3 pt-3 border-t">
@@ -371,27 +297,23 @@ export const GradeClaimsReviewPage = () => {
                   <Paragraph className="!mb-0 mt-1">{selectedClaim.description}</Paragraph>
                 </div>
               )}
+              {selectedClaim.teacherComment && (
+                <div className="mt-3 pt-3 border-t">
+                  <Text type="secondary">Teacher Comment</Text>
+                  <Paragraph className="!mb-0 mt-1">{selectedClaim.teacherComment}</Paragraph>
+                </div>
+              )}
             </div>
 
             {actionType === 'approve' && (
               <Form form={form} layout="vertical" onFinish={handleApprove}>
-                <div className="bg-green-50 border border-green-200 rounded p-3 mb-4">
-                  <Text className="text-green-700">
-                    <CheckCircleOutlined className="mr-1" />
-                    Approving this claim will update the student's grade from{' '}
-                    <strong>{selectedClaim.currentScore}</strong> to{' '}
-                    <strong>{selectedClaim.requestedScore}</strong>.
-                  </Text>
-                </div>
                 <Form.Item name="comment" label="Comment (Optional)">
-                  <TextArea rows={3} placeholder="Add a comment for the student (optional)" />
+                  <TextArea rows={3} placeholder="Add a comment" />
                 </Form.Item>
                 <Form.Item className="mb-0 flex justify-end">
                   <Space>
                     <Button onClick={handleCloseModal}>Cancel</Button>
-                    <Button type="primary" htmlType="submit" loading={isApproving} className="bg-green-600">
-                      Approve & Update Grade
-                    </Button>
+                    <Button type="primary" htmlType="submit" loading={isApproving} className="bg-green-600">Approve</Button>
                   </Space>
                 </Form.Item>
               </Form>
@@ -399,25 +321,13 @@ export const GradeClaimsReviewPage = () => {
 
             {actionType === 'reject' && (
               <Form form={form} layout="vertical" onFinish={handleReject}>
-                <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
-                  <Text className="text-red-700">
-                    <CloseCircleOutlined className="mr-1" />
-                    Rejecting this claim will keep the current grade unchanged.
-                  </Text>
-                </div>
-                <Form.Item
-                  name="reason"
-                  label="Rejection Reason"
-                  rules={[{ required: true, message: 'Please provide a reason for rejection' }]}
-                >
-                  <TextArea rows={3} placeholder="Explain why the claim is being rejected" />
+                <Form.Item name="reason" label="Rejection Reason" rules={[{ required: true, message: 'Please provide a reason' }]}>
+                  <TextArea rows={3} placeholder="Explain why" />
                 </Form.Item>
                 <Form.Item className="mb-0 flex justify-end">
                   <Space>
                     <Button onClick={handleCloseModal}>Cancel</Button>
-                    <Button type="primary" danger htmlType="submit" loading={isRejecting}>
-                      Reject Claim
-                    </Button>
+                    <Button type="primary" danger htmlType="submit" loading={isRejecting}>Reject</Button>
                   </Space>
                 </Form.Item>
               </Form>

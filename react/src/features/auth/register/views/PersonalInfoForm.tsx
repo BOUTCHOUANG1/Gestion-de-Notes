@@ -35,7 +35,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your first name' className="form-input"/>
+                <Input size={'large'}  placeholder='Enter your first name'/>
             </Form.Item>
             <Form.Item
                 name="lastName"
@@ -47,7 +47,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your last name' className="form-input"/>
+                <Input size={'large'}  placeholder='Enter your last name'/>
             </Form.Item>
             <Form.Item
                 name="phone"
@@ -58,7 +58,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Enter your phone number' className="form-input"/>
+                <Input size={'large'} placeholder='Enter your phone number'/>
             </Form.Item>
             <Form.Item
                 name="dateOfBirth"
@@ -72,7 +72,7 @@ export const PersonalInfoForm =()=>{
                 <DatePicker
                     size="large"
                     placeholder={'Enter your date of birth'}
-                    className={'w-full form-input'}
+                    className={'w-full'}
                 />
             </Form.Item>
             <Form.Item
@@ -84,7 +84,7 @@ export const PersonalInfoForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'}  placeholder='Enter your place of birth' className="form-input"/>
+                <Input size={'large'}  placeholder='Enter your place of birth'/>
             </Form.Item>
             <div className={'w-full flex justify-between gap-10 mt-10'}>
                 <AppButton

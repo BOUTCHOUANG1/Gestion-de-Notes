@@ -1,21 +1,36 @@
-export interface RevendicationResponse {
+export interface RevendicationStudentInfo {
   id: number;
+  firstName: string;
+  lastName: string;
+  matricule?: string;
+}
+
+export interface RevendicationGradeInfo {
   gradeId: number;
-  studentId: number;
-  studentName?: string;
-  subjectName?: string;
-  subjectCode?: string;
-  currentScore: number;
+  score: number;
+  subject?: {
+    subjectId: number;
+    subjectName: string;
+    subjectCode: string;
+  };
+}
+
+export interface RevendicationSemesterInfo {
+  semesterId: number;
+  semesterName: string;
+}
+
+export interface RevendicationResponse {
+  revendicationId: number;
+  student: RevendicationStudentInfo;
+  grade: RevendicationGradeInfo;
+  semester?: RevendicationSemesterInfo;
   requestedScore: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  cause: string;
   description?: string;
-  periodLabel?: string;
   teacherComment?: string;
-  rejectionReason?: string;
-  semesterId?: number;
-  createdAt?: string;
-  resolvedAt?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdDate?: string;
+  lastModifiedDate?: string;
 }
 
 export interface RevendicationRequest {

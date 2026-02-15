@@ -3,6 +3,7 @@ import { EditableGradesTable } from "./EditableGradesTable";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useGradeEditor } from "../hooks/useGradeEditor";
 import { studentResDto } from "../api/reponse-dto/user.res.dto";
+import { useGetStudentsByTeachingLevelsQuery } from "../features/teacher/api/teacherDashboardApi";
 
 export interface GradePageConfig {
   level: string;
@@ -15,16 +16,23 @@ export interface GradePageConfig {
   NC: string;
   CANT: string;
   levelDisplay: string;
+  studentLevel?: string;
   initialData?: studentResDto[];
 }
 
 export const GradingPage = (config: GradePageConfig) => {
   usePageTitle(config.pageTitle);
 
+  const { data: studentsByLevel } = useGetStudentsByTeachingLevelsQuery();
+  
+  const apiStudents = config.studentLevel && studentsByLevel
+    ? (studentsByLevel[config.studentLevel] as studentResDto[] | undefined) || []
+    : undefined;
+
   const gradeState = useGradeEditor({
     level: config.level,
     semester: config.semester,
-    initialData: config.initialData,
+    initialData: apiStudents || config.initialData,
   });
 
   const extraColumns: { title: string; dataIndex: string }[] = [];

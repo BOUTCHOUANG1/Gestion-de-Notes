@@ -79,11 +79,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <UserGroupIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {students?.length || 0}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Students</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Students</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Enrolled students</p>
               </>
             )}
@@ -96,11 +96,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <AcademicCapIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {teachers?.length || 0}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Teachers</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Teachers</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Active faculty</p>
               </>
             )}
@@ -113,11 +113,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <BookOpenIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {subjects?.length || 0}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Subjects</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Subjects</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Courses offered</p>
               </>
             )}
@@ -130,11 +130,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <BuildingOfficeIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {departments?.length || 0}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Departments</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Departments</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Academic units</p>
               </>
             )}
@@ -142,7 +142,7 @@ export const Overview = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-mono font-bold mb-4">Quick Actions</h2>
+          <h2 className="text-2xl font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link to="/dashboard/admin/users">
               <Card hoverable className="p-6 cursor-pointer">
@@ -150,7 +150,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <UserGroupIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Users</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Users</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Add, edit, or remove users</p>
                     </div>
                   </div>
@@ -165,7 +165,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <BookOpenIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Subjects</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Subjects</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Configure courses</p>
                     </div>
                   </div>
@@ -180,7 +180,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <Cog6ToothIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Semesters</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Manage Semesters</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Academic periods</p>
                     </div>
                   </div>
@@ -196,7 +196,7 @@ export const Overview = () => {
 
   const renderTeacherDashboard = () => {
     const loading = teacherGradesLoading || teacherSubjectsLoading;
-    const studentCount = teacherGrades ? new Set(teacherGrades.map(g => g.studentId)).size : 0;
+    const studentCount = teacherGrades ? new Set(teacherGrades.map((g: any) => g.student?.id)).size : 0;
     const gradesEntered = teacherGrades?.length || 0;
 
     return (
@@ -209,11 +209,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <UserGroupIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {studentCount}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>My Students</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>My Students</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Across all levels</p>
               </>
             )}
@@ -226,11 +226,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <BookOpenIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {teacherSubjects?.length || 0}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>My Subjects</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>My Subjects</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Teaching assignments</p>
               </>
             )}
@@ -243,11 +243,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <ChartBarIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {gradesEntered}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Grades Entered</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Grades Entered</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Total assessments</p>
               </>
             )}
@@ -256,15 +256,15 @@ export const Overview = () => {
           <Card hoverable className="p-6">
             <div className="flex items-center justify-between mb-4">
               <ClipboardDocumentListIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-              <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>0</span>
+              <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>0</span>
             </div>
-            <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Pending Claims</h3>
+            <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Pending Claims</h3>
             <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Grade disputes</p>
           </Card>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-mono font-bold mb-4">Recent Grade Entries</h2>
+          <h2 className="text-2xl font-semibold mb-4">Recent Grade Entries</h2>
           <Card className="p-6">
             {loading ? (
               <div className="skeleton h-40 w-full" />
@@ -273,20 +273,20 @@ export const Overview = () => {
                 <table className="table w-full">
                   <thead>
                     <tr>
-                      <th className="font-mono">Student</th>
-                      <th className="font-mono">Subject</th>
-                      <th className="font-mono">Grade</th>
-                      <th className="font-mono">Type</th>
-                      <th className="font-mono">Date</th>
+                      <th className="font-sans">Student</th>
+                      <th className="font-sans">Subject</th>
+                      <th className="font-sans">Grade</th>
+                      <th className="font-sans">Type</th>
+                      <th className="font-sans">Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {teacherGrades.slice(0, 5).map((grade) => (
-                      <tr key={grade.id}>
-                        <td>{grade.studentName}</td>
-                        <td>{grade.subjectName}</td>
-                        <td><GradeBadge grade={grade.value} /></td>
-                        <td>{grade.periodLabel}</td>
+                    {teacherGrades.slice(0, 5).map((grade: any) => (
+                      <tr key={grade.gradeId}>
+                        <td>{grade.student ? `${grade.student.firstName} ${grade.student.lastName}` : '-'}</td>
+                        <td>{grade.subject?.subjectName || '-'}</td>
+                        <td><GradeBadge grade={grade.totalScore ?? 0} /></td>
+                        <td>{grade.exam || '-'}</td>
                         <td>{grade.createdDate ? new Date(grade.createdDate).toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     ))}
@@ -300,7 +300,7 @@ export const Overview = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-mono font-bold mb-4">Quick Actions</h2>
+          <h2 className="text-2xl font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link to="/dashboard/teacher-dashboard">
               <Card hoverable className="p-6 cursor-pointer">
@@ -308,7 +308,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <ChartBarIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>My Dashboard</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>My Dashboard</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Grade management</p>
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <ClipboardDocumentListIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Review Claims</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Review Claims</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Student disputes</p>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <UserGroupIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>My Profile</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>My Profile</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Personal information</p>
                     </div>
                   </div>
@@ -382,16 +382,16 @@ export const Overview = () => {
           <div className="flex flex-wrap items-center gap-4">
             <div>
               <span className="text-sm opacity-70">Level:</span>
-              <span className="ml-2 font-mono font-bold">{level}</span>
+              <span className="ml-2 font-semibold">{level}</span>
             </div>
             <div>
               <span className="text-sm opacity-70">Cycle:</span>
-              <span className="ml-2 font-mono font-bold">{cycle}</span>
+              <span className="ml-2 font-semibold">{cycle}</span>
             </div>
             {transcript?.speciality && (
               <div>
                 <span className="text-sm opacity-70">Speciality:</span>
-                <span className="ml-2 font-mono font-bold">{transcript.speciality}</span>
+                <span className="ml-2 font-semibold">{transcript.speciality}</span>
               </div>
             )}
           </div>
@@ -406,11 +406,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <BookOpenIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {enrolledSubjects}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Enrolled Subjects</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Enrolled Subjects</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>All semesters</p>
               </>
             )}
@@ -423,11 +423,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <ChartBarIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {currentGPA}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Current GPA</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Current GPA</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Cumulative average</p>
               </>
             )}
@@ -440,11 +440,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <AcademicCapIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {totalCredits}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Credits</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Total Credits</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Credits earned</p>
               </>
             )}
@@ -457,11 +457,11 @@ export const Overview = () => {
               <>
                 <div className="flex items-center justify-between mb-4">
                   <ClipboardDocumentListIcon className="w-10 h-10" style={{ color: 'var(--text-on-card)' }} />
-                  <span className="text-3xl font-bold font-mono" style={{ color: 'var(--text-on-card)' }}>
+                  <span className="text-2xl font-semibold" style={{ color: 'var(--text-on-card)' }}>
                     {pendingClaims}
                   </span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Pending Claims</h3>
+                <h3 className="font-sans text-lg font-semibold" style={{ color: 'var(--text-on-card)' }}>Pending Claims</h3>
                 <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>
                   {approvedClaims} approved, {rejectedClaims} rejected
                 </p>
@@ -472,7 +472,7 @@ export const Overview = () => {
 
         {/* Recent Grades Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-mono font-bold mb-4">Recent Grades</h2>
+          <h2 className="text-2xl font-semibold mb-4">Recent Grades</h2>
           <Card className="p-6">
             {loading ? (
               <div className="skeleton h-40 w-full" />
@@ -481,11 +481,11 @@ export const Overview = () => {
                 <table className="table w-full">
                   <thead>
                     <tr>
-                      <th className="font-mono">Subject</th>
-                      <th className="font-mono">Code</th>
-                      <th className="font-mono">Grade</th>
-                      <th className="font-mono">Credits</th>
-                      <th className="font-mono">Status</th>
+                      <th className="font-sans">Subject</th>
+                      <th className="font-sans">Code</th>
+                      <th className="font-sans">Grade</th>
+                      <th className="font-sans">Credits</th>
+                      <th className="font-sans">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -517,7 +517,7 @@ export const Overview = () => {
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-2xl font-mono font-bold mb-4">Quick Actions</h2>
+          <h2 className="text-2xl font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link to="/dashboard/semester1">
               <Card hoverable className="p-6 cursor-pointer">
@@ -525,7 +525,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <BookOpenIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Semester 1 Grades</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Semester 1 Grades</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>View all grades</p>
                     </div>
                   </div>
@@ -540,7 +540,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <ClipboardDocumentListIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>Grade Claims</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>Grade Claims</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Submit disputes</p>
                     </div>
                   </div>
@@ -555,7 +555,7 @@ export const Overview = () => {
                   <div className="flex items-center gap-4">
                     <DocumentTextIcon className="w-8 h-8" style={{ color: 'var(--text-on-card)' }} />
                     <div>
-                      <h3 className="font-mono font-semibold" style={{ color: 'var(--text-on-card)' }}>My Transcript</h3>
+                      <h3 className="font-sans font-semibold" style={{ color: 'var(--text-on-card)' }}>My Transcript</h3>
                       <p className="text-sm opacity-70" style={{ color: 'var(--text-on-card)' }}>Academic record</p>
                     </div>
                   </div>
@@ -572,11 +572,11 @@ export const Overview = () => {
   return (
     <div className="min-h-screen p-6">
       <div className="mb-8">
-        <h1 className="text-4xl font-mono font-bold mb-2">
+        <h1 className="text-2xl font-semibold mb-2">
           {getGreeting()}, {userProfile?.firstName || 'User'}!
         </h1>
         <p className="text-lg opacity-70">{currentDate}</p>
-        <p className="text-sm opacity-60 font-mono mt-1">
+        <p className="text-sm opacity-60 mt-1">
           Role: {userProfile?.role || 'Unknown'}
         </p>
       </div>

@@ -53,7 +53,7 @@ export const IdentificationForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder="Enter your username" className="form-input"/>
+                <Input size={'large'} placeholder="Enter your username"/>
             </Form.Item>
             <Form.Item
                 name="email"
@@ -64,7 +64,7 @@ export const IdentificationForm =()=>{
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Enter your email' className="form-input"/>
+                <Input size={'large'} placeholder='Enter your email'/>
             </Form.Item>
             {
                 (role === Role.ADMIN || role === Role.TEACHER) && (
@@ -77,7 +77,7 @@ export const IdentificationForm =()=>{
                             },
                         ]}
                     >
-                        <Input size={'large'} placeholder='Enter your key' className="form-input"/>
+                        <Input size={'large'} placeholder='Enter your key'/>
                     </Form.Item>
                 )
             }
@@ -93,7 +93,7 @@ export const IdentificationForm =()=>{
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Enter your level' className="form-input"/>
+                            <Input size={'large'} placeholder='Enter your level'/>
                         </Form.Item>
                         <Form.Item
                             name="speciality"
@@ -104,7 +104,7 @@ export const IdentificationForm =()=>{
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Enter your program' className="form-input"/>
+                            <Input size={'large'} placeholder='Enter your program'/>
                         </Form.Item>
                         <Form.Item
                             name="cycle"
@@ -120,7 +120,6 @@ export const IdentificationForm =()=>{
                                 aria-label="mfaChannel"
                                 options={levels}
                                 placeholder={'Select your cycle'}
-                                className="form-input"
                             />
                         </Form.Item>
                     </>

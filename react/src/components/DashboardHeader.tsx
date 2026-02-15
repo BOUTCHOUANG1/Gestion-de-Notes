@@ -25,7 +25,7 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
         licence1: "Licence 1",
       };
       return {
-        title: <Link to={url} className="font-mono hover:underline">{labelMap[segment] || segment}</Link>,
+        title: <Link to={url} className="hover:underline text-[var(--text-secondary)]">{labelMap[segment] || segment}</Link>,
       };
     }),
   ];
@@ -45,13 +45,13 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
       key: "0",
     },
     {
-      label: <button onClick={onDisconnect} className="font-mono">{"Logout"}</button>,
+      label: <button onClick={onDisconnect}>{"Logout"}</button>,
       key: "1",
     },
   ];
 
   return (
-    <header className="h-[60px] border-b-2 flex justify-between items-center px-4 md:px-6">
+    <header className="h-[60px] border-b border-[var(--border-color)] bg-white/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-6">
       <div className="flex items-center gap-4">
         <Button
           onClick={() => toggleSidebar?.()}
@@ -67,14 +67,14 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
           }
         />
         <div className="hidden md:block">
-          <h1 className="text-xl font-mono font-bold logo">ManageNotes</h1>
+          <span className="text-base font-semibold text-[var(--text-primary)]">ManageNotes</span>
         </div>
         <Breadcrumb items={BItems} separator=">" className="hidden lg:block" />
       </div>
       <div className="flex-1 flex justify-center">
-        <h2 className="font-mono font-semibold text-lg md:text-xl line-clamp-1">
+        <span className="font-semibold text-sm md:text-base text-[var(--text-primary)] line-clamp-1">
           {pageTitle && pageTitle}
-        </h2>
+        </span>
       </div>
 
       <div className="flex gap-3 items-center">
@@ -92,11 +92,11 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
         </Dropdown>
         <div className="hidden xl:block">
           <div className="flex flex-col text-xs">
-            <div className="font-bold flex gap-1 text-sm font-mono">
+            <div className="font-semibold flex gap-1 text-sm text-[var(--text-primary)]">
               <span>{userInfo.firstName}</span>
               <span>{userInfo.lastName}</span>
             </div>
-            <span className="text-xs opacity-70">{userInfo.role}</span>
+            <span className="text-xs text-[var(--text-tertiary)]">{userInfo.role}</span>
           </div>
         </div>
       </div>

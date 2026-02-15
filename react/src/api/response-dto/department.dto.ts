@@ -1,10 +1,10 @@
 export interface DepartmentResponse {
-  id: number;
-  name: string;
-  creationDate?: string;
+  departmentId: number;
+  departmentName: string;
+  createdDate?: string;
   lastModifiedDate?: string;
 }
 
 export interface DepartmentRequest {
-  name: string;
+  departmentName: string;
 }

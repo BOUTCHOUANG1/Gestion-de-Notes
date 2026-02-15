@@ -224,7 +224,7 @@ export const TranscriptPage = () => {
                 title={<span className="text-purple-800">Progress</span>}
                 value={progressPercent}
                 suffix="%"
-                valueStyle={{ color: '#722ed1' }}
+                valueStyle={{ color: 'var(--accent)' }}
               />
             </Card>
           </Col>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Space, message, Card, Typography, Select, Tag, Tabs } from 'antd';
-import { PlusOutlined, EditOutlined, SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Card, Typography, Select, Tag, Tabs } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { useGetStudentsQuery } from '../../students/api/studentsApi';
+import { useGetStudentsQuery, useUpdateStudentMutation, useDeleteStudentMutation } from '../../students/api/studentsApi';
 import { useGetTeachersQuery, useUpdateTeacherMutation } from '../api/teachersApi';
 import { useRegisterMutation } from '../../auth/api/authApi';
 import type { studentResDto } from '../../../api/reponse-dto/user.res.dto';
@@ -14,11 +14,11 @@ import { Role } from '../../../api/enums';
 const { Title } = Typography;
 
 const LEVELS = [
-  { value: 'LEVEL1', label: 'Licence 1' },
-  { value: 'LEVEL2', label: 'Licence 2' },
-  { value: 'LEVEL3', label: 'Licence 3' },
-  { value: 'LEVEL4', label: 'Master 1' },
-  { value: 'LEVEL5', label: 'Master 2' },
+  { value: 1, label: 'Licence 1' },
+  { value: 2, label: 'Licence 2' },
+  { value: 3, label: 'Licence 3' },
+  { value: 4, label: 'Master 1' },
+  { value: 5, label: 'Master 2' },
 ];
 
 const ROLES = [
@@ -43,6 +43,8 @@ export const UserManagementPage = () => {
   const { data: teachers, isLoading: teachersLoading, isFetching: teachersFetching } = useGetTeachersQuery();
   const [registerUser, { isLoading: isRegistering }] = useRegisterMutation();
   const [updateTeacher, { isLoading: isUpdating }] = useUpdateTeacherMutation();
+  const [updateStudent] = useUpdateStudentMutation();
+  const [deleteStudent] = useDeleteStudentMutation();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditTeacherModalOpen, setIsEditTeacherModalOpen] = useState(false);
@@ -51,12 +53,15 @@ export const UserManagementPage = () => {
   const [activeTab, setActiveTab] = useState('students');
   const [createForm] = Form.useForm<RegisterReqDto>();
   const [editTeacherForm] = Form.useForm<TeacherRequest>();
+  const [isEditStudentModalOpen, setIsEditStudentModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<studentResDto | null>(null);
+  const [editStudentForm] = Form.useForm();
 
   const filteredStudents = students?.filter((s) =>
-    s.firstName.toLowerCase().includes(searchText.toLowerCase()) ||
-    s.lastName.toLowerCase().includes(searchText.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchText.toLowerCase()) ||
-    s.username.toLowerCase().includes(searchText.toLowerCase())
+    (s.firstName || '').toLowerCase().includes(searchText.toLowerCase()) ||
+    (s.lastName || '').toLowerCase().includes(searchText.toLowerCase()) ||
+    (s.email || '').toLowerCase().includes(searchText.toLowerCase()) ||
+    (s.matricule || '').toLowerCase().includes(searchText.toLowerCase())
   );
 
   const filteredTeachers = teachers?.filter((t) =>
@@ -65,6 +70,33 @@ export const UserManagementPage = () => {
     t.email.toLowerCase().includes(searchText.toLowerCase()) ||
     t.username.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const handleOpenEditStudentModal = (student: studentResDto) => {
+    setEditingStudent(student);
+    editStudentForm.setFieldsValue({
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.email,
+    });
+    setIsEditStudentModalOpen(true);
+  };
+
+  const handleUpdateStudent = async (values: any) => {
+    if (!editingStudent) return;
+    try {
+      await updateStudent({ id: editingStudent.id, ...values }).unwrap();
+      message.success('Student updated');
+      setIsEditStudentModalOpen(false);
+      setEditingStudent(null);
+    } catch { message.error('Failed to update student'); }
+  };
+
+  const handleDeleteStudent = async (id: number) => {
+    try {
+      await deleteStudent(id).unwrap();
+      message.success('Student deleted');
+    } catch { message.error('Failed to delete student'); }
+  };
 
   const handleOpenCreateModal = () => {
     createForm.resetFields();
@@ -94,7 +126,8 @@ export const UserManagementPage = () => {
 
   const handleCreateUser = async (values: RegisterReqDto) => {
     try {
-      await registerUser(values).unwrap();
+      const payload = { ...values, username: values.matricule || values.email.split('@')[0] };
+      await registerUser(payload).unwrap();
       message.success('User created successfully');
       handleCloseCreateModal();
     } catch (error: unknown) {
@@ -124,10 +157,10 @@ export const UserManagementPage = () => {
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'Username',
-      dataIndex: 'username',
-      key: 'username',
-      sorter: (a, b) => a.username.localeCompare(b.username),
+      title: 'Matricule',
+      dataIndex: 'matricule',
+      key: 'matricule',
+      sorter: (a, b) => (a.matricule || '').localeCompare(b.matricule || ''),
     },
     {
       title: 'First Name',
@@ -147,21 +180,45 @@ export const UserManagementPage = () => {
       key: 'email',
     },
     {
+      title: 'Level',
+      dataIndex: 'studentLevel',
+      key: 'studentLevel',
+      width: 120,
+      render: (level: any) => {
+        const name = typeof level === 'string' ? level : level?.studentLevel || '';
+        const labels: Record<string, string> = { LEVEL1: 'Licence 1', LEVEL2: 'Licence 2', LEVEL3: 'Licence 3', LEVEL4: 'Master 1', LEVEL5: 'Master 2' };
+        return name ? <Tag color="purple">{labels[name] || name}</Tag> : <span className="text-gray-400">-</span>;
+      },
+    },
+    {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
       width: 100,
       render: (role: string) => <Tag color={getRoleColor(role)}>{role}</Tag>,
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 120,
+      render: (_, record) => (
+        <Space size="small">
+          <Button type="text" icon={<EditOutlined />} onClick={() => handleOpenEditStudentModal(record)} title="Edit" />
+          <Popconfirm title="Delete student?" onConfirm={() => handleDeleteStudent(record.id)} okText="Yes" cancelText="No" okButtonProps={{ danger: true }}>
+            <Button type="text" danger icon={<DeleteOutlined />} title="Delete" />
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
   const teacherColumns: ColumnsType<TeacherResponse> = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'teacherId',
+      key: 'teacherId',
       width: 70,
-      sorter: (a, b) => a.id - b.id,
+      sorter: (a, b) => (a as any).teacherId - (b as any).teacherId,
     },
     {
       title: 'Username',
@@ -188,11 +245,16 @@ export const UserManagementPage = () => {
     },
     {
       title: 'Assigned Levels',
-      dataIndex: 'levels',
-      key: 'levels',
-      render: (levels: string[]) => levels?.length 
-        ? levels.map(l => <Tag key={l} color="purple">{l}</Tag>)
-        : <span className="text-gray-400">None</span>,
+      dataIndex: 'teachingLevel',
+      key: 'teachingLevel',
+      render: (levels: any[]) => {
+        if (!levels?.length) return <span className="text-gray-400">None</span>;
+        const labels: Record<string, string> = { LEVEL1: 'Licence 1', LEVEL2: 'Licence 2', LEVEL3: 'Licence 3', LEVEL4: 'Master 1', LEVEL5: 'Master 2' };
+        return levels.map((l, i) => {
+          const name = typeof l === 'string' ? l : l?.studentLevel || String(l);
+          return <Tag key={name + i} color="purple">{labels[name] || name}</Tag>;
+        });
+      },
     },
     {
       title: 'Actions',
@@ -334,29 +396,16 @@ export const UserManagementPage = () => {
             <Input placeholder="john.doe@university.edu" />
           </Form.Item>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              name="username"
-              label="Username"
-              rules={[
-                { required: true, message: 'Please enter username' },
-                { min: 3, message: 'Username must be at least 3 characters' },
-              ]}
-            >
-              <Input placeholder="johndoe" />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: true, message: 'Please enter password' },
-                { min: 6, message: 'Password must be at least 6 characters' },
-              ]}
-            >
-              <Input.Password placeholder="Password" />
-            </Form.Item>
-          </div>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              { required: true, message: 'Please enter password' },
+              { min: 6, message: 'Password must be at least 6 characters' },
+            ]}
+          >
+            <Input.Password placeholder="Password" />
+          </Form.Item>
 
           <Form.Item
             name="phone"
@@ -381,7 +430,7 @@ export const UserManagementPage = () => {
               {({ getFieldValue }) => 
                 getFieldValue('role') === Role.STUDENT ? (
                   <Form.Item
-                    name="level"
+                    name="levelId"
                     label="Level"
                     rules={[{ required: true, message: 'Please select level' }]}
                   >
@@ -393,11 +442,23 @@ export const UserManagementPage = () => {
           </div>
 
           <Form.Item
-            name="registrationKey"
-            label="Registration Key"
-            tooltip="Special key required for user registration"
+            noStyle
+            shouldUpdate={(prev, curr) => prev.role !== curr.role}
           >
-            <Input placeholder="Optional registration key" />
+            {({ getFieldValue }) => 
+              getFieldValue('role') === Role.STUDENT ? (
+                <Form.Item
+                  name="matricule"
+                  label="Matricule"
+                  rules={[
+                    { required: true, message: 'Please enter student matricule' },
+                    { pattern: /^[0-9]{2}[A-Z][0-9]{4}$/, message: 'Format: 2 digits + 1 uppercase letter + 4 digits (e.g. 21A0001)' },
+                  ]}
+                >
+                  <Input placeholder="e.g. 21A0001" style={{ textTransform: 'uppercase' }} />
+                </Form.Item>
+              ) : null
+            }
           </Form.Item>
 
           <Form.Item className="mb-0 flex justify-end">
@@ -465,6 +526,32 @@ export const UserManagementPage = () => {
               >
                 Update
               </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Edit Student"
+        open={isEditStudentModalOpen}
+        onCancel={() => { setIsEditStudentModalOpen(false); setEditingStudent(null); }}
+        footer={null}
+        destroyOnClose
+      >
+        <Form form={editStudentForm} layout="vertical" onFinish={handleUpdateStudent}>
+          <Form.Item name="firstName" label="First Name" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="lastName" label="Last Name" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item className="mb-0 flex justify-end">
+            <Space>
+              <Button onClick={() => { setIsEditStudentModalOpen(false); setEditingStudent(null); }}>Cancel</Button>
+              <Button type="primary" htmlType="submit">Update</Button>
             </Space>
           </Form.Item>
         </Form>

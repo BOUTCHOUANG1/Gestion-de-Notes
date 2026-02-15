@@ -31,3 +31,10 @@ node_modules/
 springBoot/
 react/playwright-report/
 react/test-results/
+
+# Screenshots (design audit artifacts)
+*.png
+*.jpeg
+
+# Session notes
+session-*.md
