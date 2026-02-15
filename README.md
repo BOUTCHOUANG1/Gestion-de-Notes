@@ -73,6 +73,7 @@ Runs on `http://localhost:5173`
 |------|----------|----------|
 | Admin | `admin` | `admin` |
 | Teacher | `prof.smith` | `admin` |
+| Student | `24a0001` | `admin` |
 
 ## Project Structure
 
