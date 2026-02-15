@@ -31,6 +31,7 @@ interface EditableGradesTableProps {
   isDataEditable?: boolean;
   setIsDataEditable: (value: boolean) => void;
   onSearch?: (value: string) => void;
+  saving?: boolean;
 }
 
 export const EditableGradesTable = ({
@@ -43,6 +44,7 @@ export const EditableGradesTable = ({
   setIsDataEditable,
   isDataEditable,
   onSearch,
+  saving,
 }: EditableGradesTableProps) => {
   const [editingData, setEditingData] = useState(data);
   const displayData = data !== undefined ? data : isEditable ? editingData : [];
@@ -161,7 +163,7 @@ export const EditableGradesTable = ({
         </div>
         <div>
           {isDataEditable ? (
-            <GradesEdition editGrades={onEdit} confirmGrades={onConfirm} setIsTableEditable={setIsDataEditable} />
+            <GradesEdition editGrades={onEdit} confirmGrades={onConfirm} setIsTableEditable={setIsDataEditable} saving={saving} />
           ) : (
             <EditPvButton setIsTableEditable={setIsDataEditable} onEdit={onEdit} />
           )}

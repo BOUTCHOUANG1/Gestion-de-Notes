@@ -1,5 +1,3 @@
-import { FakeStudents } from "../features/user/data";
-
 interface LicenceHeaderProps {
     period: string;
     topic? : string;
@@ -40,7 +38,7 @@ export const GradesHeader = ({ period , topic , code , level , NC , CANT  , titl
                 </div>
                 <div className="text-sm text-right">
                     {
-                        code && (<p><span className="font-medium">Nombre d'étudiants :</span> {FakeStudents.length}</p>)
+                        code && (<p><span className="font-medium">Nombre d'étudiants :</span> {NC}</p>)
                     }
                     <p><span className="font-medium">NC:</span> {NC}</p>
                     <p><span className="font-medium">CANT :</span> {CANT}</p>

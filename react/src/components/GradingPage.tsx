@@ -3,54 +3,58 @@ import { EditableGradesTable } from "./EditableGradesTable";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useGradeEditor } from "../hooks/useGradeEditor";
 import { studentResDto } from "../api/reponse-dto/user.res.dto";
-import { useGetStudentsByTeachingLevelsQuery } from "../features/teacher/api/teacherDashboardApi";
+import {
+  useGetStudentsByTeachingLevelsQuery,
+  useGetTeacherSubjectsQuery,
+} from "../features/teacher/api/teacherDashboardApi";
+import { useGetSemestersQuery } from "../features/admin/api/semesterApi";
+import { Spinner } from "./Spinner";
 
 export interface GradePageConfig {
   level: string;
-  semester: string;
   pageTitle: string;
   headerTitle: string;
-  subjectCode?: string;
-  subjectTopic?: string;
-  period: string;
-  NC: string;
-  CANT: string;
   levelDisplay: string;
-  studentLevel?: string;
-  initialData?: studentResDto[];
+  studentLevel: string;
 }
 
 export const GradingPage = (config: GradePageConfig) => {
   usePageTitle(config.pageTitle);
 
-  const { data: studentsByLevel } = useGetStudentsByTeachingLevelsQuery();
-  
-  const apiStudents = config.studentLevel && studentsByLevel
-    ? (studentsByLevel[config.studentLevel] as studentResDto[] | undefined) || []
-    : undefined;
+  const { data: studentsByLevel, isLoading: studentsLoading } = useGetStudentsByTeachingLevelsQuery();
+  const { data: subjects, isLoading: subjectsLoading } = useGetTeacherSubjectsQuery();
+  const { data: semesters } = useGetSemestersQuery();
+
+  const students: studentResDto[] = studentsByLevel?.[config.studentLevel] || [];
+
+  const subject = subjects?.find((s) =>
+    s.subjectsLevel?.some((l) => l.studentLevel === config.studentLevel)
+  );
+
+  const activeSemester = semesters?.find((s) => s.active);
 
   const gradeState = useGradeEditor({
-    level: config.level,
-    semester: config.semester,
-    initialData: apiStudents || config.initialData,
+    subjectId: subject?.subjectId,
+    semesterId: activeSemester?.id,
+    students,
   });
 
-  const extraColumns: { title: string; dataIndex: string }[] = [];
+  if (studentsLoading || subjectsLoading) return <Spinner />;
 
   return (
     <div>
       <GradesHeader
         title={config.headerTitle}
-        period={config.period}
-        topic={config.subjectTopic}
-        code={config.subjectCode}
+        period={activeSemester?.name || "—"}
+        topic={subject?.subjectName || "—"}
+        code={subject?.subjectCode || "—"}
         level={config.levelDisplay}
-        NC={config.NC}
-        CANT={config.CANT}
+        NC={String(students.length)}
+        CANT="20"
       />
       <div className="mt-8">
         <EditableGradesTable
-          extraColumns={extraColumns}
+          extraColumns={[]}
           isEditable={gradeState.isTableEditable}
           data={gradeState.filteredTableData}
           onGradesChange={gradeState.setEditedData}
@@ -59,6 +63,7 @@ export const GradingPage = (config: GradePageConfig) => {
           isDataEditable={gradeState.isTableEditable}
           setIsDataEditable={gradeState.setIsTableEditable}
           onSearch={gradeState.setSearchValue}
+          saving={gradeState.saving}
         />
       </div>
     </div>
