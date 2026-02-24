@@ -12,8 +12,9 @@ import com.university.ManageNotes.repository.DepartmentRepository;
 import com.university.ManageNotes.repository.SubjectRepository;
 import com.university.ManageNotes.service.DepartmentService;
 import com.university.ManageNotes.util.ResponseMapper;
+import com.university.ManageNotes.mapper.DepartmentMapper;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import java.util.HashSet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,19 +33,22 @@ import java.util.stream.Collectors;
 public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final SubjectRepository subjectRepository;
-    private final ModelMapper modelMapper;
+    private final DepartmentMapper departmentMapper;
     private final ResponseMapper responseMapper;
 
     @Override
     @Transactional
-    public DepartmentRequest createDepartment(DepartmentRequest request) {
+    public DepartmentResponse createDepartment(DepartmentRequest request) {
         // Map DTO to Entity
-        Department department = modelMapper.map(request, Department.class);
+        Department department = departmentMapper.toEntity(request);
 
         // Check if department name already exists
         if (departmentRepository.existsByDepartmentName(department.getDepartmentName())) {
             throw new APIException("Department with name '" + department.getDepartmentName() + "' already exists");
         }
+
+        department.setCreatedDate(Instant.now());
+        department.setLastModifiedDate(Instant.now());
 
         // Handle subjects if provided
         if (request.getSubjectIds() != null && !request.getSubjectIds().isEmpty()) {
@@ -60,7 +64,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         // Save and map back to DTO
         Department savedDepartment = departmentRepository.save(department);
-        return modelMapper.map(savedDepartment, DepartmentRequest.class);
+        return mapToDepartmentResponse(savedDepartment);
     }
 
     @Override
@@ -90,9 +94,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional
-    public DepartmentRequest updateDepartment(DepartmentRequest request, Long departmentId) {
+    public DepartmentResponse updateDepartment(DepartmentRequest request, Long departmentId) {
         // Map DTO to Entity
-        Department departmentUpdate = modelMapper.map(request, Department.class);
+        Department departmentUpdate = departmentMapper.toEntity(request);
         
         Department departmentDb = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", departmentId));
@@ -127,14 +131,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
         }
 
+        departmentDb.setLastModifiedDate(Instant.now());
+
         // Save and map back to DTO
         Department savedDepartment = departmentRepository.save(departmentDb);
-        return modelMapper.map(savedDepartment, DepartmentRequest.class);
+        return mapToDepartmentResponse(savedDepartment);
     }
 
     @Override
     @Transactional
-    public DepartmentRequest deleteDepartment(Long departmentId) {
+    public DepartmentResponse deleteDepartment(Long departmentId) {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", departmentId));
 
@@ -143,7 +149,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 -> subject.setDepartment(null));
         
         // Map to DTO before deletion
-        DepartmentRequest deletedDepartment = modelMapper.map(department, DepartmentRequest.class);
+        DepartmentResponse deletedDepartment = mapToDepartmentResponse(department);
         departmentRepository.delete(department);
         
         return deletedDepartment;

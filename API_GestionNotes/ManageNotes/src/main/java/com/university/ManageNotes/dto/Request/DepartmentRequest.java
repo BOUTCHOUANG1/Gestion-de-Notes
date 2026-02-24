@@ -15,6 +15,5 @@ public class DepartmentRequest {
     @Size(min = 5, max = 100, message = "Department name must be between 5 and 100 characters")
     private String departmentName;
 
-    @NotNull(message = "Subject IDs are required")
     private Set<Long> subjectIds;
 }

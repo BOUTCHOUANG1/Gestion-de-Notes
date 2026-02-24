@@ -5,6 +5,7 @@ import com.university.ManageNotes.dto.Request.SignupRequest;
 import com.university.ManageNotes.dto.Response.LoginResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.UserResponse;
+import com.university.ManageNotes.dto.Response.UserProfileResDto;
 import com.university.ManageNotes.exception.APIException;
 import com.university.ManageNotes.exception.ResourceNotFoundException;
 import com.university.ManageNotes.model.*;
@@ -13,7 +14,6 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.security.JwtUtils;
 import com.university.ManageNotes.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -96,6 +96,9 @@ public class AuthServiceImpl implements AuthService{
     private MessageResponse registerStudent(SignupRequest request, Roles role) {
         if (request.getMatricule() == null || request.getMatricule().trim().isEmpty()) {
             throw new APIException("Matricule is required for student registration");
+        }
+        if (studentRepository.existsByMatricule(request.getMatricule())) {
+            throw new APIException("Matricule already exists: " + request.getMatricule());
         }
         
         TeachingLevel level;
@@ -255,6 +258,21 @@ public class AuthServiceImpl implements AuthService{
         userResponse.setRole(admin.getRole());
         userResponse.setIsActive(admin.getIsActive());
         return userResponse;
+    }
+
+    @Override
+    public UserProfileResDto getProfileByUsername(String username) {
+        Users user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        
+        UserProfileResDto profile = new UserProfileResDto();
+        profile.setId(user.getId());
+        profile.setFirstName(user.getFirstName());
+        profile.setLastName(user.getLastName());
+        profile.setEmail(user.getEmail());
+        profile.setUsername(user.getUsername());
+        profile.setRole(user.getRole().getAppRole().name());
+        return profile;
     }
 
     @Override

@@ -5,7 +5,7 @@ import { DrawerSidebarContext, PageTitleContext } from "../contexts";
 import next from "../images/next.png";
 import back from "../images/back.png";
 import UserIcon from "@heroicons/react/24/solid/esm/UserIcon";
-import { store } from "../store";
+import { useAppSelector } from "../store";
 import { Link, useLocation } from "react-router";
 
 interface Props {
@@ -25,7 +25,7 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
         licence1: "Licence 1",
       };
       return {
-        title: <Link to={url}>{labelMap[segment] || segment}</Link>,
+        title: <Link to={url} className="hover:underline text-[var(--text-secondary)]">{labelMap[segment] || segment}</Link>,
       };
     }),
   ];
@@ -33,7 +33,7 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
   const { toggleSidebar, isSidebarOpen } = useContext(DrawerSidebarContext);
   const { pageTitle } = useContext(PageTitleContext);
 
-  const userInfo = store.getState().user.profile;
+  const userInfo = useAppSelector((state) => state.user.profile);
 
   const onDisconnect = () => {
     disconnect();
@@ -45,25 +45,19 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
       key: "0",
     },
     {
-      label: <button onClick={onDisconnect}>{"Deconnexion"}</button>,
+      label: <button onClick={onDisconnect}>{"Logout"}</button>,
       key: "1",
     },
   ];
 
   return (
-    <header
-      className={
-        "h-[50px] bg-inherit border-b border-gray-200 flex justify-between items-center px-4 bg-primary"
-      }
-    >
-      <div className="flex items-center gap-2">
+    <header className="h-[60px] border-b border-[var(--border-color)] bg-white/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-6">
+      <div className="flex items-center gap-4">
         <Button
           onClick={() => toggleSidebar?.()}
           type="text"
           shape="circle"
-          className={
-            "bg-slate-100 dark:bg-primary dark:text-slate-100 text-slate-500 hover:text-slate-600"
-          }
+          className="hover:rotate-180 transition-transform duration-300"
           icon={
             isSidebarOpen ? (
               <img src={back} alt={"back"} width={15} />
@@ -72,38 +66,37 @@ export const DashboardHeader = ({ onDisconnect: disconnect }: Props) => {
             )
           }
         />
-        <Breadcrumb items={BItems} separator=">" />
+        <div className="hidden md:block">
+          <span className="text-base font-semibold text-[var(--text-primary)]">ManageNotes</span>
+        </div>
+        <Breadcrumb items={BItems} separator=">" className="hidden lg:block" />
       </div>
-      <div>
-        <h2
-          className={
-            "font-semibold sub-title tracking-wider uppercase text-white md:text-xl line-clamp-1"
-          }
-        >
+      <div className="flex-1 flex justify-center">
+        <span className="font-semibold text-sm md:text-base text-[var(--text-primary)] line-clamp-1">
           {pageTitle && pageTitle}
-        </h2>
+        </span>
       </div>
 
-      <div className={"flex gap-5 relative items-center"}>
+      <div className="flex gap-3 items-center">
         <Dropdown
-          placement={"bottomRight"}
-          className={"relative"}
+          placement="bottomRight"
+          className="relative"
           menu={{ items }}
           trigger={["hover"]}
         >
           <Button type="default" shape="circle">
             <Badge count={2} size="small">
-              <UserIcon width={24} className="text-gray-500" />
+              <UserIcon width={24} />
             </Badge>
           </Button>
         </Dropdown>
-        <div className="hidden lg:block text-white lg:mr-24">
+        <div className="hidden xl:block">
           <div className="flex flex-col text-xs">
-            <div className="font-bold flex gap-1 text-md">
+            <div className="font-semibold flex gap-1 text-sm text-[var(--text-primary)]">
               <span>{userInfo.firstName}</span>
               <span>{userInfo.lastName}</span>
             </div>
-            {userInfo.role}
+            <span className="text-xs text-[var(--text-tertiary)]">{userInfo.role}</span>
           </div>
         </div>
       </div>

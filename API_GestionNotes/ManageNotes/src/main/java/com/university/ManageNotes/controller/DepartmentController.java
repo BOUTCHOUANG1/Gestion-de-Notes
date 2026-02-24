@@ -25,7 +25,7 @@ public class DepartmentController {
 
     @PostMapping("/admin/department")
     @Operation(summary = "Create department context", description = "This endpoint is used to create a new department.")
-    public ResponseEntity<DepartmentRequest> createDepartement(@RequestBody DepartmentRequest request) {
+    public ResponseEntity<DepartmentResponse> createDepartement(@RequestBody DepartmentRequest request) {
         return new ResponseEntity<>(departmentService.createDepartment(request),
                 HttpStatus.CREATED);
     }
@@ -49,16 +49,16 @@ public class DepartmentController {
 
     @PutMapping("/admin/department/{departmentId}")
     @Operation(summary = "Update a department information", description = "This endpoint update the department from a departmentId")
-    public ResponseEntity<DepartmentRequest> updateDepartment(@Valid @RequestBody DepartmentRequest departmentRequest,
+    public ResponseEntity<DepartmentResponse> updateDepartment(@Valid @RequestBody DepartmentRequest departmentRequest,
                                                           @PathVariable Long departmentId) {
-        DepartmentRequest savedDepartement = departmentService.updateDepartment(departmentRequest, departmentId);
+        DepartmentResponse savedDepartement = departmentService.updateDepartment(departmentRequest, departmentId);
         return new ResponseEntity<>(savedDepartement, HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/department/{departmentId}")
     @Operation(summary = "Delete a department information", description = "This endpoint delete the department from a departmentId")
-    public ResponseEntity<DepartmentRequest> deleteDepartment(@PathVariable Long departmentId){
-        DepartmentRequest deletedDepartment = departmentService.deleteDepartment(departmentId);
+    public ResponseEntity<DepartmentResponse> deleteDepartment(@PathVariable Long departmentId){
+        DepartmentResponse deletedDepartment = departmentService.deleteDepartment(departmentId);
         return new ResponseEntity<>(deletedDepartment, HttpStatus.OK);
     }
 }

@@ -34,7 +34,7 @@ export const Stepper = ({
                     className={`bg-secondary h-[2.8px] ${!horizontal && 'lg:w-8'}`}
                     label={
                         <div>
-              <span className="font-bold lg:hidden">{`${
+              <span className="font-semibold lg:hidden">{`${
                   currentStepIndex + 1
               } / ${stepItems.length}`}</span>
                             <p>{` ${stepItem.label}`}</p>

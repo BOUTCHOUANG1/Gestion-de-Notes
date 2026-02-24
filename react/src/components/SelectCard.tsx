@@ -21,7 +21,7 @@ export const SelectCard = ({
         <div className="relative">
             {isActive && (
                 <div
-                    className={`${IconClassName} absolute right-[-6px] top-[-7px] w-5 h-5 rounded-full border-[1.9px] border-white bg-secondary`}
+                    className={`${IconClassName} absolute right-[-6px] top-[-7px] w-5 h-5 rounded-full border-[1.9px] border-[var(--bg-card)] bg-[var(--accent)]`}
                 />
             )}
             <button
@@ -29,7 +29,7 @@ export const SelectCard = ({
                 type={htmlType}
                 className={`cursor-pointer w-full text-left lg:mb-7 ${
                     isActive
-                        ? `${activeClassName} border-2 rounded-md border-secondary dark:border-white bg-primary text-white`
+                        ? `${activeClassName} border-2 rounded-md border-[var(--accent)] bg-[var(--accent-light)] text-[var(--accent)]`
                         : `${className}`
                 }
         }`}

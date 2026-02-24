@@ -28,15 +28,15 @@ public class RevendicationPeriodController {
 
     @PostMapping("/admin/revendication-period")
     @Operation(summary = "Create a new revendication period", description = "This endpoint allows the admin to define the period through which revendications are evalued")
-    public ResponseEntity<RevendicationPeriodRequest> createRevendicatioPeriod(@Valid @RequestBody RevendicationPeriodRequest request) {
-        return new ResponseEntity<>(revendicationPeriodService.createPeriod(request), HttpStatus.CREATED);
-    }
+    public ResponseEntity<RevendicationPeriodResponse> createRevendicatioPeriod(@Valid @RequestBody RevendicationPeriodRequest request) {
+         return new ResponseEntity<>(revendicationPeriodService.createPeriod(request), HttpStatus.CREATED);
+     }
 
     @PutMapping("/admin/revendication-period/{id}")
     @Operation(summary = "Update a revendication period", description = "This endpoint allows the admin to update the period through which revendications are evaluated")
-    public ResponseEntity<RevendicationPeriodRequest> updateRevendicationPeriod(@PathVariable Long id, @Valid @RequestBody RevendicationPeriodRequest request) {
-        return new ResponseEntity<>(revendicationPeriodService.updatePeriod(id, request), HttpStatus.OK);
-    }
+    public ResponseEntity<RevendicationPeriodResponse> updateRevendicationPeriod(@PathVariable Long id, @Valid @RequestBody RevendicationPeriodRequest request) {
+         return new ResponseEntity<>(revendicationPeriodService.updatePeriod(id, request), HttpStatus.OK);
+     }
 
     @DeleteMapping("/admin/revendication-period/{id}")
     @Operation(summary = "Delete a revendication period", description = "This endpoint allows the admin to delete a period through which revendications are evaluated")

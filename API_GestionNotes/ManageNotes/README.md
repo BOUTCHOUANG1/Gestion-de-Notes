@@ -121,12 +121,12 @@ Users (id, username, password, appRole, email, first_name, last_name)
   },
   "teacher": {
     "username": "prof.johnson",
-    "password": "teacher123",
+    "password": "duchelle",
     "appRole": "TEACHER"
   },
   "student": {
     "username": "STU2024001",
-    "password": "student123",
+    "password": "nathan",
     "appRole": "STUDENT"
   }
 }

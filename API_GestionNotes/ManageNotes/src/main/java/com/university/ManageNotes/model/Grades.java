@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -26,10 +28,12 @@ public class Grades{
     private Long gradeId;
 
     private Double ccScore;
+
+    private Double tpScore;
     
     private Double snScore;
     
-    // Calculated field - total score on 100
+    // Calculated field - total score on /20
     private Double totalScore;
 
     private String comments;
@@ -70,8 +74,9 @@ public class Grades{
 
     private Double gpa;
 
-    public Grades(Double ccScore, Double snScore, Student student, Subject subject, String comments, Teacher examiner, Semester semester, Exam exam) {
+    public Grades(Double ccScore, Double tpScore, Double snScore, Student student, Subject subject, String comments, Teacher examiner, Semester semester, Exam exam) {
         this.ccScore = ccScore;
+        this.tpScore = tpScore;
         this.snScore = snScore;
         this.student = student;
         this.subject = subject;
@@ -79,6 +84,6 @@ public class Grades{
         this.examiner = examiner;
         this.semester = semester;
         this.exam = exam;
-        this.totalScore = GradeCalculator.calculateSubjectTotal(ccScore, snScore);
+        this.totalScore = GradeCalculator.calculateSubjectTotal(ccScore, tpScore, snScore);
     }
 }

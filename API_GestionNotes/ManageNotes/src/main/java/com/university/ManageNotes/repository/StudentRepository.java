@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByMatricule(String matricule);
+    boolean existsByMatricule(String matricule);
 
     Optional<Student> findById(Long studentId);
     
@@ -21,4 +22,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     
     @Query("SELECT s FROM Student s WHERE s.studentLevel.studentLevel = :level")
     List<Student> findByStudentLevelEnum(@Param("level") StudentLevel level);
+    
+    @Query("SELECT s.studentLevel.studentLevel, COUNT(s) FROM Student s GROUP BY s.studentLevel.studentLevel")
+    List<Object[]> countByLevel();
 }

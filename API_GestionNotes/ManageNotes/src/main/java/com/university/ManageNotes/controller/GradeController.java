@@ -1,6 +1,7 @@
 package com.university.ManageNotes.controller;
 
 import com.university.ManageNotes.dto.Request.GradeRequest;
+import com.university.ManageNotes.dto.Response.GradeResponse;
 import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,13 +24,13 @@ public class GradeController {
 
     @PostMapping("/teacher/grade")
     @Operation(summary = "Create new grade", description = "Create a new grade entry (Teacher/Admin only)")
-    public ResponseEntity<GradeRequest> createGrade(@Valid @RequestBody GradeRequest gradeRequest) {
+    public ResponseEntity<GradeResponse> createGrade(@Valid @RequestBody GradeRequest gradeRequest) {
         return new ResponseEntity<>(gradeService.createGrade(gradeRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/teacher/grade/{gradeId}")
     @Operation(summary = "Update grade", description = "Update an existing grade (Teacher/Admin only)")
-    public ResponseEntity<GradeRequest> updateGrade(
+    public ResponseEntity<GradeResponse> updateGrade(
             @PathVariable Long gradeId,
             @Valid @RequestBody GradeRequest updateRequest) {
         return new ResponseEntity<>(gradeService.updateGrade(gradeId, updateRequest), HttpStatus.OK);

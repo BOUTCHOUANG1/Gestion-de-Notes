@@ -12,8 +12,8 @@ import com.university.ManageNotes.repository.*;
 import com.university.ManageNotes.service.RevendicationPeriodService;
 import com.university.ManageNotes.service.RevendicationService;
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
+import com.university.ManageNotes.mapper.RevendicationMapper;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,54 +42,65 @@ public class RevendicationServiceImpl implements RevendicationService {
     private final SemesterRepository semesterRepository;
     private final ExamRepository examRepository;
     private final RevendicationPeriodService revendicationPeriodService;
-    private final ModelMapper modelMapper;
+    private final RevendicationMapper revendicationMapper;
 
     @Override
     @Transactional
-    public RevendicationRequest createRevendication(RevendicationRequest request) {
-        // Map DTO to Entity
-        Revendication revendication = modelMapper.map(request, Revendication.class);
-        
-        // Get current student
-        Student currentStudent = getCurrentStudent();
-        
-        // Get entities
-        Grades grade = gradeRepository.findById(request.getGrade().getGradeId())
-            .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGrade().getGradeId()));
-            
-        Exam exam = examRepository.findById(request.getPeriod().getExamPeriodId())
-            .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getPeriod().getExamPeriodId()));
-        
-        // Validate student owns this grade
-        if (!grade.getStudent().getId().equals(currentStudent.getId())) {
-            throw new APIException("You can only create revendications for your own grades");
-        }
-        
-        // Get active semester
-        Semester activeSemester = getActiveSemester();
-        
-        // Check if revendication period is open
-        if (!revendicationPeriodService.isPeriodOpen(activeSemester.getSemesterId(), exam)) {
-            throw new APIException("Revendication period is closed for " + exam.getAssessmentType());
-        }
-        
-        // Check for duplicate revendication
-        if (revendicationRepository.existsByStudentAndGradeAndStatus(currentStudent, grade, RequestStatus.PENDING)) {
-            throw new APIException("You already have a pending revendication for this grade");
-        }
-        
-        // Set relationships
-        revendication.setStudent(currentStudent);
-        revendication.setGrade(grade);
-        revendication.setPeriod(exam);
-        revendication.setSemester(activeSemester);
-        revendication.setStatus(RequestStatus.PENDING);
-        revendication.setTeacherComment("Pending review");
-        
-        // Save and map back to DTO
-        Revendication savedRevendication = revendicationRepository.save(revendication);
-        return modelMapper.map(savedRevendication, RevendicationRequest.class);
-    }
+    public RevendicationResponse createRevendication(RevendicationRequest request, MultipartFile proofFile) {
+         Student currentStudent = getCurrentStudent();
+         
+         Grades grade = gradeRepository.findById(request.getGradeId())
+             .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGradeId()));
+             
+         Exam exam = examRepository.findById(request.getExamPeriodId())
+             .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamPeriodId()));
+         
+         Revendication revendication = new Revendication();
+         
+         if (!grade.getStudent().getId().equals(currentStudent.getId())) {
+             throw new APIException("You can only create revendications for your own grades");
+         }
+         
+         Semester activeSemester = getActiveSemester();
+         
+         if (!revendicationPeriodService.isPeriodOpen(activeSemester.getSemesterId(), exam)) {
+             throw new APIException("Revendication period is closed for " + exam.getAssessmentType());
+         }
+         
+         if (revendicationRepository.existsByStudentAndGradeAndStatus(currentStudent, grade, RequestStatus.PENDING)) {
+             throw new APIException("You already have a pending revendication for this grade");
+         }
+         
+         revendication.setStudent(currentStudent);
+         revendication.setGrade(grade);
+         revendication.setPeriod(exam);
+         revendication.setSemester(activeSemester);
+         revendication.setRequestedScore(request.getRequestedScore());
+         revendication.setDescription(request.getDescription());
+         revendication.setStatus(RequestStatus.PENDING);
+         revendication.setTeacherComment("Pending review");
+         
+         // Save proof image if provided
+         if (proofFile != null && !proofFile.isEmpty()) {
+             String contentType = proofFile.getContentType();
+             if (contentType == null || !contentType.startsWith("image/")) {
+                 throw new APIException("Only image files (JPEG, PNG) are accepted as proof");
+             }
+             try {
+                 Path uploadDir = Paths.get("uploads/proofs");
+                 Files.createDirectories(uploadDir);
+                 String filename = UUID.randomUUID() + "_" + proofFile.getOriginalFilename();
+                 Path filePath = uploadDir.resolve(filename);
+                 Files.copy(proofFile.getInputStream(), filePath);
+                 revendication.setProofImagePath(filePath.toString());
+             } catch (IOException e) {
+                 throw new APIException("Failed to save proof image: " + e.getMessage());
+             }
+         }
+         
+         Revendication savedRevendication = revendicationRepository.save(revendication);
+         return revendicationMapper.toRevendicationResponse(savedRevendication);
+     }
 
     @Override
     public List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -102,7 +119,7 @@ public class RevendicationServiceImpl implements RevendicationService {
         List<Revendication> revendications = revendicationPage.getContent();
 
         return revendications.stream()
-                .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
+                .map(revendicationMapper::toRevendicationResponse)
                 .collect(Collectors.toList());
     }
 
@@ -192,7 +209,22 @@ public class RevendicationServiceImpl implements RevendicationService {
         
         // Map to response DTOs
         return revendications.stream()
-            .map(rev -> modelMapper.map(rev, RevendicationResponse.class))
+            .map(revendicationMapper::toRevendicationResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevendicationResponse> getMyRevendications() {
+        Student student = getCurrentStudent();
+        return revendicationRepository.findByStudentOrderByCreatedDateDesc(student).stream()
+            .map(revendicationMapper::toRevendicationResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevendicationResponse> getAllRevendications() {
+        return revendicationRepository.findAll().stream()
+            .map(revendicationMapper::toRevendicationResponse)
             .collect(Collectors.toList());
     }
 
@@ -209,8 +241,8 @@ public class RevendicationServiceImpl implements RevendicationService {
     private Teacher getCurrentTeacher() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
-            return teacherRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new APIException("Teacher not found"));
+            return teacherRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new APIException("Teacher not found for user: " + userDetails.getUsername()));
         }
         throw new APIException("No authenticated teacher");
     }

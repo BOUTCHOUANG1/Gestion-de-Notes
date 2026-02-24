@@ -4,14 +4,11 @@ import {useContext} from "react";
 import {StepperContext} from "../../../../contexts";
 import {IdentificationInfoDataType, RegisterContext} from "../context";
 import {Role} from "../../../../api/enums";
-// import {useAppDispatch} from "../../../../store";
-// import {navigateTo} from "../../../navigation";
 
 export const IdentificationForm =()=>{
 
     const { handlePrev } = useContext(StepperContext);
     const { setIdentificationInfo , register , role , personalInfo, identificationInfo ,isRegisterLoading } = useContext(RegisterContext)
-    //const dispatch = useAppDispatch()
 
     const levels = [
         {
@@ -41,8 +38,6 @@ export const IdentificationForm =()=>{
             role,
             ...identificationInfo
         })
-        // dispatch(navigateTo('/auth'))
-        // resetForm?.()
 
     }
 
@@ -54,22 +49,22 @@ export const IdentificationForm =()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder="Entrez votre nom d'utilisateur"/>
+                <Input size={'large'} placeholder="Enter your username"/>
             </Form.Item>
             <Form.Item
                 name="email"
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Entrez votre email'/>
+                <Input size={'large'} placeholder='Enter your email'/>
             </Form.Item>
             {
                 (role === Role.ADMIN || role === Role.TEACHER) && (
@@ -78,11 +73,11 @@ export const IdentificationForm =()=>{
                         rules={[
                             {
                                 required: true,
-                                message: 'Champ obligatoire',
+                                message: 'Required field',
                             },
                         ]}
                     >
-                        <Input size={'large'} placeholder='Entrez votre cle'/>
+                        <Input size={'large'} placeholder='Enter your key'/>
                     </Form.Item>
                 )
             }
@@ -94,29 +89,29 @@ export const IdentificationForm =()=>{
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Entrez votre classe'/>
+                            <Input size={'large'} placeholder='Enter your level'/>
                         </Form.Item>
                         <Form.Item
                             name="speciality"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
-                            <Input size={'large'} placeholder='Entrez votre filiaire'/>
+                            <Input size={'large'} placeholder='Enter your program'/>
                         </Form.Item>
                         <Form.Item
                             name="cycle"
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Champ obligatoire',
+                                    message: 'Required field',
                                 },
                             ]}
                         >
@@ -124,7 +119,7 @@ export const IdentificationForm =()=>{
                                 size={'large'}
                                 aria-label="mfaChannel"
                                 options={levels}
-                                placeholder={'Selectionnez votre cycle'}
+                                placeholder={'Select your cycle'}
                             />
                         </Form.Item>
                     </>
@@ -136,14 +131,14 @@ export const IdentificationForm =()=>{
             <PasswordInputFormItem/>
             <div className={'w-full flex justify-between gap-6 mt-10'}>
                 <AppButton
-                    className={'w-full'}
-                    label={'Precedent'}
+                    className={'btn-filled w-full'}
+                    label={'Previous'}
                     onClick={handlePrev}
                 />
                 <AppButton
                     htmlType={'submit'}
-                    className={'w-full'}
-                    label={'Suivant'}
+                    className={'btn-filled w-full'}
+                    label={'Next'}
                     loading={isRegisterLoading}
                 />
             </div>

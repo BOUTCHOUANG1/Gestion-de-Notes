@@ -31,15 +31,15 @@ public class SemesterController {
 
     @PostMapping("/admin/semester")
     @Operation(summary = "Create new semester", description = "Create a new semester with the provided details")
-    public ResponseEntity<SemesterRequest> createSemester(@Valid @RequestBody SemesterRequest request) {
-        return new ResponseEntity<>(semesterService.createSemester(request), HttpStatus.CREATED);
-    }
+    public ResponseEntity<SemesterResponse> createSemester(@Valid @RequestBody SemesterRequest request) {
+         return new ResponseEntity<>(semesterService.createSemester(request), HttpStatus.CREATED);
+     }
 
     @PutMapping("/admin/semester/{id}")
     @Operation(summary = "Update semester", description = "Update the details of a semester with the provided ID")
-    public ResponseEntity<SemesterRequest> updateSemester(@PathVariable Long id, @Valid @RequestBody SemesterRequest request) {
-        return new ResponseEntity<>(semesterService.updateSemester(id, request), HttpStatus.OK);
-    }
+    public ResponseEntity<SemesterResponse> updateSemester(@PathVariable Long id, @Valid @RequestBody SemesterRequest request) {
+         return new ResponseEntity<>(semesterService.updateSemester(id, request), HttpStatus.OK);
+     }
 
     @DeleteMapping("/admin/semester/{id}")
     @Operation(summary = "Delete semester", description = "Delete the semester with the provided ID")

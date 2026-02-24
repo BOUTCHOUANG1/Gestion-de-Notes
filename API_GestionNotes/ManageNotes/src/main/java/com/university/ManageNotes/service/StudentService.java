@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface StudentService {
     @Transactional
-    StudentRequest updateStudent(Long studentId, StudentRequest request);
+    StudentResponse updateStudent(Long studentId, StudentRequest request);
 
     StudentResponse studentProfile(Authentication authentication);
 

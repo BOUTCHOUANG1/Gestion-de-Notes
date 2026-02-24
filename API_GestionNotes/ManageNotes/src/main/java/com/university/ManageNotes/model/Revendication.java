@@ -4,9 +4,11 @@ import com.university.ManageNotes.model.enums.RequestStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
@@ -17,6 +19,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "revendication")
+@EntityListeners(AuditingEntityListener.class)
 public class Revendication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +43,7 @@ public class Revendication {
 
     @Column(name = "requested_score", nullable = false)
     @Min(value = 0, message = "Requested score must be greater than or equal to 0")
-    @NotBlank(message = "Requested score is required")
+    @NotNull(message = "Requested score is required")
     private Double requestedScore;
 
     @Column(columnDefinition = "TEXT")
@@ -50,6 +53,9 @@ public class Revendication {
     @Column(name = "teacher_comment", columnDefinition = "TEXT")
     @NotBlank(message = "Teacher comment is required")
     private String teacherComment = "Pending review";
+
+    @Column(name = "proof_image_path")
+    private String proofImagePath;
 
     @Enumerated(EnumType.STRING)
     private RequestStatus status = RequestStatus.PENDING;

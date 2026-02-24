@@ -23,7 +23,7 @@ export const DashboardLayout = ({
         width={300}
         placement={"left"}
         closable={false}
-        rootClassName={"lg:hidden "}
+        rootClassName={"lg:hidden"}
         classNames={{
           body: "!p-0 mobile-drawer",
         }}
@@ -35,7 +35,7 @@ export const DashboardLayout = ({
       </Drawer>
       <div className="dashboard-layout">
         <aside
-          className={`hidden my-4  lg:grid grid-rows-[auto_1fr_auto] overflow-hidden duration-300 ease-in-out transition-all`}
+          className={`sidebar-container hidden my-4 lg:grid grid-rows-[auto_1fr_auto] overflow-hidden duration-300 ease-in-out transition-all`}
           style={{ width: sidebarWidth }}
         >
           {sidebarView}

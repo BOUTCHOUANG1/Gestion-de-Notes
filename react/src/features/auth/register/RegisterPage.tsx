@@ -6,12 +6,12 @@ export const RegisterPage = ()=>{
     return (
         <RegisterCtxProvider>
             <div>
-                <p className={'text-center text-2xl mb-3'}>Inscrivez-vous!</p>
+                <p className="text-center text-2xl md:text-3xl font-semibold mb-6">Sign Up!</p>
                 <RegisterStepper isHorizontal/>
             </div>
-            <div className={'flex items-center justify-between text-gray-400 '}>
-                <p>Vous avez deja un compte ?</p>
-                <Link to={'/auth/login'} className={'text-primary'}>Se connecter</Link>
+            <div className={'flex items-center justify-between mt-5'}>
+                <p>Already have an account?</p>
+                <Link to={'/auth/login'} className="font-sans hover:underline">Sign In</Link>
             </div>
         </RegisterCtxProvider>
     )

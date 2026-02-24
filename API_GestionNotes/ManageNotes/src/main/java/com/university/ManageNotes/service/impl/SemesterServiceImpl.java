@@ -8,7 +8,6 @@ import com.university.ManageNotes.model.Semester;
 import com.university.ManageNotes.repository.SemesterRepository;
 import com.university.ManageNotes.service.SemesterService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class SemesterServiceImpl implements SemesterService {
 
     private final SemesterRepository semesterRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public List<SemesterResponse> getAllSemesters() {
@@ -42,83 +40,78 @@ public class SemesterServiceImpl implements SemesterService {
 
     @Override
     @Transactional
-    public SemesterRequest createSemester(SemesterRequest request) {
-        // Map DTO to Entity
-        Semester semester = new Semester();
-        semester.setName(request.getName());
-        semester.setStartDate(request.getStartDate());
-        semester.setEndDate(request.getEndDate());
-        semester.setActive(request.getActive() != null ? request.getActive() : false);
-        
-        // Validate semester name uniqueness
-        if (semesterRepository.existsByName(request.getName())) {
-            throw new APIException("Semester with name '" + request.getName() + "' already exists");
-        }
-        
-        // Validate dates
-        if (request.getStartDate().isAfter(request.getEndDate())) {
-            throw new APIException("Start date cannot be after end date");
-        }
-        
-        // Business rule: Only one active semester at a time
-        if (request.getActive() != null && request.getActive()) {
-            semesterRepository.findByActiveTrue().ifPresent(activeSemester -> {
-                throw new APIException("Another semester is already active. Deactivate it first.");
-            });
-        }
-        
-        // Validate maximum 2 semesters per academic year
-        validateMaxSemestersPerYear(request.getStartDate());
-        
-        // Save entity and map to request DTO
-        Semester savedSemester = semesterRepository.save(semester);
-        return mapToRequest(savedSemester);
-    }
+    public SemesterResponse createSemester(SemesterRequest request) {
+         // Map DTO to Entity
+         Semester semester = new Semester();
+         semester.setName(request.getName());
+         semester.setStartDate(request.getStartDate());
+         semester.setEndDate(request.getEndDate());
+         semester.setActive(request.getActive() != null ? request.getActive() : false);
+         
+         // Validate semester name uniqueness
+         if (semesterRepository.existsByName(request.getName())) {
+             throw new APIException("Semester with name '" + request.getName() + "' already exists");
+         }
+         
+         // Validate dates
+         if (request.getStartDate().isAfter(request.getEndDate())) {
+             throw new APIException("Start date cannot be after end date");
+         }
+         
+         // Business rule: Only one active semester at a time
+         if (request.getActive() != null && request.getActive()) {
+             semesterRepository.findByActiveTrue().ifPresent(activeSemester -> {
+                 throw new APIException("Another semester is already active. Deactivate it first.");
+             });
+         }
+         
+         // Validate maximum 2 semesters per academic year
+         validateMaxSemestersPerYear(request.getStartDate());
+         
+         // Save entity and map to response DTO
+         Semester savedSemester = semesterRepository.save(semester);
+         return mapToResponse(savedSemester);
+     }
 
     @Override
     @Transactional
-    public SemesterRequest updateSemester(Long id, SemesterRequest request) {
-        Semester existingSemester = semesterRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", id));
-        
-        // Update fields
-        if (request.getName() != null && !request.getName().equals(existingSemester.getName())) {
-            if (semesterRepository.existsByName(request.getName())) {
-                throw new APIException("Semester with name '" + request.getName() + "' already exists");
-            }
-            existingSemester.setName(request.getName());
-        }
-        
-        if (request.getStartDate() != null) {
-            existingSemester.setStartDate(request.getStartDate());
-        }
-        
-        if (request.getEndDate() != null) {
-            existingSemester.setEndDate(request.getEndDate());
-        }
-        
-        // Validate dates
-        if (existingSemester.getStartDate().isAfter(existingSemester.getEndDate())) {
-            throw new APIException("Start date cannot be after end date");
-        }
-        
-        // Handle active status change
-        if (request.getActive() != null) {
-            if (request.getActive() && !existingSemester.getActive()) {
-                // Activating this semester - deactivate others
-                semesterRepository.findByActiveTrue().ifPresent(activeSemester -> {
-                    if (!activeSemester.getSemesterId().equals(id)) {
-                        throw new APIException("Another semester is already active. Deactivate it first.");
-                    }
-                });
-            }
-            existingSemester.setActive(request.getActive());
-        }
-        
-        // Save entity and map to request DTO
-        Semester updatedSemester = semesterRepository.save(existingSemester);
-        return mapToRequest(updatedSemester);
-    }
+    public SemesterResponse updateSemester(Long id, SemesterRequest request) {
+         Semester existingSemester = semesterRepository.findById(id)
+             .orElseThrow(() -> new ResourceNotFoundException("Semester", "id", id));
+         
+         if (request.getName() != null && !request.getName().equals(existingSemester.getName())) {
+             if (semesterRepository.existsByName(request.getName())) {
+                 throw new APIException("Semester with name '" + request.getName() + "' already exists");
+             }
+             existingSemester.setName(request.getName());
+         }
+         
+         if (request.getStartDate() != null) {
+             existingSemester.setStartDate(request.getStartDate());
+         }
+         
+         if (request.getEndDate() != null) {
+             existingSemester.setEndDate(request.getEndDate());
+         }
+         
+         if (existingSemester.getStartDate().isAfter(existingSemester.getEndDate())) {
+             throw new APIException("Start date cannot be after end date");
+         }
+         
+         if (request.getActive() != null) {
+             if (request.getActive() && !existingSemester.getActive()) {
+                 semesterRepository.findByActiveTrue().ifPresent(activeSemester -> {
+                     if (!activeSemester.getSemesterId().equals(id)) {
+                         throw new APIException("Another semester is already active. Deactivate it first.");
+                     }
+                 });
+             }
+             existingSemester.setActive(request.getActive());
+         }
+         
+         Semester updatedSemester = semesterRepository.save(existingSemester);
+         return mapToResponse(updatedSemester);
+     }
 
     @Override
     @Transactional

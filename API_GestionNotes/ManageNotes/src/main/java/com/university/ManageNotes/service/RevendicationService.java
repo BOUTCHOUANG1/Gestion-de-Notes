@@ -5,11 +5,13 @@ import com.university.ManageNotes.dto.Response.MessageResponse;
 import com.university.ManageNotes.dto.Response.RevendicationPeriodResponse;
 import com.university.ManageNotes.dto.Response.RevendicationResponse;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface RevendicationService {
     
-    RevendicationRequest createRevendication(RevendicationRequest req);
+    RevendicationResponse createRevendication(RevendicationRequest req, MultipartFile proofFile);
     
     List<RevendicationResponse> getRevendicationForTeacher(Integer pageNumber,
                                                      Integer pageSize,
@@ -20,4 +22,8 @@ public interface RevendicationService {
     MessageResponse rejectRevendication(Long revendicationId, String reason);
 
     List<RevendicationResponse> getStudentRevendications(Long studentId);
+
+    List<RevendicationResponse> getMyRevendications();
+
+    List<RevendicationResponse> getAllRevendications();
 }

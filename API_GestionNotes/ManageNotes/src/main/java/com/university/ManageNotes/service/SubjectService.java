@@ -12,11 +12,11 @@ public interface SubjectService {
                                    Integer pageSize,
                                    String sortBy, String sortOrder);
 
-    SubjectRequest createSubject(SubjectRequest request);
+    SubjectResponse createSubject(SubjectRequest request);
 
-    SubjectRequest updateSubject(Long id, SubjectRequest request);
+    SubjectResponse updateSubject(Long id, SubjectRequest request);
 
-    SubjectRequest deleteSubject(Long id);
+    SubjectResponse deleteSubject(Long id);
 
     List<SubjectResponse> getAllSubjectsByTeacher(Long teacherId,
                                             Integer pageNumber,

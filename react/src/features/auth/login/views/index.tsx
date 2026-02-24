@@ -1,15 +1,13 @@
 import {Form, Input} from "antd";
 import {AppButton, PasswordInputFormItem} from "../../../../components";
-import {processLogin} from "../../actions.ts";
 import {useState} from "react";
-import {useAppDispatch} from "../../../../store";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../../api/authApi";
 
 
 export const LoginForm = ()=>{
-
-    const dispatch = useAppDispatch();
-
+    
+    const [login, { isLoading }] = useLoginMutation();
     const navigate = useNavigate();
 
     type SubmissionForm = {
@@ -24,16 +22,19 @@ export const LoginForm = ()=>{
                                 password,
                             }: SubmissionForm) => {
         setIsProcessing(true);
-        await dispatch(
-            processLogin({
-                req: {
-                    username,
-                    password,
-                },
-            })
-        );
-        setIsProcessing(false)
-        navigate('/dashboard');
+        try {
+            const data = await login({ username, password }).unwrap();
+            if (data.role === 'ADMIN') {
+                navigate('/dashboard/admin/dashboard');
+            } else if (data.role === 'TEACHER') {
+                navigate('/dashboard/teacher-dashboard');
+            } else {
+                navigate('/dashboard/overview');
+            }
+        } catch {
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
 
@@ -44,18 +45,24 @@ export const LoginForm = ()=>{
                 rules={[
                     {
                         required: true,
-                        message: 'Champ obligatoire',
+                        message: 'Required field',
                     },
                 ]}
             >
-                <Input size={'large'} placeholder='Entrez votre nom'/>
+                <Input 
+                    id="login_username" 
+                    size={'large'} 
+                    placeholder='Enter your username'
+                />
             </Form.Item>
             <PasswordInputFormItem/>
             <AppButton
                 htmlType={'submit'}
-                loading={isProcessing}
-                className={'w-full'}
-                label={'Se connecter'}
+                data-testid="login-submit"
+                loading={isProcessing || isLoading}
+                className={'btn-filled w-full mt-4'}
+                size={'large'}
+                label={'Sign In'}
             />
         </Form>
 

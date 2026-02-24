@@ -12,7 +12,7 @@ export const EditPvButton = ({setIsTableEditable , onEdit} : {setIsTableEditable
   return (
     <Button
       onClick={onClick}
-      icon={<PencilSquareIcon width={20} className="text-white" />}
+      icon={<PencilSquareIcon width={20} />}
     >
       Editer le PV
     </Button>

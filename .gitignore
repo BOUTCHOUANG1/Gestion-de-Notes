@@ -29,3 +29,12 @@ node_modules/
 
 # Keep springBoot/ out (duplicate module to be removed in Phase 2)
 springBoot/
+react/playwright-report/
+react/test-results/
+
+# Screenshots (design audit artifacts)
+*.png
+*.jpeg
+
+# Session notes
+session-*.md

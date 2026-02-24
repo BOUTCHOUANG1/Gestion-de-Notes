@@ -13,4 +13,6 @@ public interface SemesterRepository extends JpaRepository<Semester, Long> {
     Optional<Semester> findByActiveTrue();
     
     Optional<Semester> findByName(String name);
+    
+    Long countByActiveTrue();
 }

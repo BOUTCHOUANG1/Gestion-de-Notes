@@ -2,6 +2,7 @@ package com.university.ManageNotes.security;
 
 import com.university.ManageNotes.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ public class JwtUtils {
     @Value("${app.jwtSecret}")
     private String jwtSecret;
 
+    @Value("${app.jwtSecretAlgorithm:HS256}")
+    private String jwtAlgorithm;
+
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
@@ -40,8 +44,9 @@ public class JwtUtils {
     }
 
     private Key key() {
-        // JWT secret is Base64-encoded in .env, use it directly
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        // JWT secret is Base64-encoded in env; decode safely
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String getUserNameFromJwtToken(String token) {

@@ -11,9 +11,17 @@ export interface RegisterReqDto {
     password: string;
     firstName: string;
     lastName: string;
-    phone: string;
-    role: Role ;
-    registrationKey: string;
-    level : string;
+    phone?: string;
+    role: Role;
+    // Student fields
+    matricule?: string;
+    levelId?: number;
+    speciality?: string;
+    cycle?: string;
+    dateOfBirth?: string;
+    placeOfBirth?: string;
+    // Teacher fields
+    levelIds?: number[];
+    departmentId?: number;
+    subjectIds?: number[];
 }
-

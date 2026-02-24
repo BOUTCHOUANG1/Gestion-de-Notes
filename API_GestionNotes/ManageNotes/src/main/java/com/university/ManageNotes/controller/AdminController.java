@@ -32,11 +32,11 @@ public class AdminController {
 
     @PutMapping("/admin/teacher/{id}")
     @Operation(summary = "Update Teacher information (Admin only)")
-    public ResponseEntity<TeacherRequest> updateTeacher(
-            @PathVariable Long id, 
-            @Valid @RequestBody TeacherRequest request) {
-        return new ResponseEntity<>(teacherService.updateTeacher(id, request), HttpStatus.OK);
-    }
+    public ResponseEntity<TeacherResponse> updateTeacher(
+             @PathVariable Long id, 
+             @Valid @RequestBody TeacherRequest request) {
+         return new ResponseEntity<>(teacherService.updateTeacher(id, request), HttpStatus.OK);
+     }
 
     @GetMapping("/admin/teachers")
     @Operation(summary = "Get all teachers (Admin only)", description = "Retrieve all teachers with pagination")

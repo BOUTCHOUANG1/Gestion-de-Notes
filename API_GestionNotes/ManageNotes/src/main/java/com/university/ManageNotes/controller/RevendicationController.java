@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,10 +25,18 @@ import java.util.List;
 public class RevendicationController {
     private final RevendicationService revendicationService;
 
-    @PostMapping("/student/revendication")
-    @Operation(summary = "Create grade revendication (Student)", description = "Student submits a grade revendication request")
-    public ResponseEntity<RevendicationRequest> createRevendication(@Valid @RequestBody RevendicationRequest request) {
-        return new ResponseEntity<>(revendicationService.createRevendication(request), HttpStatus.CREATED);
+    @PostMapping(value = "/student/revendication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create grade revendication (Student)", description = "Student submits a grade revendication request with optional proof image")
+    public ResponseEntity<RevendicationResponse> createRevendication(
+            @Valid @RequestPart("request") RevendicationRequest request,
+            @RequestPart(value = "proof", required = false) MultipartFile proofFile) {
+         return new ResponseEntity<>(revendicationService.createRevendication(request, proofFile), HttpStatus.CREATED);
+     }
+
+    @GetMapping("/student/revendications")
+    @Operation(summary = "Get my revendications (Student)", description = "Student views their own revendications")
+    public ResponseEntity<List<RevendicationResponse>> getMyRevendications() {
+        return new ResponseEntity<>(revendicationService.getMyRevendications(), HttpStatus.OK);
     }
 
     @GetMapping("/teacher/revendications")
@@ -53,5 +63,11 @@ public class RevendicationController {
             @PathVariable Long id,
             @RequestParam(required = false) String reason) {
         return new ResponseEntity<>(revendicationService.rejectRevendication(id, reason), HttpStatus.OK);
+    }
+
+    @GetMapping("/admin/revendications")
+    @Operation(summary = "Get all revendications (Admin)", description = "Admin views all revendications")
+    public ResponseEntity<List<RevendicationResponse>> getAllRevendications() {
+        return new ResponseEntity<>(revendicationService.getAllRevendications(), HttpStatus.OK);
     }
 }

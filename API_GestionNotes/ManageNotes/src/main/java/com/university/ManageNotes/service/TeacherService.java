@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface TeacherService {
 
-    TeacherRequest updateTeacher(Long teacherId, TeacherRequest request);
+    TeacherResponse updateTeacher(Long teacherId, TeacherRequest request);
 
     TeacherResponse teacherProfile(Authentication authentication);
 

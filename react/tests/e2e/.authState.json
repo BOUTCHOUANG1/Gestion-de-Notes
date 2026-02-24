@@ -1,0 +1,13 @@
+{
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "token",
+          "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc3MDA1NTU5OSwiZXhwIjoxNzcwMTQxOTk5fQ.AeulShfjpjpHIW7tfjaxbBlFPdASJ0WZQltIMSpnI64"
+        }
+      ]
+    }
+  ]
+}

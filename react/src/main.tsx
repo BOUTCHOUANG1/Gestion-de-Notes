@@ -4,18 +4,18 @@ import './index.css'
 import {App} from "./App.tsx";
 import {Provider} from "react-redux";
 import {store} from "./store";
-import {NotificationProvider, ThemeProvider} from "./contexts";
+import {NotificationProvider} from "./contexts";
+
+// Clean up legacy theme preference
+localStorage.removeItem('managenotes-theme');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <Provider store={store}>
           <NotificationProvider>
-              <ThemeProvider>
-                  <App />
-              </ThemeProvider>
+              <App />
           </NotificationProvider>
       </Provider>
   </StrictMode>,
 )
-
 
