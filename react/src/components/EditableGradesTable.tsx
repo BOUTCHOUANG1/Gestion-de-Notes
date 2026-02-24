@@ -68,12 +68,14 @@ export const EditableGradesTable = ({
     onGradesChange?.(newData);
   };
 
-  // Reusable editable grade cell
+  // Reusable editable grade cell — only editable if student has no existing grade
+  const hasGrade = (record: studentResDto) => !!(record as any)._gradeId;
+
   const gradeCol = (title: string, field: string) => ({
     title,
     dataIndex: field,
     render: (text: string, record: studentResDto) =>
-      isEditable ? (
+      isEditable && !hasGrade(record) ? (
         <Input
           type="number"
           min={0}
@@ -134,7 +136,7 @@ export const EditableGradesTable = ({
     ...extraColumns.map((col) => ({
       ...col,
       render: (text: string, record: studentResDto) =>
-        isEditable ? (
+        isEditable && !hasGrade(record) ? (
           <Input
             type="number"
             min={0}
