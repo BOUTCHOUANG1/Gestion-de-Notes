@@ -48,8 +48,7 @@ export const EditableGradesTable = ({
   saving,
   pvInfo,
 }: EditableGradesTableProps) => {
-  const [editingData, setEditingData] = useState(data);
-  const displayData = data !== undefined ? data : isEditable ? editingData : [];
+  const displayData = data || [];
 
   // Reusable editable grade cell
   const gradeCol = (title: string, field: string) => ({
@@ -66,10 +65,9 @@ export const EditableGradesTable = ({
           onChange={(e) => {
             const val = e.target.value;
             if (val !== "" && (Number(val) < 0 || Number(val) > 20)) return;
-            const newData = editingData.map((s) =>
+            const newData = displayData.map((s) =>
               s.id === record.id ? { ...s, [field]: val } : s
             );
-            setEditingData(newData);
             onGradesChange?.(newData);
           }}
           style={{ width: 70 }}
@@ -128,10 +126,9 @@ export const EditableGradesTable = ({
             max={20}
             value={(record[col.dataIndex] as string) || ""}
             onChange={(e) => {
-              const newData = editingData.map((s) =>
+              const newData = displayData.map((s) =>
                 s.id === record.id ? { ...s, [col.dataIndex]: e.target.value } : s
               );
-              setEditingData(newData);
               onGradesChange?.(newData);
             }}
             style={{ width: 70 }}
