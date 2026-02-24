@@ -179,14 +179,12 @@ export const StudentGradeClaimPage = () => {
     },
   ];
 
-  const gradeOptions = transcript?.semesters.flatMap(sem => 
-    sem.grades.map(grade => ({
-      value: grade.subjectCode,
-      label: `${grade.subjectName} (${grade.subjectCode}) - ${grade.grade}/20 - ${sem.semesterName}`,
-      grade: grade.grade,
-      subjectName: grade.subjectName,
-    }))
-  ) || [];
+  const gradeOptions = (transcript?.studentGrades || []).map(g => ({
+    value: g.subject?.subjectCode,
+    label: `${g.subject?.subjectName} (${g.subject?.subjectCode}) - ${g.totalScore}/20 - ${g.semester?.name}`,
+    grade: g.totalScore,
+    subjectName: g.subject?.subjectName,
+  }));
 
   const tabItems = [
     {

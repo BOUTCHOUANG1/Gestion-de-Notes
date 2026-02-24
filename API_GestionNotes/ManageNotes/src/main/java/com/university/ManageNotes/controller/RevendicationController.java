@@ -29,6 +29,12 @@ public class RevendicationController {
          return new ResponseEntity<>(revendicationService.createRevendication(request), HttpStatus.CREATED);
      }
 
+    @GetMapping("/student/revendications")
+    @Operation(summary = "Get my revendications (Student)", description = "Student views their own revendications")
+    public ResponseEntity<List<RevendicationResponse>> getMyRevendications() {
+        return new ResponseEntity<>(revendicationService.getMyRevendications(), HttpStatus.OK);
+    }
+
     @GetMapping("/teacher/revendications")
     @Operation(summary = "Get pending revendications (Teacher)", description = "Teacher views pending revendications for their subjects")
     public ResponseEntity<List<RevendicationResponse>> getRevendicationsForTeacher(

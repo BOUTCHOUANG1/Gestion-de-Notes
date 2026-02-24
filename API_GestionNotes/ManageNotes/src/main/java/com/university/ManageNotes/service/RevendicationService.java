@@ -21,5 +21,7 @@ public interface RevendicationService {
 
     List<RevendicationResponse> getStudentRevendications(Long studentId);
 
+    List<RevendicationResponse> getMyRevendications();
+
     List<RevendicationResponse> getAllRevendications();
 }

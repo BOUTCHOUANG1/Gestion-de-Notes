@@ -355,15 +355,19 @@ export const Overview = () => {
   const renderStudentDashboard = () => {
     const loading = transcriptLoading || claimsLoading;
     
-    // Calculate statistics from transcript
-    const enrolledSubjects = transcript?.semesters?.reduce(
-      (total, sem) => total + sem.grades.length, 0
-    ) || 0;
+    // Calculate statistics from transcript (matches actual backend shape)
+    const grades = transcript?.studentGrades || [];
+    const enrolledSubjects = new Set(grades.map(g => g.subject?.id)).size;
     
-    const currentGPA = transcript?.cumulativeGPA?.toFixed(2) || '--';
-    const totalCredits = transcript?.totalCreditsEarned || 0;
-    const level = transcript?.level || 'N/A';
-    const cycle = transcript?.cycle || 'N/A';
+    const currentGPA = transcript?.annualAverage?.toFixed(2) || '--';
+    const totalCredits = transcript?.creditsEarned || 0;
+    
+    const LEVEL_LABELS: Record<string, string> = {
+      LEVEL1: 'Licence 1', LEVEL2: 'Licence 2', LEVEL3: 'Licence 3',
+      LEVEL4: 'Master 1', LEVEL5: 'Master 2',
+    };
+    const level = LEVEL_LABELS[transcript?.studentLevel?.studentLevel || ''] || 'N/A';
+    const cycle = transcript?.studentCycle || 'N/A';
     
     // Count claims by status
     const pendingClaims = revendications?.filter(r => r.status === 'PENDING').length || 0;
@@ -371,9 +375,7 @@ export const Overview = () => {
     const rejectedClaims = revendications?.filter(r => r.status === 'REJECTED').length || 0;
     
     // Get recent grades (last 5)
-    const recentGrades = transcript?.semesters?.flatMap(sem => 
-      sem.grades.map(g => ({ ...g, semesterName: sem.semesterName }))
-    ).slice(0, 5) || [];
+    const recentGrades = grades.slice(0, 5);
 
     return (
       <>
@@ -388,10 +390,10 @@ export const Overview = () => {
               <span className="text-sm opacity-70">Cycle:</span>
               <span className="ml-2 font-semibold">{cycle}</span>
             </div>
-            {transcript?.speciality && (
+            {transcript?.studentMatricule && (
               <div>
                 <span className="text-sm opacity-70">Speciality:</span>
-                <span className="ml-2 font-semibold">{transcript.speciality}</span>
+                <span className="ml-2 font-semibold">{transcript.studentMatricule}</span>
               </div>
             )}
           </div>
@@ -491,17 +493,17 @@ export const Overview = () => {
                   <tbody>
                     {recentGrades.map((grade, idx) => (
                       <tr key={idx}>
-                        <td>{grade.subjectName}</td>
-                        <td>{grade.subjectCode}</td>
-                        <td><GradeBadge grade={grade.grade} /></td>
-                        <td>{grade.credits}</td>
+                        <td>{grade.subject?.subjectName}</td>
+                        <td>{grade.subject?.subjectCode}</td>
+                        <td><GradeBadge grade={grade.totalScore ?? 0} /></td>
+                        <td>{grade.subject?.credits}</td>
                         <td>
                           <span className={`px-2 py-1 rounded text-xs ${
-                            grade.passed 
+                            grade.hasPassed 
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                               : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                           }`}>
-                            {grade.passed ? 'Passed' : 'Failed'}
+                            {grade.hasPassed ? 'Validé' : 'Non validé'}
                           </span>
                         </td>
                       </tr>

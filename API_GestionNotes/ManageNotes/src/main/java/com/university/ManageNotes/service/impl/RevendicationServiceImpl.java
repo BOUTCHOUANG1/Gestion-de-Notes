@@ -188,6 +188,14 @@ public class RevendicationServiceImpl implements RevendicationService {
     }
 
     @Override
+    public List<RevendicationResponse> getMyRevendications() {
+        Student student = getCurrentStudent();
+        return revendicationRepository.findByStudentOrderByCreatedDateDesc(student).stream()
+            .map(revendicationMapper::toRevendicationResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<RevendicationResponse> getAllRevendications() {
         return revendicationRepository.findAll().stream()
             .map(revendicationMapper::toRevendicationResponse)
