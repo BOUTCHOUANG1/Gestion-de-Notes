@@ -275,10 +275,11 @@ export const StudentGradeClaimPage = () => {
             rules={[{ required: true, message: 'Please select a grade' }]}
           >
             <Select
-              placeholder="Select the grade you want to contest"
+              placeholder="Sélectionnez la note à contester"
               showSearch
               optionFilterProp="label"
               options={gradeOptions}
+              popupMatchSelectWidth={false}
             />
           </Form.Item>
 
@@ -306,7 +307,7 @@ export const StudentGradeClaimPage = () => {
               label="Assessment Period"
               rules={[{ required: true, message: 'Please select period' }]}
             >
-              <Select placeholder="Select period" options={PERIODS} />
+              <Select placeholder="Période" options={PERIODS} popupMatchSelectWidth={false} />
             </Form.Item>
           </div>
 
@@ -320,9 +321,10 @@ export const StudentGradeClaimPage = () => {
           >
             <TextArea
               rows={4}
-              placeholder="Please provide a detailed explanation of why you believe your grade should be changed. Include any relevant information such as specific questions, calculation errors, or supporting evidence."
+              placeholder="Expliquez pourquoi votre note devrait être modifiée."
               maxLength={500}
               showCount
+              style={{ resize: 'vertical', wordBreak: 'break-word' }}
             />
           </Form.Item>
 
