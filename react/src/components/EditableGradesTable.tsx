@@ -175,6 +175,7 @@ export const EditableGradesTable = ({
           icon={<PrinterIcon width={16} />}
           className={`!py-2 ${isEditable ? "!bg-gray-100 !text-[var(--text-tertiary)]" : ""}`}
           disabled={isEditable}
+          onClick={() => window.print()}
         >
           Imprimer PV
         </Button>

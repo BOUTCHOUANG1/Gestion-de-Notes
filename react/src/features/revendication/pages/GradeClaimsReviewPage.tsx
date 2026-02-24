@@ -289,7 +289,7 @@ export const GradeClaimsReviewPage = () => {
                 <div><Text type="secondary">Current Score</Text><div><Text>{getCurrentScore(selectedClaim)}/20</Text></div></div>
                 <div><Text type="secondary">Requested Score</Text><div><Text strong className="text-blue-600">{selectedClaim.requestedScore}/20</Text></div></div>
                 <div><Text type="secondary">Status</Text><div><Tag color={getStatusColor(selectedClaim.status)}>{selectedClaim.status}</Tag></div></div>
-                <div><Text type="secondary">Semester</Text><div><Text>{selectedClaim.semester?.semesterName || 'N/A'}</Text></div></div>
+                <div><Text type="secondary">Semester</Text><div><Text>{selectedClaim.semester?.name || selectedClaim.grade?.semester?.name || 'N/A'}</Text></div></div>
               </div>
               {selectedClaim.description && (
                 <div className="mt-3 pt-3 border-t">

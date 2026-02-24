@@ -93,7 +93,7 @@ export const TeacherDashboardPage = () => {
       render: (_: unknown, record: any) => {
         const avg = subjectAverages[record.subjectCode];
         return avg ? (
-          {avg.avg.toFixed(1)} ({avg.count} grades)
+          <span>{avg.avg.toFixed(1)} ({avg.count} grades)</span>
         ) : (
           <span className="text-gray-400">No grades</span>
         );
@@ -165,22 +165,22 @@ export const TeacherDashboardPage = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic title={Assigned Subjects} value={subjects?.length || 0} prefix={<BookOutlined />} valueStyle={{ color: 'var(--accent)' }} />
+            <Statistic title="Assigned Subjects" value={subjects?.length || 0} prefix={<BookOutlined />} valueStyle={{ color: 'var(--accent)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic title={Total Students} value={totalStudents} prefix={<TeamOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
+            <Statistic title="Total Students" value={totalStudents} prefix={<TeamOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic title={Teaching Levels} value={studentsByLevel ? Object.keys(studentsByLevel).length : 0} prefix={<TrophyOutlined />} valueStyle={{ color: 'var(--accent)' }} />
+            <Statistic title="Teaching Levels" value={studentsByLevel ? Object.keys(studentsByLevel).length : 0} prefix={<TrophyOutlined />} valueStyle={{ color: 'var(--accent)' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable>
-            <Statistic title={Total Grades} value={teacherGrades?.length || 0} prefix={<CheckCircleOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
+            <Statistic title="Total Grades" value={teacherGrades?.length || 0} prefix={<CheckCircleOutlined />} valueStyle={{ color: 'var(--accent-hover)' }} />
           </Card>
         </Col>
       </Row>

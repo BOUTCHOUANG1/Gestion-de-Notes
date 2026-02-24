@@ -35,7 +35,7 @@ export const GradingPage = (config: GradePageConfig) => {
 
   const gradeState = useGradeEditor({
     subjectId: subject?.subjectId,
-    semesterId: activeSemester?.id,
+    semesterId: activeSemester?.semesterId ?? activeSemester?.id,
     students,
   });
 

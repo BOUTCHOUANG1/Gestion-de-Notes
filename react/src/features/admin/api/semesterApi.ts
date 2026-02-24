@@ -8,7 +8,7 @@ export const semesterApi = api.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Semesters' as const, id })),
+              ...result.map((s) => ({ type: 'Semesters' as const, id: s.semesterId ?? s.id })),
               { type: 'Semesters', id: 'LIST' },
             ]
           : [{ type: 'Semesters', id: 'LIST' }],

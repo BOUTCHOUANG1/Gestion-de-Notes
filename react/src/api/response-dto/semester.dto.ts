@@ -1,5 +1,6 @@
 export interface SemesterResponse {
   id: number;
+  semesterId: number;
   name: string;
   startDate: string;
   endDate: string;
