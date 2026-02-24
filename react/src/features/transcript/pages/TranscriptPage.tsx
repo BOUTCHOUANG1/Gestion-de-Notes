@@ -27,6 +27,7 @@ const getGradeTag = (score: number | null, passed: boolean) => {
 export const TranscriptPage = () => {
   usePageTitle('Academic Transcript');
   const { data: transcript, isLoading, error } = useGetStudentTranscriptQuery();
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   if (isLoading) return <TranscriptSkeleton />;
   if (error || !transcript) {
@@ -36,8 +37,6 @@ export const TranscriptPage = () => {
       </div>
     );
   }
-
-  const [pdfLoading, setPdfLoading] = useState(false);
 
   const handleDownloadPDF = async () => {
     if (!transcript) return;

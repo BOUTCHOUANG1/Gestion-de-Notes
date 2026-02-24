@@ -102,26 +102,24 @@ export const StudentGradeClaimPage = () => {
     {
       title: 'Subject',
       key: 'subject',
-      render: (_, record) => (
+      render: (_, record: any) => (
         <div>
-          <Text strong>{record.subjectName}</Text>
+          <Text strong>{record.grade?.subject?.subjectName}</Text>
           <br />
-          <Text type="secondary" className="text-xs">{record.subjectCode}</Text>
+          <Text type="secondary" className="text-xs">{record.grade?.subject?.subjectCode}</Text>
         </div>
       ),
     },
     {
       title: 'Period',
-      dataIndex: 'periodLabel',
-      key: 'periodLabel',
-      render: (period: string) => <Tag>{period || 'N/A'}</Tag>,
+      key: 'period',
+      render: (_, record: any) => <Tag>{record.grade?.exam || 'N/A'}</Tag>,
     },
     {
       title: 'Current Score',
-      dataIndex: 'currentScore',
       key: 'currentScore',
       width: 100,
-      render: (score: number) => <Text>{score}/20</Text>,
+      render: (_, record: any) => <Text>{record.grade?.totalScore ?? '—'}/20</Text>,
     },
     {
       title: 'Requested Score',
@@ -131,10 +129,11 @@ export const StudentGradeClaimPage = () => {
       render: (score: number) => <Text strong className="text-blue-600">{score}/20</Text>,
     },
     {
-      title: 'Reason',
-      dataIndex: 'cause',
-      key: 'cause',
-      render: (cause: string) => CLAIM_CAUSES.find(c => c.value === cause)?.label || cause,
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      width: 200,
     },
     {
       title: 'Status',
@@ -149,8 +148,8 @@ export const StudentGradeClaimPage = () => {
     },
     {
       title: 'Submitted',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      dataIndex: 'createdDate',
+      key: 'createdDate',
       width: 120,
       render: (date: string) => date ? dayjs(date).format('MMM DD, YYYY') : '-',
     },
@@ -162,18 +161,15 @@ export const StudentGradeClaimPage = () => {
       title: 'Response',
       key: 'response',
       width: 200,
-      render: (_, record) => (
+      render: (_, record: any) => (
         <div>
-          {record.status === 'APPROVED' && record.teacherComment && (
-            <Text type="success" className="text-xs">{record.teacherComment}</Text>
+          {record.teacherComment && record.teacherComment !== 'Pending review' && (
+            <Text className="text-xs">{record.teacherComment}</Text>
           )}
-          {record.status === 'REJECTED' && record.rejectionReason && (
-            <Text type="danger" className="text-xs">{record.rejectionReason}</Text>
-          )}
-          {record.resolvedAt && (
+          {record.lastModifiedDate && (
             <div>
               <Text type="secondary" className="text-xs">
-                Resolved: {dayjs(record.resolvedAt).format('MMM DD, YYYY')}
+                {dayjs(record.lastModifiedDate).format('MMM DD, YYYY')}
               </Text>
             </div>
           )}
@@ -200,7 +196,7 @@ export const StudentGradeClaimPage = () => {
         <Table
           columns={claimColumns}
           dataSource={pendingClaims}
-          rowKey="id"
+          rowKey="revendicationId"
           loading={claimsLoading}
           pagination={{ pageSize: 5 }}
         />
@@ -220,7 +216,7 @@ export const StudentGradeClaimPage = () => {
         <Table
           columns={resolvedColumns}
           dataSource={resolvedClaims}
-          rowKey="id"
+          rowKey="revendicationId"
           loading={claimsLoading}
           pagination={{ pageSize: 5 }}
         />
