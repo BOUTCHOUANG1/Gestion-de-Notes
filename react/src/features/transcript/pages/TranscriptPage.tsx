@@ -1,12 +1,11 @@
+import { useState } from 'react';
 import { Table, Card, Typography, Tag, Statistic, Row, Col, Divider, Button, Empty } from 'antd';
 import { FileTextOutlined, TrophyOutlined, BookOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { pdf } from '@react-pdf/renderer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { useGetStudentTranscriptQuery } from '../api/transcriptApi';
 import type { TranscriptGrade } from '../../../api/response-dto/transcript.dto';
 import { TranscriptSkeleton } from '../../../components/Skeletons';
-import { TranscriptPDF } from '../../../components/TranscriptPDF';
 
 const { Title, Text } = Typography;
 
@@ -38,15 +37,30 @@ export const TranscriptPage = () => {
     );
   }
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   const handleDownloadPDF = async () => {
     if (!transcript) return;
-    const blob = await pdf(<TranscriptPDF transcript={transcript} />).toBlob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Releve_${transcript.studentMatricule}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setPdfLoading(true);
+    try {
+      const { pdf } = await import('@react-pdf/renderer');
+      const { TranscriptPDF } = await import('../../../components/TranscriptPDF');
+      const blob = await pdf(<TranscriptPDF transcript={transcript} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Releve_${transcript.studentMatricule}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      // Fallback to browser print
+      window.print();
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const level = transcript.studentLevel?.studentLevel || '';
@@ -92,7 +106,9 @@ export const TranscriptPage = () => {
               {transcript.studentFirstName} {transcript.studentLastName} — {transcript.studentMatricule}
             </Text>
           </div>
-          <Button icon={<DownloadOutlined />} type="primary" onClick={handleDownloadPDF}>Imprimer</Button>
+          <Button icon={<DownloadOutlined />} type="primary" onClick={handleDownloadPDF} loading={pdfLoading}>
+            {pdfLoading ? 'Génération...' : 'Imprimer'}
+          </Button>
         </div>
 
         <Divider />

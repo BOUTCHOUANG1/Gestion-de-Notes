@@ -27,4 +27,9 @@ export default defineConfig({
    },
    chunkSizeWarningLimit: 600,
  },
+ resolve: {
+   alias: {
+     'process': 'process/browser',
+   },
+ },
 })
