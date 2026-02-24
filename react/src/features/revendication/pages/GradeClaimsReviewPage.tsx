@@ -42,7 +42,7 @@ const getSubjectCode = (r: RevendicationResponse) =>
   r.grade?.subject?.subjectCode ?? '';
 
 const getCurrentScore = (r: RevendicationResponse) =>
-  r.grade?.score ?? 0;
+  (r as any).grade?.totalScore ?? 0;
 
 export const GradeClaimsReviewPage = () => {
   usePageTitle('Review Grade Claims');
