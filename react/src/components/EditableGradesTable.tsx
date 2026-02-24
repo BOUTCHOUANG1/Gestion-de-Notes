@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Table, Input, Button, Tag } from "antd";
 import { MagnifyingGlassCircleIcon, PrinterIcon } from "@heroicons/react/24/solid";
 import { GradesEdition } from "./GradesEditionBtn";
@@ -48,7 +48,25 @@ export const EditableGradesTable = ({
   saving,
   pvInfo,
 }: EditableGradesTableProps) => {
-  const displayData = data || [];
+  const [localData, setLocalData] = useState<studentResDto[]>(data);
+
+  // Sync local data when entering/exiting edit mode or when data changes while not editing
+  const prevEditable = useRef(isEditable);
+  if (isEditable && !prevEditable.current) {
+    // Just entered edit mode — snapshot current data
+    setLocalData(data);
+  }
+  prevEditable.current = isEditable;
+
+  const displayData = isEditable ? localData : data || [];
+
+  const handleCellChange = (recordId: number, field: string, val: string) => {
+    const newData = localData.map((s) =>
+      s.id === recordId ? { ...s, [field]: val } : s
+    );
+    setLocalData(newData);
+    onGradesChange?.(newData);
+  };
 
   // Reusable editable grade cell
   const gradeCol = (title: string, field: string) => ({
@@ -65,10 +83,7 @@ export const EditableGradesTable = ({
           onChange={(e) => {
             const val = e.target.value;
             if (val !== "" && (Number(val) < 0 || Number(val) > 20)) return;
-            const newData = displayData.map((s) =>
-              s.id === record.id ? { ...s, [field]: val } : s
-            );
-            onGradesChange?.(newData);
+            handleCellChange(record.id, field, val);
           }}
           style={{ width: 70 }}
         />
@@ -126,10 +141,7 @@ export const EditableGradesTable = ({
             max={20}
             value={(record[col.dataIndex] as string) || ""}
             onChange={(e) => {
-              const newData = displayData.map((s) =>
-                s.id === record.id ? { ...s, [col.dataIndex]: e.target.value } : s
-              );
-              onGradesChange?.(newData);
+              handleCellChange(record.id, col.dataIndex, e.target.value);
             }}
             style={{ width: 70 }}
           />
