@@ -6,6 +6,7 @@ import { studentResDto } from "../api/reponse-dto/user.res.dto";
 import {
   useGetStudentsByTeachingLevelsQuery,
   useGetTeacherSubjectsQuery,
+  useGetTeacherProfileQuery,
 } from "../features/teacher/api/teacherDashboardApi";
 import { useGetSemestersQuery } from "../features/admin/api/semesterApi";
 import { Spinner } from "./Spinner";
@@ -24,6 +25,7 @@ export const GradingPage = (config: GradePageConfig) => {
   const { data: studentsByLevel, isLoading: studentsLoading } = useGetStudentsByTeachingLevelsQuery();
   const { data: subjects, isLoading: subjectsLoading } = useGetTeacherSubjectsQuery();
   const { data: semesters } = useGetSemestersQuery();
+  const { data: profile } = useGetTeacherProfileQuery();
 
   const students: studentResDto[] = studentsByLevel?.[config.studentLevel] || [];
 
@@ -64,6 +66,13 @@ export const GradingPage = (config: GradePageConfig) => {
           setIsDataEditable={gradeState.setIsTableEditable}
           onSearch={gradeState.setSearchValue}
           saving={gradeState.saving}
+          pvInfo={{
+            subject: subject?.subjectName || '',
+            code: subject?.subjectCode || '',
+            semester: activeSemester?.name || '',
+            level: config.levelDisplay,
+            teacher: `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim(),
+          }}
         />
       </div>
     </div>

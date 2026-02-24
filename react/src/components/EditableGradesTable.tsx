@@ -32,6 +32,7 @@ interface EditableGradesTableProps {
   setIsDataEditable: (value: boolean) => void;
   onSearch?: (value: string) => void;
   saving?: boolean;
+  pvInfo?: { subject: string; code: string; semester: string; level: string; teacher: string };
 }
 
 export const EditableGradesTable = ({
@@ -45,6 +46,7 @@ export const EditableGradesTable = ({
   isDataEditable,
   onSearch,
   saving,
+  pvInfo,
 }: EditableGradesTableProps) => {
   const [editingData, setEditingData] = useState(data);
   const displayData = data !== undefined ? data : isEditable ? editingData : [];
@@ -175,7 +177,10 @@ export const EditableGradesTable = ({
           icon={<PrinterIcon width={16} />}
           className={`!py-2 ${isEditable ? "!bg-gray-100 !text-[var(--text-tertiary)]" : ""}`}
           disabled={isEditable}
-          onClick={() => window.print()}
+          onClick={async () => {
+            const { generatePvPDF } = await import('../utils/generatePvPDF');
+            generatePvPDF(displayData, pvInfo || { subject: '', code: '', semester: '', level: '', teacher: '' });
+          }}
         >
           Imprimer PV
         </Button>
