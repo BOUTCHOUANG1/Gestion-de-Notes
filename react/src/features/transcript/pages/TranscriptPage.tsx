@@ -1,10 +1,12 @@
 import { Table, Card, Typography, Tag, Statistic, Row, Col, Divider, Button, Empty } from 'antd';
-import { FileTextOutlined, TrophyOutlined, BookOutlined, PrinterOutlined } from '@ant-design/icons';
+import { FileTextOutlined, TrophyOutlined, BookOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { pdf } from '@react-pdf/renderer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { useGetStudentTranscriptQuery } from '../api/transcriptApi';
 import type { TranscriptGrade } from '../../../api/response-dto/transcript.dto';
 import { TranscriptSkeleton } from '../../../components/Skeletons';
+import { TranscriptPDF } from '../../../components/TranscriptPDF';
 
 const { Title, Text } = Typography;
 
@@ -35,6 +37,17 @@ export const TranscriptPage = () => {
       </div>
     );
   }
+
+  const handleDownloadPDF = async () => {
+    if (!transcript) return;
+    const blob = await pdf(<TranscriptPDF transcript={transcript} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Releve_${transcript.studentMatricule}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const level = transcript.studentLevel?.studentLevel || '';
   const cycle = transcript.studentCycle || '';
@@ -79,7 +92,7 @@ export const TranscriptPage = () => {
               {transcript.studentFirstName} {transcript.studentLastName} — {transcript.studentMatricule}
             </Text>
           </div>
-          <Button icon={<PrinterOutlined />} onClick={() => window.print()}>Imprimer</Button>
+          <Button icon={<DownloadOutlined />} type="primary" onClick={handleDownloadPDF}>Imprimer</Button>
         </div>
 
         <Divider />

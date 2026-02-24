@@ -89,9 +89,9 @@ export const StudentGradeClaimPage = () => {
       await createClaim({ request: payload, proof }).unwrap();
       message.success('Grade claim submitted successfully');
       handleCloseModal();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      message.error(`Failed to submit claim: ${errorMessage}`);
+    } catch (error: any) {
+      const msg = error?.data?.message || error?.message || 'An error occurred';
+      message.error(msg);
     }
   };
 
