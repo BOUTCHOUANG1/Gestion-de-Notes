@@ -79,7 +79,7 @@ export const TranscriptPage = () => {
               {transcript.studentFirstName} {transcript.studentLastName} — {transcript.studentMatricule}
             </Text>
           </div>
-          <Button icon={<PrinterOutlined />}>Imprimer</Button>
+          <Button icon={<PrinterOutlined />} onClick={() => window.print()}>Imprimer</Button>
         </div>
 
         <Divider />

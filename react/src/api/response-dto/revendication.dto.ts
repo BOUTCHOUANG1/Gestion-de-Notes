@@ -35,8 +35,7 @@ export interface RevendicationResponse {
 
 export interface RevendicationRequest {
   gradeId: number;
+  examPeriodId: number;
   requestedScore: number;
-  cause: string;
-  period: string;
   description: string;
 }

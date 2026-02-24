@@ -1,6 +1,5 @@
 package com.university.ManageNotes.mapper;
 
-import com.university.ManageNotes.dto.Request.RevendicationRequest;
 import com.university.ManageNotes.dto.Response.RevendicationResponse;
 import com.university.ManageNotes.model.Revendication;
 import org.mapstruct.Mapper;
@@ -14,11 +13,4 @@ public interface RevendicationMapper {
     @Mapping(target = "grade", source = "grade")
     @Mapping(target = "semester", source = "semester")
     RevendicationResponse toRevendicationResponse(Revendication revendication);
-    
-    @Mapping(target = "revendicationId", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
-    Revendication toEntity(RevendicationRequest request);
-    
-    RevendicationRequest toRequest(Revendication revendication);
 }

@@ -38,7 +38,12 @@ export const authApi = api.injectEndpoints({
       query: () => 'me',
       providesTags: [{ type: 'User', id: 'PROFILE' }],
     }),
+
+    getStudentProfile: builder.query<any, void>({
+      query: () => 'student/profile',
+      providesTags: [{ type: 'User', id: 'STUDENT_PROFILE' }],
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetProfileQuery } = authApi;
+export const { useLoginMutation, useRegisterMutation, useGetProfileQuery, useGetStudentProfileQuery } = authApi;

@@ -3,13 +3,18 @@ import { RevendicationResponse, RevendicationRequest } from '../../../api/respon
 
 export const revendicationApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createRevendication: builder.mutation<RevendicationResponse, RevendicationRequest>({
-      query: (body) => ({
-        url: 'student/revendication',
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: [{ type: 'Revendications', id: 'LIST' }],
+    createRevendication: builder.mutation<RevendicationResponse, { request: RevendicationRequest; proof?: File }>({
+      query: ({ request, proof }) => {
+        const formData = new FormData();
+        formData.append('request', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+        if (proof) formData.append('proof', proof);
+        return {
+          url: 'student/revendication',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: [{ type: 'Revendications', id: 'LIST' }, { type: 'Revendications', id: 'STUDENT_LIST' }],
     }),
 
     getStudentRevendications: builder.query<RevendicationResponse[], void>({

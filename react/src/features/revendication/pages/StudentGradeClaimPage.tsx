@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Space, message, Card, Typography, Tag, Tabs, Empty } from 'antd';
-import { PlusOutlined, ExclamationCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Space, message, Card, Typography, Tag, Tabs, Empty, Upload } from 'antd';
+import { PlusOutlined, ExclamationCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import type { UploadFile } from 'antd/es/upload';
 import dayjs from 'dayjs';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import {
@@ -23,10 +24,10 @@ const CLAIM_CAUSES = [
 ];
 
 const PERIODS = [
-  { value: 'CC_1', label: 'Continuous Assessment 1 (CC1)' },
-  { value: 'CC_2', label: 'Continuous Assessment 2 (CC2)' },
-  { value: 'SN_1', label: 'Session Normale 1 (Midterm)' },
-  { value: 'SN_2', label: 'Session Normale 2 (Final)' },
+  { value: 1, label: 'Continuous Assessment 1 (CC1)' },
+  { value: 2, label: 'Continuous Assessment 2 (CC2)' },
+  { value: 3, label: 'Session Normale 1 (Midterm)' },
+  { value: 4, label: 'Session Normale 2 (Final)' },
 ];
 
 const getStatusIcon = (status: string) => {
@@ -48,8 +49,7 @@ const getStatusColor = (status: string) => {
 interface ClaimFormValues {
   gradeId: number;
   requestedScore: number;
-  cause: string;
-  period: string;
+  examPeriodId: number;
   description: string;
 }
 
@@ -61,29 +61,32 @@ export const StudentGradeClaimPage = () => {
   const [createClaim, { isLoading: isCreating }] = useCreateRevendicationMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [proofFile, setProofFile] = useState<UploadFile[]>([]);
   const [form] = Form.useForm<ClaimFormValues>();
 
   const handleOpenModal = () => {
     form.resetFields();
+    setProofFile([]);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setProofFile([]);
     form.resetFields();
   };
 
   const handleSubmitClaim = async (values: ClaimFormValues) => {
     const payload: RevendicationRequest = {
       gradeId: values.gradeId,
+      examPeriodId: values.examPeriodId,
       requestedScore: values.requestedScore,
-      cause: values.cause,
-      period: values.period,
       description: values.description,
     };
 
     try {
-      await createClaim(payload).unwrap();
+      const proof = proofFile[0]?.originFileObj;
+      await createClaim({ request: payload, proof }).unwrap();
       message.success('Grade claim submitted successfully');
       handleCloseModal();
     } catch (error: unknown) {
@@ -180,10 +183,8 @@ export const StudentGradeClaimPage = () => {
   ];
 
   const gradeOptions = (transcript?.studentGrades || []).map(g => ({
-    value: g.subject?.subjectCode,
+    value: g.gradeId,
     label: `${g.subject?.subjectName} (${g.subject?.subjectCode}) - ${g.totalScore}/20 - ${g.semester?.name}`,
-    grade: g.totalScore,
-    subjectName: g.subject?.subjectName,
   }));
 
   const tabItems = [
@@ -260,7 +261,7 @@ export const StudentGradeClaimPage = () => {
         onCancel={handleCloseModal}
         footer={null}
         destroyOnClose
-        width={550}
+        width={640}
       >
         <Form
           form={form}
@@ -301,7 +302,7 @@ export const StudentGradeClaimPage = () => {
             </Form.Item>
 
             <Form.Item
-              name="period"
+              name="examPeriodId"
               label="Assessment Period"
               rules={[{ required: true, message: 'Please select period' }]}
             >
@@ -310,19 +311,11 @@ export const StudentGradeClaimPage = () => {
           </div>
 
           <Form.Item
-            name="cause"
-            label="Reason for Claim"
-            rules={[{ required: true, message: 'Please select a reason' }]}
-          >
-            <Select placeholder="Select the reason for your claim" options={CLAIM_CAUSES} />
-          </Form.Item>
-
-          <Form.Item
             name="description"
             label="Detailed Description"
             rules={[
               { required: true, message: 'Please provide a description' },
-              { min: 20, message: 'Description must be at least 20 characters' },
+              { min: 10, message: 'Description must be at least 10 characters' },
             ]}
           >
             <TextArea
@@ -332,6 +325,29 @@ export const StudentGradeClaimPage = () => {
               showCount
             />
           </Form.Item>
+
+          <div className="mb-4">
+            <label className="block mb-1 font-medium">Proof Image (optional)</label>
+            <Upload
+              listType="picture"
+              maxCount={1}
+              fileList={proofFile}
+              beforeUpload={(file) => {
+                const isImage = file.type.startsWith('image/');
+                if (!isImage) { message.error('Only image files are accepted'); return Upload.LIST_IGNORE; }
+                if (file.size > 5 * 1024 * 1024) { message.error('Image must be smaller than 5MB'); return Upload.LIST_IGNORE; }
+                return false; // prevent auto upload
+              }}
+              onChange={({ fileList }) => setProofFile(fileList)}
+            >
+              {proofFile.length === 0 && (
+                <Button icon={<UploadOutlined />}>Upload Proof</Button>
+              )}
+            </Upload>
+            <Text type="warning" className="text-xs mt-1 block">
+              ⚠️ Ensure the image is clear and legible. Blurry or unreadable proofs will be rejected.
+            </Text>
+          </div>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
             <Text type="warning" className="text-sm">

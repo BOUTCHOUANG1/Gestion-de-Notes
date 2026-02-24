@@ -543,3 +543,11 @@ code, pre {
 @media (min-width: 1024px) {
   /* Desktop adjustments */
 }
+
+/* Print styles — hide sidebar, header, nav for transcript printing */
+@media print {
+  .ant-layout-sider, .ant-layout-header, nav, .ant-breadcrumb, button { display: none !important; }
+  .ant-layout-content { margin: 0 !important; padding: 0 !important; }
+  .ant-layout { min-height: auto !important; }
+  .ant-card { box-shadow: none !important; border: none !important; }
+}

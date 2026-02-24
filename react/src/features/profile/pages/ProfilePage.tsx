@@ -1,7 +1,7 @@
 import { Card, Typography, Avatar, Tag, Descriptions, Empty, Divider, Row, Col } from 'antd';
 import { UserOutlined, MailOutlined, IdcardOutlined, BookOutlined } from '@ant-design/icons';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { useGetProfileQuery } from '../../auth/api/authApi';
+import { useGetProfileQuery, useGetStudentProfileQuery } from '../../auth/api/authApi';
 import { Role } from '../../../api/enums';
 import { ProfileSkeleton } from '../../../components/Skeletons';
 
@@ -37,6 +37,8 @@ export const ProfilePage = () => {
   usePageTitle('My Profile');
 
   const { data: profile, isLoading, error } = useGetProfileQuery();
+  const isStudent = profile?.role === Role.STUDENT;
+  const { data: studentProfile } = useGetStudentProfileQuery(undefined, { skip: !isStudent });
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -137,7 +139,7 @@ export const ProfilePage = () => {
                     <Text type="secondary">Student ID</Text>
                     <div>
                       <Text strong className="text-lg">
-                        {(profile as any).matricule || 'N/A'}
+                        {studentProfile?.matricule || 'N/A'}
                       </Text>
                     </div>
                   </div>
@@ -147,7 +149,7 @@ export const ProfilePage = () => {
                     <Text type="secondary">Current Level</Text>
                     <div>
                       <Tag color="blue">
-                        {LEVEL_LABELS[(profile as any).studentLevel] || (profile as any).studentLevel || 'N/A'}
+                        {LEVEL_LABELS[studentProfile?.studentLevel?.studentLevel] || studentProfile?.studentLevel?.studentLevel || 'N/A'}
                       </Tag>
                     </div>
                   </div>
@@ -157,17 +159,37 @@ export const ProfilePage = () => {
                     <Text type="secondary">Cycle</Text>
                     <div>
                       <Tag color="purple">
-                        {CYCLE_LABELS[(profile as any).cycle] || (profile as any).cycle || 'N/A'}
+                        {CYCLE_LABELS[studentProfile?.cycle] || studentProfile?.cycle || 'N/A'}
                       </Tag>
                     </div>
                   </div>
                 </Col>
-                {(profile as any).speciality && (
-                  <Col xs={24} sm={12}>
+                {studentProfile?.speciality && (
+                  <Col xs={24} sm={8}>
                     <div>
                       <Text type="secondary">Speciality</Text>
                       <div>
-                        <Text>{(profile as any).speciality}</Text>
+                        <Text>{studentProfile.speciality}</Text>
+                      </div>
+                    </div>
+                  </Col>
+                )}
+                {studentProfile?.dateOfBirth && (
+                  <Col xs={24} sm={8}>
+                    <div>
+                      <Text type="secondary">Date of Birth</Text>
+                      <div>
+                        <Text>{studentProfile.dateOfBirth}</Text>
+                      </div>
+                    </div>
+                  </Col>
+                )}
+                {studentProfile?.placeOfBirth && (
+                  <Col xs={24} sm={8}>
+                    <div>
+                      <Text type="secondary">Place of Birth</Text>
+                      <div>
+                        <Text>{studentProfile.placeOfBirth}</Text>
                       </div>
                     </div>
                   </Col>

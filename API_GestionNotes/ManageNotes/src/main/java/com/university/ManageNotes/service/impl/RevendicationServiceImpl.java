@@ -21,8 +21,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,16 +46,16 @@ public class RevendicationServiceImpl implements RevendicationService {
 
     @Override
     @Transactional
-    public RevendicationResponse createRevendication(RevendicationRequest request) {
-         Revendication revendication = revendicationMapper.toEntity(request);
-         
+    public RevendicationResponse createRevendication(RevendicationRequest request, MultipartFile proofFile) {
          Student currentStudent = getCurrentStudent();
          
-         Grades grade = gradeRepository.findById(request.getGrade().getGradeId())
-             .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGrade().getGradeId()));
+         Grades grade = gradeRepository.findById(request.getGradeId())
+             .orElseThrow(() -> new ResourceNotFoundException("Grade", "id", request.getGradeId()));
              
-         Exam exam = examRepository.findById(request.getPeriod().getExamPeriodId())
-             .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getPeriod().getExamPeriodId()));
+         Exam exam = examRepository.findById(request.getExamPeriodId())
+             .orElseThrow(() -> new ResourceNotFoundException("Exam", "id", request.getExamPeriodId()));
+         
+         Revendication revendication = new Revendication();
          
          if (!grade.getStudent().getId().equals(currentStudent.getId())) {
              throw new APIException("You can only create revendications for your own grades");
@@ -69,8 +75,28 @@ public class RevendicationServiceImpl implements RevendicationService {
          revendication.setGrade(grade);
          revendication.setPeriod(exam);
          revendication.setSemester(activeSemester);
+         revendication.setRequestedScore(request.getRequestedScore());
+         revendication.setDescription(request.getDescription());
          revendication.setStatus(RequestStatus.PENDING);
          revendication.setTeacherComment("Pending review");
+         
+         // Save proof image if provided
+         if (proofFile != null && !proofFile.isEmpty()) {
+             String contentType = proofFile.getContentType();
+             if (contentType == null || !contentType.startsWith("image/")) {
+                 throw new APIException("Only image files (JPEG, PNG) are accepted as proof");
+             }
+             try {
+                 Path uploadDir = Paths.get("uploads/proofs");
+                 Files.createDirectories(uploadDir);
+                 String filename = UUID.randomUUID() + "_" + proofFile.getOriginalFilename();
+                 Path filePath = uploadDir.resolve(filename);
+                 Files.copy(proofFile.getInputStream(), filePath);
+                 revendication.setProofImagePath(filePath.toString());
+             } catch (IOException e) {
+                 throw new APIException("Failed to save proof image: " + e.getMessage());
+             }
+         }
          
          Revendication savedRevendication = revendicationRepository.save(revendication);
          return revendicationMapper.toRevendicationResponse(savedRevendication);

@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,10 +25,12 @@ import java.util.List;
 public class RevendicationController {
     private final RevendicationService revendicationService;
 
-    @PostMapping("/student/revendication")
-    @Operation(summary = "Create grade revendication (Student)", description = "Student submits a grade revendication request")
-    public ResponseEntity<RevendicationResponse> createRevendication(@Valid @RequestBody RevendicationRequest request) {
-         return new ResponseEntity<>(revendicationService.createRevendication(request), HttpStatus.CREATED);
+    @PostMapping(value = "/student/revendication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create grade revendication (Student)", description = "Student submits a grade revendication request with optional proof image")
+    public ResponseEntity<RevendicationResponse> createRevendication(
+            @Valid @RequestPart("request") RevendicationRequest request,
+            @RequestPart(value = "proof", required = false) MultipartFile proofFile) {
+         return new ResponseEntity<>(revendicationService.createRevendication(request, proofFile), HttpStatus.CREATED);
      }
 
     @GetMapping("/student/revendications")
