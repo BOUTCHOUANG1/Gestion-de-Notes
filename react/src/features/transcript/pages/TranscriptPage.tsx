@@ -43,21 +43,10 @@ export const TranscriptPage = () => {
     if (!transcript) return;
     setPdfLoading(true);
     try {
-      const { pdf } = await import('@react-pdf/renderer');
-      const { TranscriptPDF } = await import('../../../components/TranscriptPDF');
-      const blob = await pdf(<TranscriptPDF transcript={transcript} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Releve_${transcript.studentMatricule}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const { generateTranscriptPDF } = await import('../../../utils/generateTranscriptPDF');
+      generateTranscriptPDF(transcript);
     } catch (err) {
       console.error('PDF generation failed:', err);
-      // Fallback to browser print
-      window.print();
     } finally {
       setPdfLoading(false);
     }
