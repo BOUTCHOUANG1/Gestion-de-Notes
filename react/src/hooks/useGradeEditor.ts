@@ -59,6 +59,7 @@ export const useGradeEditor = ({ subjectId, semesterId, examId = 1, students }: 
 
     const promises = editedData
       .filter((row) => {
+        if (row._gradeId) return false; // existing grades are read-only — skip
         const cc = row.cc1 !== "" && row.cc1 != null;
         const tp = row.tp !== "" && row.tp != null;
         const sn = row.sn1 !== "" && row.sn1 != null;
@@ -75,9 +76,7 @@ export const useGradeEditor = ({ subjectId, semesterId, examId = 1, students }: 
           snScore: row.sn1 !== "" && row.sn1 != null ? Number(row.sn1) : undefined,
           assessmentType: "CC_1",
         };
-        return row._gradeId
-          ? updateGrade({ gradeId: row._gradeId, body }).unwrap()
-          : createGrade(body).unwrap();
+        return createGrade(body).unwrap();
       });
 
     const results = await Promise.allSettled(promises);
